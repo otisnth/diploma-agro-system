@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('name');
-            $table->jsonb('temperatur');
+            $table->jsonb('temperature');
             $table->jsonb('humidity');
             $table->integer('vegetation_period');
 
