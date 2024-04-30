@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "leaflet": "^1.9.4",
-        "primevue": "^3.51.0"
+        "primevue": "^3.51.0",
+        "stylus": "^0.63.0"
     }
 }
