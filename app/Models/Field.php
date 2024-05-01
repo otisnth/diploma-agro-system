@@ -31,4 +31,8 @@ class Field extends Model
     {
         return $this->belongsTo(Sort::class, 'sort_id', 'id');
     }
+
+    public function cropHistory(){
+        return $this->hasMany(CropRotation::class, 'field_id','id');
+    }
 }

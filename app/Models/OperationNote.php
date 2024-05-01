@@ -39,4 +39,9 @@ class OperationNote extends Model
     {
         return $this->belongsTo(User::class, 'created_by','id');
     }
+
+    public function workerUnits()
+    {
+        return $this->belongsToMany(WorkerUnit::class, 'operation_notes_worker_units', 'operation_note_id', 'worker_unit_id');
+    }
 }
