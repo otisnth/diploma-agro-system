@@ -13,7 +13,18 @@ class AdminBoardController extends Controller
 
     public function index(Request $request): Response
     {
-        $references = array();
+        $references = array(
+            [
+                "id" => "plants",
+                "name"=> "Культуры",
+                "editable" => true,
+            ],
+            [
+                "id" => "sorts",
+                "name"=> "Сорта",
+                "editable" => true,
+            ]
+        );
 
         return Inertia::render('AdminBoard/Index', [
             'references' => $references,

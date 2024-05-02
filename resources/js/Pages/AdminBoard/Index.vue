@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import axios from "axios";
 import { Head } from "@inertiajs/vue3";
+import Button from "primevue/button";
 
 defineProps({
     references: Array,
@@ -36,9 +37,21 @@ onMounted(() => {
                     <p class="p-4 sm:p-8 text-gray-500">Admin</p>
                 </div>
 
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg"></div>
+                <div class="p-4 sm:p-8 shadow sm:rounded-lg">
+                    {{ references }}
+                </div>
 
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg"></div>
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <Button label="Оформить заказ" />
+                </div>
+
+                <Button label="Оформить заказ" severity="secondary" />
+
+                <div class="grid grid-cols-4">
+                    <div v-for="(item, index) in references" :key="index">
+                        {{ item.name }}
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
