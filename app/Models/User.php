@@ -23,6 +23,21 @@ class User extends Authenticatable
         'password',
     ];
 
+    public static $posts = array(
+        [
+            'id' => 'owner',
+            'name'=> 'Владелец',
+        ],
+        [
+            'id' => 'admin',
+            'name'=> 'Администратор',
+        ],
+        [
+            'id' => 'worker',
+            'name'=> 'Работник',
+        ]
+    );
+
     /**
      * The attributes that should be hidden for serialization.
      *

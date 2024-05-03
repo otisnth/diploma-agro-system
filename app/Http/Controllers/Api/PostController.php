@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\EquipmentWorkerUnit;
+use App\Models\User;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class EquipmentWorkerUnitController extends Controller
+class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,8 @@ class EquipmentWorkerUnitController extends Controller
      */
     public function index()
     {
-        //
+        $posts = ['data' => User::$posts];
+        return response()->json($posts, Response::HTTP_OK);
     }
 
     /**
@@ -41,10 +44,10 @@ class EquipmentWorkerUnitController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\EquipmentWorkerUnit  $equipmentWorkerUnit
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(EquipmentWorkerUnit $equipmentWorkerUnit)
+    public function show($id)
     {
         //
     }
@@ -52,10 +55,10 @@ class EquipmentWorkerUnitController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\EquipmentWorkerUnit  $equipmentWorkerUnit
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(EquipmentWorkerUnit $equipmentWorkerUnit)
+    public function edit($id)
     {
         //
     }
@@ -64,10 +67,10 @@ class EquipmentWorkerUnitController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\EquipmentWorkerUnit  $equipmentWorkerUnit
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EquipmentWorkerUnit $equipmentWorkerUnit)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -75,10 +78,10 @@ class EquipmentWorkerUnitController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\EquipmentWorkerUnit  $equipmentWorkerUnit
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EquipmentWorkerUnit $equipmentWorkerUnit)
+    public function destroy($id)
     {
         //
     }

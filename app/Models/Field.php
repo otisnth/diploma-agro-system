@@ -12,7 +12,14 @@ class Field extends Model
     protected $table = 'fields';
     protected $primaryKey = 'id';
 
-    public static $fieldStatuses = array();
+    public static $fieldStatuses = array(
+        [
+            'name' => 'Нуждается во вспашке',
+        ],
+        [
+            'name' => 'Идет уборка',
+        ]
+    );
 
     protected $fillable = [
         'name',

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Plant;
+use App\Models\EquipmentType;
 use Orion\Http\Controllers\Controller;
 use Orion\Concerns\DisablePagination;
 
-class PlantController extends Controller
+class EquipmentTypeController extends Controller
 {
     use DisablePagination;
 
-    protected $model = Plant::class;
+    protected $model = EquipmentType::class;
 
 }

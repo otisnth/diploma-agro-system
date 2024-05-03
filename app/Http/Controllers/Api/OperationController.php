@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\Field;
+use App\Models\OperationNote;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class FieldController extends Controller
+class OperationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,8 @@ class FieldController extends Controller
      */
     public function index()
     {
-        //
+        $operations = ['data' => OperationNote::$operations];
+        return response()->json($operations, Response::HTTP_OK);
     }
 
     /**
@@ -41,10 +44,10 @@ class FieldController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Field  $field
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Field $field)
+    public function show($id)
     {
         //
     }
@@ -52,10 +55,10 @@ class FieldController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Field  $field
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Field $field)
+    public function edit($id)
     {
         //
     }
@@ -64,10 +67,10 @@ class FieldController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Field  $field
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Field $field)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -75,10 +78,10 @@ class FieldController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Field  $field
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Field $field)
+    public function destroy($id)
     {
         //
     }

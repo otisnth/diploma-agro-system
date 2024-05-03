@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\TechnicType;
+use App\Models\Field;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class TechnicTypeController extends Controller
+class FieldStatusController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,8 @@ class TechnicTypeController extends Controller
      */
     public function index()
     {
-        //
+        $fieldStatuses = ['data' => Field::$fieldStatuses];
+        return response()->json($fieldStatuses, Response::HTTP_OK);
     }
 
     /**
@@ -41,10 +44,10 @@ class TechnicTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\TechnicType  $technicType
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(TechnicType $technicType)
+    public function show($id)
     {
         //
     }
@@ -52,10 +55,10 @@ class TechnicTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\TechnicType  $technicType
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(TechnicType $technicType)
+    public function edit($id)
     {
         //
     }
@@ -64,10 +67,10 @@ class TechnicTypeController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\TechnicType  $technicType
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TechnicType $technicType)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -75,10 +78,10 @@ class TechnicTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\TechnicType  $technicType
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TechnicType $technicType)
+    public function destroy($id)
     {
         //
     }
