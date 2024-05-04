@@ -4,13 +4,14 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import axios from "axios";
 import { Head } from "@inertiajs/vue3";
 import Button from "primevue/button";
+import toastService from "@/Services/toastService";
 
 defineProps({
     references: Array,
 });
 
 const showClickHandle = (item) => {
-    console.log(item.id);
+    console.log(item);
 };
 const addClickHandle = (item) => {
     console.log(item);
