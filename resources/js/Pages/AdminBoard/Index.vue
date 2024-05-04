@@ -9,16 +9,12 @@ defineProps({
     references: Array,
 });
 
-onMounted(() => {
-    axios
-        .get(route("api.plants.index"))
-        .then((response) => {
-            console.log(response);
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-});
+const showClickHandle = (item) => {
+    console.log(item.id);
+};
+const addClickHandle = (item) => {
+    console.log(item);
+};
 </script>
 
 <template>
@@ -33,23 +29,30 @@ onMounted(() => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <p class="p-4 sm:p-8 text-gray-500">Admin</p>
-                </div>
+                <div class="grid grid-cols-4 gap-4 p-4 sm:p-8 text-black">
+                    <div
+                        class="bg-white rounded-lg p-4"
+                        v-for="(item, index) in references"
+                        :key="index"
+                    >
+                        <h3 class="font-semibold">{{ item.name }}</h3>
 
-                <div class="p-4 sm:p-8 shadow sm:rounded-lg">
-                    {{ references }}
-                </div>
+                        <div
+                            class="cursor-pointer flex items-center gap-1"
+                            @click="showClickHandle(item)"
+                        >
+                            <i class="pi pi-list"></i>
+                            <span>Просмотреть</span>
+                        </div>
 
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <Button label="Оформить заказ" />
-                </div>
-
-                <Button label="Оформить заказ" severity="secondary" />
-
-                <div class="grid grid-cols-4">
-                    <div v-for="(item, index) in references" :key="index">
-                        {{ item.name }}
+                        <div
+                            class="cursor-pointer flex items-center gap-1"
+                            v-if="item.expandable"
+                            @click="addClickHandle(item)"
+                        >
+                            <i class="pi pi-plus"></i>
+                            <span>Добавить</span>
+                        </div>
                     </div>
                 </div>
             </div>
