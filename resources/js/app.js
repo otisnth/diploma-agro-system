@@ -10,6 +10,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
+import DialogService from "primevue/dialogservice";
 import locale from "@/primevue.config.js";
 
 const appName =
@@ -30,6 +31,7 @@ createInertiaApp({
                 locale: locale,
             })
             .use(ToastService)
+            .use(DialogService)
             .mount(el);
     },
     progress: {

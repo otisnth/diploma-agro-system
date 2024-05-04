@@ -5,16 +5,35 @@ import axios from "axios";
 import { Head } from "@inertiajs/vue3";
 import Button from "primevue/button";
 import toastService from "@/Services/toastService";
+import ReferencesList from "@/Pages/AdminBoard/References/ReferencesList.vue";
+import ReferencesForm from "@/Pages/AdminBoard/References/ReferencesForm.vue";
+import { useDialog } from "primevue/usedialog";
+const dialog = useDialog();
 
 defineProps({
     references: Array,
 });
 
 const showClickHandle = (item) => {
-    console.log(item);
+    dialog.open(ReferencesList, {
+        data: { id: item.id, name: item.name },
+        props: {
+            modal: true,
+            header: "Просмотр содержимого",
+            draggable: false,
+        },
+    });
 };
 const addClickHandle = (item) => {
-    console.log(item);
+    dialog.open(ReferencesForm, {
+        data: { id: item.id, name: item.name },
+        props: {
+            modal: true,
+            header: "Создание",
+            draggable: false,
+            contentClass: "reference-form",
+        },
+    });
 };
 </script>
 

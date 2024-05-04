@@ -7,6 +7,7 @@ import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { Link } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
+import DynamicDialog from "primevue/dynamicdialog";
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -185,6 +186,7 @@ const showingNavigationDropdown = ref(false);
             <main>
                 <slot />
                 <Toast />
+                <DynamicDialog />
             </main>
         </div>
     </div>

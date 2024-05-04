@@ -41,19 +41,44 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['as' => 'api.'], function() {
+    Route::get('plants/properties', [PlantController::class, 'properties'])->name('plants.properties');
     Orion::resource('plants', PlantController::class);
+
+    Route::get('technic-types/properties', [TechnicTypeController::class, 'properties'])->name('technic-types.properties');
     Orion::resource('technic-types', TechnicTypeController::class);
+
+    Route::get('equipment-types/properties', [EquipmentTypeController::class, 'properties'])->name('equipment-types.properties');
     Orion::resource('equipment-types', EquipmentTypeController::class);
+
+    Route::get('equipment-models/properties', [EquipmentModelController::class, 'properties'])->name('equipment-models.properties');
     Orion::resource('equipment-models', EquipmentModelController::class);
+
+    Route::get('technic-models/properties', [TechnicModelController::class, 'properties'])->name('technic-models.properties');
     Orion::resource('technic-models', TechnicModelController::class);
+    
+    Route::get('crop-rotations/properties', [CropRotationController::class, 'properties'])->name('crop-rotations.properties');
     Orion::resource('crop-rotations', CropRotationController::class);
+
+    Route::get('equipments/properties', [EquipmentController::class, 'properties'])->name('equipments.properties');
     Orion::resource('equipments', EquipmentController::class);
+
     Orion::resource('equipments-worker-units', EquipmentWorkerUnitController::class);
+
+    Route::get('fields/properties', [FieldController::class, 'properties'])->name('fields.properties');
     Orion::resource('fields', FieldController::class);
+
+    Route::get('operation-notes/properties', [OperationNoteController::class, 'properties'])->name('operation-notes.properties');
     Orion::resource('operation-notes', OperationNoteController::class);
+
     Orion::resource('operation-notes-worker-units', OperationNoteWorkerUnitController::class);
+
+    Route::get('sorts/properties', [SortController::class, 'properties'])->name('sorts.properties');
     Orion::resource('sorts', SortController::class);
+
+    Route::get('technics/properties', [TechnicController::class, 'properties'])->name('technics.properties');
     Orion::resource('technics', TechnicController::class);
+
+    Route::get('worker-units/properties', [WorkerUnitController::class, 'properties'])->name('worker-units.properties');
     Orion::resource('worker-units', WorkerUnitController::class);
 
     Route::resource('field-statuses', FieldStatusController::class);
