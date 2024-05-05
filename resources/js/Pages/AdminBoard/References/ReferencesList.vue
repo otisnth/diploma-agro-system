@@ -4,6 +4,8 @@ import axios from "axios";
 import Skeleton from "primevue/skeleton";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import Button from "primevue/button";
+import toastService from "@/Services/toastService";
 
 const dialogRef = inject("dialogRef");
 
@@ -12,7 +14,7 @@ const props = dialogRef.value.data;
 const referenceData = ref(null);
 const tableColumns = ref(null);
 
-onMounted(() => {
+const getTableData = () => {
     axios
         .get(route(`api.${props.id}.properties`))
         .then((response) => {
@@ -26,7 +28,29 @@ onMounted(() => {
                     referenceData.value = response.data.data;
             });
         });
+};
+
+onMounted(() => {
+    getTableData();
 });
+
+const deleteClickHandler = (data) => {
+    axios
+        .delete(route(`api.${props.id}.destroy`, data.id))
+        .then(() => {
+            getTableData();
+            toastService.showSuccessToast(
+                "Успешное удаления",
+                "Сведения были удалены из системы"
+            );
+        })
+        .catch(() => {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+            );
+        });
+};
 </script>
 
 <template>
@@ -68,6 +92,29 @@ onMounted(() => {
                                     'background-color': '#' + data[item.key],
                                 }"
                             ></div>
+                        </template>
+                    </Column>
+
+                    <Column>
+                        <template #body>
+                            <Button
+                                type="button"
+                                severity="secondary"
+                                icon="pi pi-pencil"
+                                rounded
+                            />
+                        </template>
+                    </Column>
+
+                    <Column>
+                        <template #body="{ data }">
+                            <Button
+                                @click="deleteClickHandler(data)"
+                                type="button"
+                                severity="danger"
+                                icon="pi pi-trash"
+                                rounded
+                            />
                         </template>
                     </Column>
                 </DataTable>

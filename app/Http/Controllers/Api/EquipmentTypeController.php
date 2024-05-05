@@ -27,6 +27,14 @@ class EquipmentTypeController extends Controller
         return $newCollection;
     }
 
+    protected function afterDestroy(Request $request, Model $entity)
+    {   
+        if($entity->getAttribute("icon"))
+        {
+            unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->getAttribute("icon")));
+        }
+    }
+
     protected function performStore(Request $request, Model $entity, array $attributes): void
     {
 

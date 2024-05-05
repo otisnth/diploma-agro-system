@@ -23,8 +23,16 @@ class TechnicTypeController extends Controller
             $item->icon = $item->icon ? asset(Storage::url($item->icon)) : null;
             return $item;
         });
-        
+
         return $newCollection;
+    }
+
+    protected function afterDestroy(Request $request, Model $entity)
+    {   
+        if($entity->getAttribute("icon"))
+        {
+            unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->getAttribute("icon")));
+        }
     }
 
     protected function performStore(Request $request, Model $entity, array $attributes): void
