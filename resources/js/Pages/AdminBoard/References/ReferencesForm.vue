@@ -7,6 +7,7 @@ import ColorPicker from "primevue/colorpicker";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
 import Dropdown from "primevue/dropdown";
+import FileUpload from "primevue/fileupload";
 import toastService from "@/Services/toastService";
 
 const dialogRef = inject("dialogRef");
@@ -14,6 +15,14 @@ const dialogRef = inject("dialogRef");
 const props = dialogRef.value.data;
 
 const formFields = ref(null);
+
+const onUploadFiles = (event, key) => {
+    for (const field of formFields.value) {
+        if (field.key == key) {
+            field.value = event.files;
+        }
+    }
+};
 
 onMounted(() => {
     axios.get(route(`api.${props.id}.properties`)).then((response) => {
@@ -43,12 +52,17 @@ const saveClickHandler = () => {
     }, {});
 
     axios
-        .post(route(`api.${props.id}.store`), data)
+        .post(route(`api.${props.id}.store`), data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
         .then(() => {
             toastService.showSuccessToast(
                 "Успешное добавление",
                 "Сведения были сохранены в системе"
             );
+            dialogRef.value.close();
         })
         .catch(() => {
             toastService.showErrorToast(
@@ -77,6 +91,20 @@ const saveClickHandler = () => {
                 >
                     <label :for="item.key">{{ item.title }}</label>
                     <ColorPicker :id="item.key" v-model="item.value" />
+                </div>
+
+                <div
+                    v-else-if="item.type === 'image'"
+                    class="flex flex-col gap-1"
+                >
+                    <label :for="item.key">{{ item.title }}</label>
+                    <FileUpload
+                        mode="basic"
+                        :name="item.key"
+                        @select="onUploadFiles($event, item.key)"
+                        accept="image/*"
+                        :maxFileSize="1000000"
+                    />
                 </div>
 
                 <div

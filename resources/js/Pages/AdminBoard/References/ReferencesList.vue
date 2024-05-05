@@ -54,6 +54,13 @@ onMounted(() => {
                                 {{ item.inputProperties.suffix }}
                             </template>
 
+                            <img
+                                v-if="item.type === 'image'"
+                                class="max-h-16 max-w-16"
+                                :src="data[item.key]"
+                                alt=""
+                            />
+
                             <div
                                 v-else-if="item.type === 'color'"
                                 class="w-6 h-6 rounded-md"
