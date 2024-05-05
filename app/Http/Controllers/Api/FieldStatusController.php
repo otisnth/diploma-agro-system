@@ -20,6 +20,26 @@ class FieldStatusController extends Controller
         return response()->json($fieldStatuses, Response::HTTP_OK);
     }
 
+
+    public function properties()
+    {
+        return response()->json([
+            'data' => [
+                [
+                    'title' => 'Название',
+                    'key' => 'name',
+                    'type' => 'text',
+                    'required' => 'true'
+                ], 
+                [
+                    'title' => 'Цвет',
+                    'key' => 'color',
+                    'type' => 'color',
+                    'required' => 'true'
+                ],
+            ]
+        ], Response::HTTP_OK);
+    }
     /**
      * Show the form for creating a new resource.
      *

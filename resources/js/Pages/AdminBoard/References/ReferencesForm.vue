@@ -71,12 +71,18 @@ const saveClickHandler = () => {
                     <InputText :id="item.key" v-model="item.value" />
                 </div>
 
-                <div v-if="item.type === 'color'" class="flex flex-col gap-1">
+                <div
+                    v-else-if="item.type === 'color'"
+                    class="flex flex-col gap-1"
+                >
                     <label :for="item.key">{{ item.title }}</label>
                     <ColorPicker :id="item.key" v-model="item.value" />
                 </div>
 
-                <div v-if="item.type === 'select'" class="flex flex-col gap-1">
+                <div
+                    v-else-if="item.type === 'select'"
+                    class="flex flex-col gap-1"
+                >
                     <label :for="item.key">{{ item.title }}</label>
 
                     <Dropdown
@@ -88,7 +94,10 @@ const saveClickHandler = () => {
                     />
                 </div>
 
-                <div v-if="item.type === 'number'" class="flex flex-col gap-1">
+                <div
+                    v-else-if="item.type === 'number'"
+                    class="flex flex-col gap-1"
+                >
                     <label :for="item.key">{{ item.title }}</label>
                     <InputNumber
                         v-model="item.value"
