@@ -24,7 +24,7 @@ onMounted(() => {
                 if (field.type === "select") {
                     field.values = null;
                     axios
-                        .get(route(`api.${field.source}.index`))
+                        .get(`${route(`api.${field.source}.index`)}?limit=all`)
                         .then((response) => {
                             if (response.data) {
                                 field.values = response.data.data;

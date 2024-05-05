@@ -19,7 +19,7 @@ const showClickHandle = (item) => {
         data: { id: item.id, name: item.name },
         props: {
             modal: true,
-            header: "Просмотр содержимого",
+            header: "Просмотр",
             draggable: false,
         },
     });

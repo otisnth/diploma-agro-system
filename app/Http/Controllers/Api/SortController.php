@@ -5,12 +5,24 @@ namespace App\Http\Controllers\Api;
 use App\Models\Sort;
 use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Orion\Http\Requests\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class SortController extends Controller
 {
 
     protected $model = Sort::class;
+
+    protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
+    {   
+        if ($request->query("limit") == "all") {
+           return $query->get();
+        }
+        else {
+            return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
+        }
+    }
 
     public function properties()
     {
