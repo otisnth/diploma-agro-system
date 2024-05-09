@@ -6,6 +6,9 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import toastService from "@/Services/toastService";
+import ReferencesForm from "@/Pages/AdminBoard/References/ReferencesForm.vue";
+import { useDialog } from "primevue/usedialog";
+const dialog = useDialog();
 
 const dialogRef = inject("dialogRef");
 
@@ -33,6 +36,18 @@ const getTableData = () => {
 onMounted(() => {
     getTableData();
 });
+
+const editClickHandler = (data) => {
+    dialog.open(ReferencesForm, {
+        data: { id: props.id, name: props.name, item: data.id, edit: true },
+        props: {
+            modal: true,
+            header: "Редактирование",
+            draggable: false,
+            contentClass: "reference-form",
+        },
+    });
+};
 
 const deleteClickHandler = (data) => {
     axios
@@ -101,8 +116,9 @@ const deleteClickHandler = (data) => {
                     </Column>
 
                     <Column v-if="props.editable">
-                        <template #body>
+                        <template #body="{ data }">
                             <Button
+                                @click="editClickHandler(data)"
                                 type="button"
                                 severity="secondary"
                                 icon="pi pi-pencil"

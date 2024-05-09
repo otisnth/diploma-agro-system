@@ -31,7 +31,7 @@ const showClickHandle = (item) => {
 };
 const addClickHandle = (item) => {
     dialog.open(ReferencesForm, {
-        data: { id: item.id, name: item.name },
+        data: { id: item.id, name: item.name, edit: false },
         props: {
             modal: true,
             header: "Создание",

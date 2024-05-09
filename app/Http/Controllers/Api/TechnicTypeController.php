@@ -50,6 +50,27 @@ class TechnicTypeController extends Controller
         $entity->save();
     }
 
+    // protected function performUpdate(Request $request, Model $entity, array $attributes): void
+    // {
+    //     // $file = $request->file($request->icon[0]['objectURL'])->store("test.jpg");
+    //     dd($request);
+        
+
+    //     if ($request->hasFile('icon')) {
+    //         if ($entity->icon) {
+    //             unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
+    //         }
+    //         $icon = $request->file('icon')[0];
+    //         $fileName = time() . '_' . Str::slug(pathinfo($icon->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . Str::slug($icon->getClientOriginalExtension());
+    //         $path = $icon->storeAs('public/icons', $fileName);
+
+    //         $attributes['icon'] = $path;
+    //     }
+
+    //     $this->performFill($request, $entity, $attributes);
+    //     $entity->save();
+    // }
+
     public function properties()
     {
         return response()->json([

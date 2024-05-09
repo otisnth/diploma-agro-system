@@ -16,6 +16,8 @@ const props = dialogRef.value.data;
 
 const formFields = ref(null);
 
+const isLoaded = ref(false);
+
 const onUploadFiles = (event, key) => {
     for (const field of formFields.value) {
         if (field.key == key) {
@@ -25,9 +27,14 @@ const onUploadFiles = (event, key) => {
 };
 
 onMounted(() => {
-    axios.get(route(`api.${props.id}.properties`)).then((response) => {
-        if (response.data) {
-            formFields.value = response.data.data;
+    axios
+        .get(route(`api.${props.id}.properties`))
+        .then((response) => {
+            if (response.data) {
+                formFields.value = response.data.data;
+            }
+        })
+        .then(() => {
             for (const field of formFields.value) {
                 field.value = null;
                 if (field.type === "select") {
@@ -41,8 +48,31 @@ onMounted(() => {
                         });
                 }
             }
-        }
-    });
+        })
+        .then(() => {
+            if (!props.edit) {
+                isLoaded.value = true;
+                return;
+            }
+            axios
+                .get(route(`api.${props.id}.show`, props.item))
+                .then((response) => {
+                    if (!response.data) {
+                        return;
+                    }
+                    for (const field of formFields.value) {
+                        if (field.type === "select") {
+                            const valueId = response.data.data[field.key];
+                            field.value = field.values.find(
+                                (item) => item.id == valueId
+                            );
+                        } else {
+                            field.value = response.data.data[field.key];
+                        }
+                    }
+                    isLoaded.value = true;
+                });
+        });
 });
 
 const saveClickHandler = () => {
@@ -51,25 +81,47 @@ const saveClickHandler = () => {
         return acc;
     }, {});
 
-    axios
-        .post(route(`api.${props.id}.store`), data, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        })
-        .then(() => {
-            toastService.showSuccessToast(
-                "Успешное добавление",
-                "Сведения были сохранены в системе"
-            );
-            dialogRef.value.close();
-        })
-        .catch(() => {
-            toastService.showErrorToast(
-                "Ошибка",
-                "Что-то пошло не так. Проверьте данные и повторите попытку позднее"
-            );
-        });
+    if (!props.edit) {
+        axios
+            .post(route(`api.${props.id}.store`), data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+            .then(() => {
+                toastService.showSuccessToast(
+                    "Успешное добавление",
+                    "Сведения были сохранены в системе"
+                );
+                dialogRef.value.close();
+            })
+            .catch(() => {
+                toastService.showErrorToast(
+                    "Ошибка",
+                    "Что-то пошло не так. Проверьте данные и повторите попытку позднее"
+                );
+            });
+    } else {
+        axios
+            .put(route(`api.${props.id}.update`, props.item), data, {
+                // headers: {
+                //     "Content-Type": "multipart/form-data",
+                // },
+            })
+            .then(() => {
+                toastService.showSuccessToast(
+                    "Успешное обновление",
+                    "Сведения были обновлены в системе"
+                );
+                dialogRef.value.close();
+            })
+            .catch(() => {
+                toastService.showErrorToast(
+                    "Ошибка",
+                    "Что-то пошло не так. Проверьте данные и повторите попытку позднее"
+                );
+            });
+    }
 };
 </script>
 
@@ -78,7 +130,7 @@ const saveClickHandler = () => {
         <h3 class="font-semibold text-lg text-800 leading-tight">
             {{ props.name }}
         </h3>
-        <div v-if="formFields" class="flex flex-col gap-2">
+        <div v-if="isLoaded" class="flex flex-col gap-2">
             <div v-for="(item, index) in formFields" :key="index">
                 <div v-if="item.type === 'text'" class="flex flex-col gap-1">
                     <label :for="item.key">{{ item.title }}</label>
