@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Sort;
+use App\Models\Plant;
 use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
@@ -22,6 +23,16 @@ class SortController extends Controller
         else {
             return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
         }
+    }
+
+    protected function afterIndex(Request $request, $entities)
+    {
+        $newCollection = $entities->map(function ($item, $key) {
+            $item->plant_id = Plant::find($item->plant_id)->name;
+            return $item;
+        });
+
+        return $newCollection;
     }
 
     public function properties()

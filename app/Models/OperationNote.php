@@ -12,9 +12,27 @@ class OperationNote extends Model
     protected $table = 'operation_notes';
     protected $primaryKey = 'id';
 
-    public static $operationStatuses = array();
+    public static $operationStatuses = array(
+        [   
+            'id' => 0,
+            'name' => 'В работе',
+        ],
+        [
+            'id' => 1,
+            'name' => 'Завершено',
+        ]
+    );
 
-    public static $operations = array();
+    public static $operations = array(
+        [   
+            'id' => 0,
+            'name' => 'Уборка урожая',
+        ],
+        [
+            'id' => 1,
+            'name' => 'Посев',
+        ]
+    );
 
     protected $fillable = [
         'start_date',

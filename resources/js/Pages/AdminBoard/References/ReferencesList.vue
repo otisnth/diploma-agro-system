@@ -72,6 +72,10 @@ const deleteClickHandler = (data) => {
                                 {{ data[item.key] }}
                             </template>
 
+                            <template v-if="item.type === 'select'">
+                                {{ data[item.key] }}
+                            </template>
+
                             <template v-if="item.type === 'number'">
                                 {{ item.inputProperties.prefix }}
                                 {{ data[item.key] }}
@@ -95,7 +99,7 @@ const deleteClickHandler = (data) => {
                         </template>
                     </Column>
 
-                    <Column>
+                    <Column v-if="props.editable">
                         <template #body>
                             <Button
                                 type="button"
@@ -106,7 +110,7 @@ const deleteClickHandler = (data) => {
                         </template>
                     </Column>
 
-                    <Column>
+                    <Column v-if="props.expandable">
                         <template #body="{ data }">
                             <Button
                                 @click="deleteClickHandler(data)"

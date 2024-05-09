@@ -15,9 +15,11 @@ class Field extends Model
     public static $fieldStatuses = array(
         [
             'name' => 'Нуждается во вспашке',
+            'color' => '33ffaa',
         ],
         [
             'name' => 'Идет уборка',
+            'color' => '99aaff',
         ]
     );
 

@@ -16,7 +16,12 @@ defineProps({
 
 const showClickHandle = (item) => {
     dialog.open(ReferencesList, {
-        data: { id: item.id, name: item.name },
+        data: {
+            id: item.id,
+            name: item.name,
+            editable: item.editable,
+            expandable: item.expandable,
+        },
         props: {
             modal: true,
             header: "Просмотр",
