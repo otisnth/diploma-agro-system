@@ -58,13 +58,15 @@ class TechnicTypeController extends Controller
                     'title' => 'Название',
                     'key' => 'name',
                     'type' => 'text',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ], 
                 [
                     'title' => 'Иконка',
                     'key' => 'icon',
                     'type' => 'image',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> false
                 ],
             ]
         ], Response::HTTP_OK);

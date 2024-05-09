@@ -33,14 +33,16 @@ class TechnicModelController extends Controller
                     'title' => 'Название',
                     'key' => 'name',
                     'type' => 'text',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true,
                 ], 
                 [
                     'title' => 'Тип техники',
                     'key' => 'type_id',
                     'type' => 'select',
                     'required' => 'true',
-                    'source' => 'technic-types'
+                    'source' => 'technic-types',
+                    'sortable'=> true
                 ],
             ]
         ], Response::HTTP_OK);

@@ -34,7 +34,8 @@ class EquipmentModelController extends Controller
                     'title' => 'Название',
                     'key' => 'name',
                     'type' => 'text',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ], 
                 [
                     'title' => 'Рабочая скорость',
@@ -45,7 +46,8 @@ class EquipmentModelController extends Controller
                         'min' => 0,
                         'max' => 100
                     ],
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ],
                 [
                     'title' => 'Рабочая ширина',
@@ -57,13 +59,15 @@ class EquipmentModelController extends Controller
                         'max' => 200
                     ],
                     'required' => 'true',
+                    'sortable'=> true
                 ],
                 [
                     'title' => 'Тип оборудования',
                     'key' => 'type_id',
                     'type' => 'select',
                     'required' => 'true',
-                    'source' => 'equipment-types'
+                    'source' => 'equipment-types',
+                    'sortable'=> true,
                 ],
             ]
         ], Response::HTTP_OK);

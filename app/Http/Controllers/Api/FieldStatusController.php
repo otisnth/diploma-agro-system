@@ -29,13 +29,15 @@ class FieldStatusController extends Controller
                     'title' => 'Название',
                     'key' => 'name',
                     'type' => 'text',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ], 
                 [
                     'title' => 'Цвет',
                     'key' => 'color',
                     'type' => 'color',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> false
                 ],
             ]
         ], Response::HTTP_OK);

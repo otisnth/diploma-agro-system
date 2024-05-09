@@ -7,12 +7,13 @@ use App\Models\Plant;
 use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
+use Orion\Concerns\DisablePagination;
 use Illuminate\Database\Eloquent\Builder;
 
 
 class SortController extends Controller
 {
-
+    use DisablePagination;
     protected $model = Sort::class;
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
@@ -43,7 +44,8 @@ class SortController extends Controller
                     'title' => 'Название',
                     'key' => 'name',
                     'type' => 'text',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ], 
                 [
                     'title' => 'Комфортная температура',
@@ -54,7 +56,8 @@ class SortController extends Controller
                         'min' => -40,
                         'max' => 40
                     ],
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true,
                 ],
                 [
                     'title' => 'Комфортная влажность',
@@ -65,7 +68,8 @@ class SortController extends Controller
                         'min' => 0,
                         'max' => 100
                     ],
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ],
                 [
                     'title' => 'Длительность вегетационного периода',
@@ -74,14 +78,16 @@ class SortController extends Controller
                     'inputProperties'=> [
                         'suffix' => ' дня(ей)',
                     ],
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ],
                 [
                     'title' => 'Культура',
                     'key' => 'plant_id',
                     'type' => 'select',
                     'required' => 'true',
-                    'source' => 'plants'
+                    'source' => 'plants',
+                    'sortable'=> true
                 ],
             ]
         ], Response::HTTP_OK);

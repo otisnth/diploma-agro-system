@@ -28,7 +28,8 @@ class OperationNoteStatusController extends Controller
                     'title' => 'Название',
                     'key' => 'name',
                     'type' => 'text',
-                    'required' => 'true'
+                    'required' => 'true',
+                    'sortable'=> true
                 ]
             ]
         ], Response::HTTP_OK);

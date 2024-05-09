@@ -60,12 +60,13 @@ const deleteClickHandler = (data) => {
         </h3>
         <div>
             <div v-if="referenceData">
-                <DataTable :value="referenceData">
+                <DataTable scrollable removableSort :value="referenceData">
                     <Column
                         v-for="(item, index) in tableColumns"
                         :key="index"
                         :field="item.key"
                         :header="item.title"
+                        :sortable="item.sortable"
                     >
                         <template #body="{ data }">
                             <template v-if="item.type === 'text'">
