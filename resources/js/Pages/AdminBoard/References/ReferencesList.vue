@@ -147,7 +147,12 @@ const addClickHandle = () => {
             <h3 class="font-semibold text-lg text-800 leading-tight">
                 {{ props.name }}
             </h3>
-            <Button class="mt-3" label="Добавить" @click="addClickHandle" />
+            <Button
+                v-if="props.expandable"
+                class="mt-3"
+                label="Добавить"
+                @click="addClickHandle"
+            />
         </div>
 
         <div>

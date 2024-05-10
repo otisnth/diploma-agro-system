@@ -25,10 +25,6 @@ const onUploadFiles = async (event, key) => {
     for (const field of formFields.value) {
         if (field.key == key) {
             imagesPreview.value[field.key] = event.files[0].objectURL;
-            if (!props.edit) {
-                field.value = event.files;
-                return;
-            }
             const file = event.files[0];
             const reader = new FileReader();
             let blob = await fetch(file.objectURL).then((r) => r.blob());

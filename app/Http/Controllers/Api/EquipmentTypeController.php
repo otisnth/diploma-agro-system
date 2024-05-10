@@ -43,12 +43,17 @@ class EquipmentTypeController extends Controller
     protected function performStore(Request $request, Model $entity, array $attributes): void
     {
 
-        if ($request->hasFile('icon')) {
-            $icon = $request->file('icon')[0];
-            $fileName = time() . '_' . Str::slug(pathinfo($icon->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . Str::slug($icon->getClientOriginalExtension());
-            $path = $icon->storeAs('public/icons', $fileName);
+        $base64_str = substr($request->icon, strpos($request->icon, ",")+1);
+        $icon = base64_decode($base64_str);
+        
+        $fileName = time().'.'.'png';
+        $success = file_put_contents(public_path().'\\storage\\icons\\'.$fileName, $icon);
 
-            $attributes['icon'] = $path;
+        if($success) {
+            $attributes['icon'] = 'public/icons/'.$fileName;
+        }
+        else {
+            $attributes['icon'] = null;
         }
 
         $this->performFill($request, $entity, $attributes);
