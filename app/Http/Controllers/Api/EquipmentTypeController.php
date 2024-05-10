@@ -27,6 +27,11 @@ class EquipmentTypeController extends Controller
         return $newCollection;
     }
 
+    protected function afterShow(Request $request, Model $entity)
+    {
+        $entity->icon = $entity->icon ? asset(Storage::url($entity->icon)) : null;
+    }
+
     protected function afterDestroy(Request $request, Model $entity)
     {   
         if($entity->getAttribute("icon"))
@@ -53,10 +58,7 @@ class EquipmentTypeController extends Controller
     protected function performUpdate(Request $request, Model $entity, array $attributes): void
     {
 
-        if ($request->icon != $entity->icon) {
-            if ($entity->icon) {
-                unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
-            }
+        if (!filter_var($request->icon, FILTER_VALIDATE_URL)) {
 
             $base64_str = substr($request->icon, strpos($request->icon, ",")+1);
             $icon = base64_decode($base64_str);
@@ -69,6 +71,9 @@ class EquipmentTypeController extends Controller
             }
 
             $attributes['icon'] = 'public/icons/'.$fileName;
+        }
+        else {
+            $attributes['icon'] = $entity->icon;
         }
 
         $this->performFill($request, $entity, $attributes);

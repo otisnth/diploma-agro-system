@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onMounted, ref } from "vue";
+import { inject, onMounted, ref, computed } from "vue";
 import axios from "axios";
 import Skeleton from "primevue/skeleton";
 import InputText from "primevue/inputtext";
@@ -18,9 +18,13 @@ const formFields = ref(null);
 
 const isLoaded = ref(false);
 
+const showObject = ref(null);
+const imagesPreview = ref({});
+
 const onUploadFiles = async (event, key) => {
     for (const field of formFields.value) {
         if (field.key == key) {
+            imagesPreview.value[field.key] = event.files[0].objectURL;
             if (!props.edit) {
                 field.value = event.files;
                 return;
@@ -35,6 +39,16 @@ const onUploadFiles = async (event, key) => {
                 field.value = reader.result;
             };
         }
+    }
+};
+
+const onClearFiles = (key) => {
+    if (showObject.value) {
+        imagesPreview.value[key] = showObject.value[key];
+        formFields.value.find((field) => field.key == key).value =
+            showObject.value[key];
+    } else {
+        imagesPreview.value[key] = null;
     }
 };
 
@@ -72,14 +86,18 @@ onMounted(() => {
                     if (!response.data) {
                         return;
                     }
+                    showObject.value = response.data.data;
                     for (const field of formFields.value) {
                         if (field.type === "select") {
-                            const valueId = response.data.data[field.key];
+                            const valueId = showObject.value[field.key];
                             field.value = field.values.find(
                                 (item) => item.id == valueId
                             );
                         } else {
-                            field.value = response.data.data[field.key];
+                            field.value = showObject.value[field.key];
+                        }
+                        if (field.type === "image") {
+                            imagesPreview.value[field.key] = field.value;
                         }
                     }
                     isLoaded.value = true;
@@ -162,14 +180,52 @@ const saveClickHandler = () => {
                     class="flex flex-col gap-1"
                 >
                     <label :for="item.key">{{ item.title }}</label>
-                    <FileUpload
-                        mode="basic"
-                        :name="item.key"
-                        customUpload
-                        @select="onUploadFiles($event, item.key)"
-                        accept="image/*"
-                        :maxFileSize="1000000"
-                    />
+                    <div class="flex items-center">
+                        <img
+                            class="max-h-16 max-w-16"
+                            :src="imagesPreview[item.key]"
+                        />
+                        <FileUpload
+                            :name="item.key"
+                            customUpload
+                            @select="onUploadFiles($event, item.key)"
+                            @clear="onClearFiles(item.key)"
+                            accept="image/*"
+                            :maxFileSize="1000000"
+                            :pt="{
+                                content: 'hidden',
+                            }"
+                        >
+                            <template
+                                #header="{
+                                    chooseCallback,
+                                    clearCallback,
+                                    files,
+                                }"
+                            >
+                                <div
+                                    class="flex flex-wrap justify-between items-center flex-1 gap-2"
+                                >
+                                    <div class="flex gap-2">
+                                        <Button
+                                            @click="chooseCallback()"
+                                            icon="pi pi-images"
+                                            rounded
+                                            outlined
+                                        ></Button>
+                                        <Button
+                                            @click="clearCallback()"
+                                            icon="pi pi-times"
+                                            rounded
+                                            outlined
+                                            severity="danger"
+                                            v-if="files.length"
+                                        ></Button>
+                                    </div>
+                                </div>
+                            </template>
+                        </FileUpload>
+                    </div>
                 </div>
 
                 <div
@@ -211,4 +267,7 @@ const saveClickHandler = () => {
 <style lang="stylus">
 .reference-form
     min-height 240px
+
+.p-fileupload-buttonbar
+    border none
 </style>
