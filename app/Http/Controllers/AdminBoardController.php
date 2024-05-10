@@ -63,6 +63,12 @@ class AdminBoardController extends Controller
                 "expandable"=> true,
             ],
             [
+                "id" => "equipments",
+                "name"=> "Оборудование",
+                "editable" => true,
+                "expandable"=> true,
+            ],
+            [
                 "id" => "technic-types",
                 "name"=> "Тип техники",
                 "editable" => true,
@@ -71,6 +77,12 @@ class AdminBoardController extends Controller
             [
                 "id" => "technic-models",
                 "name"=> "Модель техники",
+                "editable" => true,
+                "expandable"=> true,
+            ],
+            [
+                "id" => "technics",
+                "name"=> "Техника",
                 "editable" => true,
                 "expandable"=> true,
             ],

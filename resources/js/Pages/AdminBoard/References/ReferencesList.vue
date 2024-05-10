@@ -201,18 +201,18 @@ const addClickHandle = () => {
                                 {{ data[item.key] }}
                             </template>
 
-                            <template v-if="item.type === 'select'">
+                            <template v-else-if="item.type === 'select'">
                                 {{ data[item.key] }}
                             </template>
 
-                            <template v-if="item.type === 'number'">
+                            <template v-else-if="item.type === 'number'">
                                 {{ item.inputProperties.prefix }}
                                 {{ data[item.key] }}
                                 {{ item.inputProperties.suffix }}
                             </template>
 
                             <img
-                                v-if="item.type === 'image'"
+                                v-else-if="item.type === 'image'"
                                 class="max-h-16 max-w-16"
                                 :src="data[item.key]"
                                 alt=""
