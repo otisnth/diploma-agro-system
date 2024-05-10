@@ -18,12 +18,9 @@ class Sort extends Model
         'temperature',
         'humidity',
         'vegetation_period',
-        'plant_id'
-    ];
-
-    protected $casts = [
-        'temperatur' => 'array',
-        'humidity' => 'array'
+        'plant_id',
+        'temperature_weight',
+        'humidity_weight'
     ];
 
     public function plant()

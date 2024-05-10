@@ -13,15 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sorts', function (Blueprint $table) {
-            $table->id();
-
-            $table->string('name');
-            $table->decimal('temperature');
-            $table->decimal('humidity');
-            $table->integer('vegetation_period');
-
-            $table->foreignId('plant_id')->references('id')->on('plants');
+        Schema::table('sorts', function (Blueprint $table) {
+            $table->decimal('temperature_weight')->default(0);
+            $table->decimal('humidity_weight')->default(0);
         });
     }
 
@@ -32,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sorts');
+        Schema::table('sorts', function (Blueprint $table) {
+            $table->dropColumn(['temperature_weight', 'humidity_weight']);
+        });
     }
 };

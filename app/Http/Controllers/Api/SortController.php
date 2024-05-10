@@ -52,9 +52,18 @@ class SortController extends Controller
                     'key' => 'temperature',
                     'type' => 'number',
                     'inputProperties'=> [
-                        'suffix' => '℃',
+                        'suffix' => ' ℃',
                         'min' => -40,
                         'max' => 40
+                    ],
+                    'required' => 'true',
+                    'sortable'=> true,
+                ],
+                [
+                    'title' => 'Вес температуры',
+                    'key' => 'temperature_weight',
+                    'type' => 'number',
+                    'inputProperties'=> [
                     ],
                     'required' => 'true',
                     'sortable'=> true,
@@ -64,7 +73,7 @@ class SortController extends Controller
                     'key' => 'humidity',
                     'type' => 'number',
                     'inputProperties'=> [
-                        'suffix' => '%',
+                        'suffix' => ' %',
                         'min' => 0,
                         'max' => 100
                     ],
@@ -72,11 +81,22 @@ class SortController extends Controller
                     'sortable'=> true
                 ],
                 [
+                    'title' => 'Вес влажности',
+                    'key' => 'humidity_weight',
+                    'type' => 'number',
+                    'inputProperties'=> [
+                    ],
+                    'required' => 'true',
+                    'sortable'=> true,
+                ],
+                [
                     'title' => 'Длительность вегетационного периода',
                     'key' => 'vegetation_period',
                     'type' => 'number',
                     'inputProperties'=> [
                         'suffix' => ' дня(ей)',
+                        'min' => 0,
+                        'max' => 365
                     ],
                     'required' => 'true',
                     'sortable'=> true

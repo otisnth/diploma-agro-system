@@ -140,11 +140,7 @@ const saveClickHandler = () => {
 
     if (!props.edit) {
         axios
-            .post(route(`api.${props.id}.store`), data, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            })
+            .post(route(`api.${props.id}.store`), data)
             .then(() => {
                 toastService.showSuccessToast(
                     "Успешное добавление",
@@ -160,11 +156,7 @@ const saveClickHandler = () => {
             });
     } else {
         axios
-            .put(route(`api.${props.id}.update`, props.item), data, {
-                // headers: {
-                //     "Content-Type": "multipart/form-data",
-                // },
-            })
+            .put(route(`api.${props.id}.update`, props.item), data)
             .then(() => {
                 toastService.showSuccessToast(
                     "Успешное обновление",
