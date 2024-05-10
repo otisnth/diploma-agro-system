@@ -50,26 +50,26 @@ class TechnicTypeController extends Controller
         $entity->save();
     }
 
-    // protected function performUpdate(Request $request, Model $entity, array $attributes): void
-    // {
-    //     // $file = $request->file($request->icon[0]['objectURL'])->store("test.jpg");
-    //     dd($request);
-        
+    protected function performUpdate(Request $request, Model $entity, array $attributes): void
+    {
 
-    //     if ($request->hasFile('icon')) {
-    //         if ($entity->icon) {
-    //             unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
-    //         }
-    //         $icon = $request->file('icon')[0];
-    //         $fileName = time() . '_' . Str::slug(pathinfo($icon->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . Str::slug($icon->getClientOriginalExtension());
-    //         $path = $icon->storeAs('public/icons', $fileName);
+        if ($request->icon != $entity->icon) {
+            if ($entity->icon) {
+                unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
+            }
 
-    //         $attributes['icon'] = $path;
-    //     }
+            $base64_str = substr($request->icon, strpos($request->icon, ",")+1);
+            $icon = base64_decode($base64_str);
+            
+            $fileName = time().'.'.'png';
+            $success = file_put_contents(public_path().'\\storage\\icons\\'.$fileName, $icon);
 
-    //     $this->performFill($request, $entity, $attributes);
-    //     $entity->save();
-    // }
+            $attributes['icon'] = 'public/icons/'.$fileName;
+        }
+
+        $this->performFill($request, $entity, $attributes);
+        $entity->save();
+    }
 
     public function properties()
     {

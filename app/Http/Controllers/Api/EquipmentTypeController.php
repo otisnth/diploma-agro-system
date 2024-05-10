@@ -50,6 +50,27 @@ class EquipmentTypeController extends Controller
         $entity->save();
     }
 
+    protected function performUpdate(Request $request, Model $entity, array $attributes): void
+    {
+
+        if ($request->icon != $entity->icon) {
+            if ($entity->icon) {
+                unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
+            }
+
+            $base64_str = substr($request->icon, strpos($request->icon, ",")+1);
+            $icon = base64_decode($base64_str);
+            
+            $fileName = time().'.'.'png';
+            $success = file_put_contents(public_path().'\\storage\\icons\\'.$fileName, $icon);
+
+            $attributes['icon'] = 'public/icons/'.$fileName;
+        }
+
+        $this->performFill($request, $entity, $attributes);
+        $entity->save();
+    }
+
     public function properties()
     {
         return response()->json([

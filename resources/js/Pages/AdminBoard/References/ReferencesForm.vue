@@ -18,10 +18,22 @@ const formFields = ref(null);
 
 const isLoaded = ref(false);
 
-const onUploadFiles = (event, key) => {
+const onUploadFiles = async (event, key) => {
     for (const field of formFields.value) {
         if (field.key == key) {
-            field.value = event.files;
+            if (!props.edit) {
+                field.value = event.files;
+                return;
+            }
+            const file = event.files[0];
+            const reader = new FileReader();
+            let blob = await fetch(file.objectURL).then((r) => r.blob());
+
+            reader.readAsDataURL(blob);
+
+            reader.onloadend = function () {
+                field.value = reader.result;
+            };
         }
     }
 };
@@ -153,6 +165,7 @@ const saveClickHandler = () => {
                     <FileUpload
                         mode="basic"
                         :name="item.key"
+                        customUpload
                         @select="onUploadFiles($event, item.key)"
                         accept="image/*"
                         :maxFileSize="1000000"
