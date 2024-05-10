@@ -69,6 +69,10 @@ class EquipmentModelController extends Controller
                     'source' => 'equipment-types',
                     'sortable'=> true,
                 ],
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
+                'type_id' => [ 'value' => null, 'matchMode' => 'EQUALS' ],
             ]
         ], Response::HTTP_OK);
     }

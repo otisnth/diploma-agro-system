@@ -8,6 +8,12 @@ import Button from "primevue/button";
 import toastService from "@/Services/toastService";
 import ReferencesForm from "@/Pages/AdminBoard/References/ReferencesForm.vue";
 import { useDialog } from "primevue/usedialog";
+import { FilterMatchMode } from "primevue/api";
+import InputText from "primevue/inputtext";
+import Slider from "primevue/slider";
+import Dropdown from "primevue/dropdown";
+import ReferencesList from "@/Pages/AdminBoard/References/ReferencesList.vue";
+
 const dialog = useDialog();
 
 const dialogRef = inject("dialogRef");
@@ -16,6 +22,7 @@ const props = dialogRef.value.data;
 
 const referenceData = ref(null);
 const tableColumns = ref(null);
+const filters = ref(null);
 
 const getTableData = () => {
     axios
@@ -23,6 +30,28 @@ const getTableData = () => {
         .then((response) => {
             if (response.data) {
                 tableColumns.value = response.data.data;
+                filters.value = response.data.filters;
+                for (const key in filters.value) {
+                    filters.value[key].matchMode =
+                        FilterMatchMode[filters.value[key].matchMode];
+                }
+            }
+        })
+        .then(() => {
+            for (const field of tableColumns.value) {
+                field.value = null;
+                if (field.type === "select") {
+                    field.values = null;
+                    axios
+                        .get(`${route(`api.${field.source}.index`)}?limit=all`)
+                        .then((response) => {
+                            if (response.data) {
+                                field.values = response.data.data.map(
+                                    (item) => item.name
+                                );
+                            }
+                        });
+                }
             }
         })
         .then(() => {
@@ -38,6 +67,7 @@ onMounted(() => {
 });
 
 const editClickHandler = (data) => {
+    dialogRef.value.close();
     dialog.open(ReferencesForm, {
         data: { id: props.id, name: props.name, item: data.id, edit: true },
         props: {
@@ -45,6 +75,21 @@ const editClickHandler = (data) => {
             header: "Редактирование",
             draggable: false,
             contentClass: "reference-form",
+        },
+        onClose: () => {
+            dialog.open(ReferencesList, {
+                data: {
+                    id: props.id,
+                    name: props.name,
+                    editable: props.editable,
+                    expandable: props.expandable,
+                },
+                props: {
+                    modal: true,
+                    header: "Просмотр",
+                    draggable: false,
+                },
+            });
         },
     });
 };
@@ -75,14 +120,45 @@ const deleteClickHandler = (data) => {
         </h3>
         <div>
             <div v-if="referenceData">
-                <DataTable scrollable removableSort :value="referenceData">
+                <DataTable
+                    v-model:filters="filters"
+                    filterDisplay="menu"
+                    scrollable
+                    removableSort
+                    :value="referenceData"
+                >
                     <Column
                         v-for="(item, index) in tableColumns"
                         :key="index"
                         :field="item.key"
                         :header="item.title"
                         :sortable="item.sortable"
+                        :showFilterMatchModes="false"
                     >
+                        <template
+                            v-if="filters[item.key]"
+                            #filter="{ filterModel }"
+                        >
+                            <template v-if="item.type === 'text'">
+                                <InputText
+                                    v-model="filterModel.value"
+                                    type="text"
+                                    class="p-column-filter"
+                                    placeholder="Поиск по названию"
+                                />
+                            </template>
+
+                            <template v-else-if="item.type === 'select'">
+                                <Dropdown
+                                    v-model="filterModel.value"
+                                    :options="item.values"
+                                    class="p-column-filter"
+                                    showClear
+                                >
+                                </Dropdown>
+                            </template>
+                        </template>
+
                         <template #body="{ data }">
                             <template v-if="item.type === 'text'">
                                 {{ data[item.key] }}

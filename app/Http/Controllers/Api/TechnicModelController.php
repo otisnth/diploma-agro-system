@@ -44,6 +44,10 @@ class TechnicModelController extends Controller
                     'source' => 'technic-types',
                     'sortable'=> true
                 ],
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
+                'type_id' => [ 'value' => null, 'matchMode' => 'EQUALS' ],
             ]
         ], Response::HTTP_OK);
     }

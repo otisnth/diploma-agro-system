@@ -89,6 +89,10 @@ class SortController extends Controller
                     'source' => 'plants',
                     'sortable'=> true
                 ],
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
+                'plant_id' => [ 'value' => null, 'matchMode' => 'EQUALS' ],
             ]
         ], Response::HTTP_OK);
     }

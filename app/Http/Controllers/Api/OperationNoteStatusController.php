@@ -31,6 +31,9 @@ class OperationNoteStatusController extends Controller
                     'required' => 'true',
                     'sortable'=> true
                 ]
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
             ]
         ], Response::HTTP_OK);
     }

@@ -64,6 +64,10 @@ class EquipmentTypeController extends Controller
             $fileName = time().'.'.'png';
             $success = file_put_contents(public_path().'\\storage\\icons\\'.$fileName, $icon);
 
+            if ($entity->icon && $success) {
+                unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
+            }
+
             $attributes['icon'] = 'public/icons/'.$fileName;
         }
 
@@ -89,6 +93,9 @@ class EquipmentTypeController extends Controller
                     'required' => 'true',
                     'sortable'=> false
                 ],
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
             ]
         ], Response::HTTP_OK);
     }

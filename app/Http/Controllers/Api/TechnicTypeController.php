@@ -54,15 +54,16 @@ class TechnicTypeController extends Controller
     {
 
         if ($request->icon != $entity->icon) {
-            if ($entity->icon) {
-                unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
-            }
 
             $base64_str = substr($request->icon, strpos($request->icon, ",")+1);
             $icon = base64_decode($base64_str);
             
             $fileName = time().'.'.'png';
             $success = file_put_contents(public_path().'\\storage\\icons\\'.$fileName, $icon);
+
+            if ($entity->icon && $success) {
+                unlink($_SERVER['DOCUMENT_ROOT'].Storage::url($entity->icon));
+            }
 
             $attributes['icon'] = 'public/icons/'.$fileName;
         }
@@ -89,6 +90,9 @@ class TechnicTypeController extends Controller
                     'required' => 'true',
                     'sortable'=> false
                 ],
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
             ]
         ], Response::HTTP_OK);
     }

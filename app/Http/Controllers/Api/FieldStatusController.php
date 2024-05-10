@@ -39,6 +39,9 @@ class FieldStatusController extends Controller
                     'required' => 'true',
                     'sortable'=> false
                 ],
+            ],
+            'filters' => [
+                'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
             ]
         ], Response::HTTP_OK);
     }
