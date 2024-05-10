@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onMounted, ref, computed } from "vue";
+import { inject, onMounted, ref, watch } from "vue";
 import axios from "axios";
 import Skeleton from "primevue/skeleton";
 import InputText from "primevue/inputtext";
@@ -49,8 +49,21 @@ const onClearFiles = (key) => {
             showObject.value[key];
     } else {
         imagesPreview.value[key] = null;
+        formFields.value.find((field) => field.key == key).value = null;
     }
 };
+
+watch(
+    formFields,
+    () => {
+        for (const field of formFields.value) {
+            if (field.value && field.error) {
+                field.error = false;
+            }
+        }
+    },
+    { deep: true }
+);
 
 onMounted(() => {
     axios
@@ -106,6 +119,20 @@ onMounted(() => {
 });
 
 const saveClickHandler = () => {
+    for (const field of formFields.value) {
+        if (!field.value && field.required) {
+            field.error = true;
+        }
+    }
+
+    if (formFields.value.find((item) => item.error)) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Заполните все обязательные поля"
+        );
+        return;
+    }
+
     const data = formFields.value.reduce((acc, item) => {
         acc[item.key] = item.value?.id || item.value;
         return acc;
@@ -164,7 +191,11 @@ const saveClickHandler = () => {
             <div v-for="(item, index) in formFields" :key="index">
                 <div v-if="item.type === 'text'" class="flex flex-col gap-1">
                     <label :for="item.key">{{ item.title }}</label>
-                    <InputText :id="item.key" v-model="item.value" />
+                    <InputText
+                        :id="item.key"
+                        v-model="item.value"
+                        :invalid="item.error"
+                    />
                 </div>
 
                 <div
@@ -235,6 +266,7 @@ const saveClickHandler = () => {
                     <label :for="item.key">{{ item.title }}</label>
 
                     <Dropdown
+                        :invalid="item.error"
                         :id="item.key"
                         filter
                         :options="item.values"
@@ -250,6 +282,7 @@ const saveClickHandler = () => {
                     <label :for="item.key">{{ item.title }}</label>
                     <InputNumber
                         v-model="item.value"
+                        :invalid="item.error"
                         :inputId="item.key"
                         :min="item.inputProperties.min"
                         :max="item.inputProperties.max"

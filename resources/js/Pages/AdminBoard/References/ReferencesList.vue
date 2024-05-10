@@ -111,13 +111,45 @@ const deleteClickHandler = (data) => {
             );
         });
 };
+
+const addClickHandle = () => {
+    dialogRef.value.close();
+    dialog.open(ReferencesForm, {
+        data: { id: props.id, name: props.name, edit: false },
+        props: {
+            modal: true,
+            header: "Создание",
+            draggable: false,
+            contentClass: "reference-form",
+        },
+        onClose: () => {
+            dialog.open(ReferencesList, {
+                data: {
+                    id: props.id,
+                    name: props.name,
+                    editable: props.editable,
+                    expandable: props.expandable,
+                },
+                props: {
+                    modal: true,
+                    header: "Просмотр",
+                    draggable: false,
+                },
+            });
+        },
+    });
+};
 </script>
 
 <template>
     <div>
-        <h3 class="font-semibold text-lg text-800 leading-tight">
-            {{ props.name }}
-        </h3>
+        <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-lg text-800 leading-tight">
+                {{ props.name }}
+            </h3>
+            <Button class="mt-3" label="Добавить" @click="addClickHandle" />
+        </div>
+
         <div>
             <div v-if="referenceData">
                 <DataTable
