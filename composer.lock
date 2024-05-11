@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f1d5f0b31949a692f0e7c7f40b4aac9",
+    "content-hash": "f6c0f29233c04c00d249621475a2ebb7",
     "packages": [
         {
             "name": "brick/math",
@@ -2336,6 +2336,77 @@
                 }
             ],
             "time": "2023-02-06T13:44:46+00:00"
+        },
+        {
+            "name": "mr-wolf-gb/traccar",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mr-wolf-gb/traccar.git",
+                "reference": "687f6c12718a7ddbf2ab6347d7b52b01fe85181e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mr-wolf-gb/traccar/zipball/687f6c12718a7ddbf2ab6347d7b52b01fe85181e",
+                "reference": "687f6c12718a7ddbf2ab6347d7b52b01fe85181e",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.8",
+                "guzzlehttp/promises": "^2.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "larastan/larastan": "^2.9",
+                "laravel/pint": "^1.0",
+                "laravel/prompts": "^0.1.15",
+                "orchestra/testbench": "^8.21",
+                "pestphp/pest": "^2.31",
+                "phpstan/phpstan": "^1.10.56",
+                "spatie/invade": "^2.0",
+                "spatie/ray": "^1.40.1",
+                "symfony/var-dumper": "^6.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MrWolfGb\\Traccar\\TraccarServiceProvider"
+                    ],
+                    "aliases": {
+                        "Traccar": "MrWolfGb\\Traccar\\TraccarFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MrWolfGb\\Traccar\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mr.WOLF",
+                    "email": "gaiththewolf@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Traccar GPS server",
+            "homepage": "https://github.com/mr-wolf-gb/traccar",
+            "keywords": [
+                "Traccar",
+                "api",
+                "gps",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/mr-wolf-gb/traccar/issues",
+                "source": "https://github.com/mr-wolf-gb/traccar"
+            },
+            "time": "2024-02-28T09:56:34+00:00"
         },
         {
             "name": "nesbot/carbon",

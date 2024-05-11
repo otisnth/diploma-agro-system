@@ -8,6 +8,9 @@ use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
+use MrWolfGb\Traccar\Services\TraccarService;
 
 class TechnicController extends Controller
 {
@@ -22,6 +25,28 @@ class TechnicController extends Controller
         else {
             return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
         }
+    }
+
+    protected function addToTraccar($name, $uniqueId) {
+
+        $traccarService = new TraccarService(
+            baseUrl: config('traccar.base_url'),
+            email: config('traccar.auth.username'),
+            password: config('traccar.auth.password'),
+            token: config('traccar.auth.token'),
+            headers: [
+                'Accept' => 'application/json'
+            ]
+        );
+        $deviceRepo = $traccarService->deviceRepository();
+
+        $device = $deviceRepo->createDevice(name: $name, uniqueId: $uniqueId);
+    }
+
+
+    protected function beforeSave(Request $request, Model $entity)
+    {   
+        $this->addToTraccar($request->license_plate, $request->tr_device_id);
     }
 
     protected function afterIndex(Request $request, $entities)
