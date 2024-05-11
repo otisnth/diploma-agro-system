@@ -88,6 +88,7 @@ const editClickHandler = (data) => {
                     modal: true,
                     header: "Просмотр",
                     draggable: false,
+                    contentClass: "reference-list",
                 },
             });
         },
@@ -134,6 +135,7 @@ const addClickHandle = () => {
                     modal: true,
                     header: "Просмотр",
                     draggable: false,
+                    contentClass: "reference-list",
                 },
             });
         },
@@ -142,7 +144,7 @@ const addClickHandle = () => {
 </script>
 
 <template>
-    <div>
+    <div class="flex flex-col gap-2 h-full">
         <div class="flex items-center justify-between">
             <h3 class="font-semibold text-lg text-800 leading-tight">
                 {{ props.name }}
@@ -155,105 +157,113 @@ const addClickHandle = () => {
             />
         </div>
 
-        <div>
-            <div v-if="referenceData">
-                <DataTable
-                    v-model:filters="filters"
-                    filterDisplay="menu"
-                    scrollable
-                    removableSort
-                    :value="referenceData"
+        <div class="h-full" v-if="referenceData">
+            <DataTable
+                v-model:filters="filters"
+                filterDisplay="menu"
+                scrollable
+                removableSort
+                :value="referenceData"
+            >
+                <Column
+                    v-for="(item, index) in tableColumns"
+                    :key="index"
+                    :field="item.key"
+                    :header="item.title"
+                    :sortable="item.sortable"
+                    :showFilterMatchModes="false"
                 >
-                    <Column
-                        v-for="(item, index) in tableColumns"
-                        :key="index"
-                        :field="item.key"
-                        :header="item.title"
-                        :sortable="item.sortable"
-                        :showFilterMatchModes="false"
+                    <template
+                        v-if="filters[item.key]"
+                        #filter="{ filterModel }"
                     >
-                        <template
-                            v-if="filters[item.key]"
-                            #filter="{ filterModel }"
-                        >
-                            <template v-if="item.type === 'text'">
-                                <InputText
-                                    v-model="filterModel.value"
-                                    type="text"
-                                    class="p-column-filter"
-                                    placeholder="Поиск по названию"
-                                />
-                            </template>
-
-                            <template v-else-if="item.type === 'select'">
-                                <Dropdown
-                                    v-model="filterModel.value"
-                                    :options="item.values"
-                                    class="p-column-filter"
-                                    showClear
-                                >
-                                </Dropdown>
-                            </template>
-                        </template>
-
-                        <template #body="{ data }">
-                            <template v-if="item.type === 'text'">
-                                {{ data[item.key] }}
-                            </template>
-
-                            <template v-else-if="item.type === 'select'">
-                                {{ data[item.key] }}
-                            </template>
-
-                            <template v-else-if="item.type === 'number'">
-                                {{ item.inputProperties.prefix }}
-                                {{ data[item.key] }}
-                                {{ item.inputProperties.suffix }}
-                            </template>
-
-                            <img
-                                v-else-if="item.type === 'image'"
-                                class="max-h-16 max-w-16"
-                                :src="data[item.key]"
-                                alt=""
-                            />
-
-                            <div
-                                v-else-if="item.type === 'color'"
-                                class="w-6 h-6 rounded-md"
-                                :style="{
-                                    'background-color': '#' + data[item.key],
-                                }"
-                            ></div>
-                        </template>
-                    </Column>
-
-                    <Column v-if="props.editable">
-                        <template #body="{ data }">
-                            <Button
-                                @click="editClickHandler(data)"
-                                type="button"
-                                severity="secondary"
-                                icon="pi pi-pencil"
-                                rounded
+                        <template v-if="item.type === 'text'">
+                            <InputText
+                                v-model="filterModel.value"
+                                type="text"
+                                class="p-column-filter"
+                                placeholder="Поиск по названию"
                             />
                         </template>
-                    </Column>
 
-                    <Column v-if="props.expandable">
-                        <template #body="{ data }">
-                            <Button
-                                @click="deleteClickHandler(data)"
-                                type="button"
-                                severity="danger"
-                                icon="pi pi-trash"
-                                rounded
-                            />
+                        <template v-else-if="item.type === 'select'">
+                            <Dropdown
+                                v-model="filterModel.value"
+                                :options="item.values"
+                                class="p-column-filter"
+                                showClear
+                            >
+                            </Dropdown>
                         </template>
-                    </Column>
-                </DataTable>
-            </div>
-            <Skeleton v-else width="100%"></Skeleton>
+                    </template>
+
+                    <template #body="{ data }">
+                        <template v-if="item.type === 'text'">
+                            {{ data[item.key] }}
+                        </template>
+
+                        <template v-else-if="item.type === 'select'">
+                            {{ data[item.key] }}
+                        </template>
+
+                        <template v-else-if="item.type === 'number'">
+                            {{ item.inputProperties.prefix }}
+                            {{ data[item.key] }}
+                            {{ item.inputProperties.suffix }}
+                        </template>
+
+                        <img
+                            v-else-if="item.type === 'image'"
+                            class="max-h-16 max-w-16"
+                            :src="data[item.key]"
+                            alt=""
+                        />
+
+                        <div
+                            v-else-if="item.type === 'color'"
+                            class="w-6 h-6 rounded-md"
+                            :style="{
+                                'background-color': '#' + data[item.key],
+                            }"
+                        ></div>
+                    </template>
+                </Column>
+
+                <Column class="flex gap-2 btn-col justify-end">
+                    <template #body="{ data }">
+                        <Button
+                            v-if="props.editable"
+                            @click="editClickHandler(data)"
+                            type="button"
+                            severity="secondary"
+                            icon="pi pi-pencil"
+                            rounded
+                        />
+
+                        <Button
+                            v-if="props.expandable"
+                            @click="deleteClickHandler(data)"
+                            type="button"
+                            severity="danger"
+                            icon="pi pi-trash"
+                            rounded
+                        />
+                    </template>
+                </Column>
+            </DataTable>
         </div>
+        <Skeleton v-else width="100%" height="100%"></Skeleton>
     </div>
 </template>
+
+<style lang="stylus">
+.reference-list
+    height 600px
+    width 1000px
+
+th.btn-col
+    border none
+
+.p-column-filter-menu
+    margin-left none
+</style>

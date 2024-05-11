@@ -26,6 +26,7 @@ const showClickHandle = (item) => {
             modal: true,
             header: "Просмотр",
             draggable: false,
+            contentClass: "reference-list",
         },
     });
 };
@@ -47,7 +48,7 @@ const addClickHandle = (item) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-800 leading-tight">
+            <h2 class="font-semibold text-2xl text-800 leading-tight">
                 Админ-панель
             </h2>
         </template>
@@ -56,14 +57,14 @@ const addClickHandle = (item) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="grid grid-cols-4 gap-4 p-4 sm:p-8 text-black">
                     <div
-                        class="bg-white rounded-lg p-4"
+                        class="bg-white rounded-lg p-4 flex flex-col gap-2"
                         v-for="(item, index) in references"
                         :key="index"
                     >
-                        <h3 class="font-semibold">{{ item.name }}</h3>
+                        <h3 class="text-xl font-semibold">{{ item.name }}</h3>
 
                         <div
-                            class="cursor-pointer flex items-center gap-1"
+                            class="cursor-pointer flex items-center gap-1 text-lg"
                             @click="showClickHandle(item)"
                         >
                             <i class="pi pi-list"></i>
@@ -71,7 +72,7 @@ const addClickHandle = (item) => {
                         </div>
 
                         <div
-                            class="cursor-pointer flex items-center gap-1"
+                            class="cursor-pointer flex items-center gap-1 text-lg"
                             v-if="item.expandable"
                             @click="addClickHandle(item)"
                         >
