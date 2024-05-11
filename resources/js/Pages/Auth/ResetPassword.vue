@@ -1,10 +1,8 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import GuestLayout from "@/Layouts/GuestLayout.vue";
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
+import { Head, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
     email: String,
@@ -14,72 +12,77 @@ const props = defineProps({
 const form = useForm({
     token: props.token,
     email: props.email,
-    password: '',
-    password_confirmation: '',
+    password: "",
+    password_confirmation: "",
 });
 
 const submit = () => {
-    form.post(route('password.store'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
+    form.post(route("password.store"), {
+        onFinish: () => form.reset("password", "password_confirmation"),
     });
 };
 </script>
 
 <template>
     <GuestLayout>
-        <Head title="Reset Password" />
+        <Head title="Сброс пароля" />
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
+                <label for="email">Email</label>
+                <InputText
                     id="email"
                     type="email"
                     class="mt-1 block w-full"
                     v-model="form.email"
+                    aria-describedby="email-help"
                     required
-                    autofocus
-                    autocomplete="username"
                 />
-
-                <InputError class="mt-2" :message="form.errors.email" />
+                <small id="email-help" class="text-sm text-red-600">
+                    {{ form.errors.email }}
+                </small>
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
+                <label for="password">Пароль</label>
+                <InputText
                     id="password"
-                    type="password"
                     class="mt-1 block w-full"
                     v-model="form.password"
+                    type="password"
                     required
-                    autocomplete="new-password"
+                    aria-describedby="password-help"
                 />
-
-                <InputError class="mt-2" :message="form.errors.password" />
+                <small id="password-help" class="text-sm text-red-600">
+                    {{ form.errors.password }}
+                </small>
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
-
-                <TextInput
+                <label for="password_confirmation">Повтор пароля</label>
+                <InputText
                     id="password_confirmation"
-                    type="password"
                     class="mt-1 block w-full"
                     v-model="form.password_confirmation"
+                    type="password"
                     required
-                    autocomplete="new-password"
+                    aria-describedby="password_confirmation-help"
                 />
-
-                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+                <small
+                    id="password_confirmation-help"
+                    class="text-sm text-red-600"
+                >
+                    {{ form.errors.password_confirmation }}
+                </small>
             </div>
 
             <div class="flex items-center justify-end mt-4">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Reset Password
-                </PrimaryButton>
+                <Button
+                    type="submit"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                    label="Сбросить пароль"
+                />
             </div>
         </form>
     </GuestLayout>
