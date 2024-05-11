@@ -43,10 +43,32 @@ class TechnicController extends Controller
         $device = $deviceRepo->createDevice(name: $name, uniqueId: $uniqueId);
     }
 
+    protected function deleteFromTraccar($uniqueId) {
+
+        $traccarService = new TraccarService(
+            baseUrl: config('traccar.base_url'),
+            email: config('traccar.auth.username'),
+            password: config('traccar.auth.password'),
+            token: config('traccar.auth.token'),
+            headers: [
+                'Accept' => 'application/json'
+            ]
+        );
+        $deviceRepo = $traccarService->deviceRepository();
+
+        $device = $deviceRepo->getDeviceByUniqueId(uniqueId: $uniqueId);
+        $deviceRepo->deleteDevice(device: $device);
+    }
+
 
     protected function beforeSave(Request $request, Model $entity)
     {   
         $this->addToTraccar($request->license_plate, $request->tr_device_id);
+    }
+
+    protected function beforeDestroy(Request $request, Model $entity)
+    {
+        $this->deleteFromTraccar($entity->tr_device_id);
     }
 
     protected function afterIndex(Request $request, $entities)
