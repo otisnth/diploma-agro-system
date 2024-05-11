@@ -265,5 +265,5 @@ th.btn-col
     border none
 
 .p-column-filter-menu
-    margin-left none
+    margin-left 0
 </style>
