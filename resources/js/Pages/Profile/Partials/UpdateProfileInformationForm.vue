@@ -24,6 +24,11 @@ const form = useForm({
             <p class="mt-1 text-sm">
                 Обновите информацию профиля и адрес электронной почты.
             </p>
+
+            <p class="mt-2 text-lg">
+                Ваша должность -
+                {{ user.post_title }}
+            </p>
         </header>
 
         <form

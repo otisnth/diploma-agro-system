@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\Auth\RegisteredUserController;
+
 use App\Http\Controllers\MainPageController;
 use App\Http\Controllers\AdminBoardController;
 use App\Http\Controllers\FieldPageController;
@@ -53,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');
     Route::get('/personal/create', [PersonalPageController::class, 'create'])->name('personal.create');
 
-
+    Route::post('add-personal', [RegisteredUserController::class, 'addPersonal'])->name('addPersonal');
 });
 
 

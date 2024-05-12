@@ -21,7 +21,18 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'post',
     ];
+
+    protected $appends = ['post_title'];
+
+    public function getPostTitleAttribute() {
+        foreach (self::$posts as $post) {
+            if ($post['id'] === $this->post) {
+                return $post['name'];
+            }
+        }
+    }
 
     public static $posts = array(
         [
