@@ -13,6 +13,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.7",
         "mr-wolf-gb/traccar": "^1.0",
+        "rakibdevs/openweather-laravel-api": "^1.9",
         "tailflow/laravel-orion": "^2.22",
         "tightenco/ziggy": "^1.0"
     },

@@ -185,7 +185,7 @@ return [
         /*
          * Package Service Providers...
          */
-
+        RakibDevs\Weather\WeatherServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -210,6 +210,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'Weather' => RakibDevs\Weather\Weather::class,
     ])->toArray(),
 
 ];
