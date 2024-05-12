@@ -7,6 +7,10 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\AdminBoardController;
+use App\Http\Controllers\FieldPageController;
+use App\Http\Controllers\OperationPageController;
+use App\Http\Controllers\PersonalPageController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +42,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/adminboard', [AdminBoardController::class, 'index'])->name('adminboard');
+
+    Route::get('/field', [FieldPageController::class, 'index'])->name('field.index');
+    Route::get('/field/create', [FieldPageController::class, 'create'])->name('field.create');
+
+
+    Route::get('/operation', [OperationPageController::class, 'index'])->name('operation.index');
+    Route::get('/operation/create', [OperationPageController::class, 'create'])->name('operation.create');
+
+
+    Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');
+    Route::get('/personal/create', [PersonalPageController::class, 'create'])->name('personal.create');
+
+
 });
 
 

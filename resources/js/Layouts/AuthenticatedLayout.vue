@@ -17,23 +17,15 @@ const menuItems = ref([
     },
     {
         label: "Мероприятия",
-        // route: "operation",
-        route: "adminboard",
+        route: "operation.index",
     },
     {
         label: "Сотрудники",
-        // route: "personal",
-        route: "adminboard",
+        route: "personal.index",
     },
     {
         label: "Участки",
-        // route: "field",
-        route: "adminboard",
-    },
-    {
-        label: "Рабочие единицы",
-        // route: "work-unit",
-        route: "adminboard",
+        route: "field.index",
     },
 ]);
 
@@ -86,7 +78,6 @@ const toggleProfileMenu = (event) => {
             </template>
             <template #item="{ item, props }">
                 <Link
-                    v-ripple
                     v-bind="props.action"
                     class="flex align-items-center"
                     :href="route(item.route)"
