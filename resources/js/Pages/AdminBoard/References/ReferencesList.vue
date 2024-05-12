@@ -10,7 +10,6 @@ import ReferencesForm from "@/Pages/AdminBoard/References/ReferencesForm.vue";
 import { useDialog } from "primevue/usedialog";
 import { FilterMatchMode } from "primevue/api";
 import InputText from "primevue/inputtext";
-import Slider from "primevue/slider";
 import Dropdown from "primevue/dropdown";
 import ReferencesList from "@/Pages/AdminBoard/References/ReferencesList.vue";
 

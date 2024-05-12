@@ -14,7 +14,7 @@ import { Head } from "@inertiajs/vue3";
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div
-                    class="bg-white overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg"
+                    class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg"
                 >
                     <div class="p-6">You're logged in!</div>
                 </div>
