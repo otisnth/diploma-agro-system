@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\OperationNoteWorkerUnitController;
 use App\Http\Controllers\Api\SortController;
 use App\Http\Controllers\Api\TechnicController;
 use App\Http\Controllers\Api\WorkerUnitController;
+use App\Http\Controllers\Api\UserController;
+
 
 use App\Http\Controllers\Api\FieldStatusController;
 use App\Http\Controllers\Api\OperationNoteStatusController;
@@ -41,6 +43,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['as' => 'api.'], function() {
+    Orion::resource('users', UserController::class);
+
     Route::get('plants/properties', [PlantController::class, 'properties'])->name('plants.properties');
     Orion::resource('plants', PlantController::class);
 
