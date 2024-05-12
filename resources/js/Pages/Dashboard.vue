@@ -4,6 +4,7 @@ import { ref } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import WindIcon from "@/Components/WindIcon.vue";
 import WaterIcon from "@/Components/WaterIcon.vue";
+import Map from "@/Components/Map.vue";
 import { Head } from "@inertiajs/vue3";
 import Carousel from "primevue/carousel";
 import Button from "primevue/button";
@@ -44,12 +45,12 @@ const responsiveOptions = ref([
             <h2 class="font-semibold text-2xl leading-tight">Главная</h2>
         </template>
 
-        <div class="py-12">
+        <div class="py-6">
             <div class="flex flex-col gap-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div
-                    class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg"
+                    class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg pt-4"
                 >
-                    <h3 class="font-semibold text-xl leading-tight mt-2 ml-6">
+                    <h3 class="font-semibold text-xl leading-tight ml-6">
                         Прогноз погоды
                     </h3>
                     <Carousel
@@ -102,7 +103,9 @@ const responsiveOptions = ref([
                 <div
                     class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg"
                 >
-                    <div class="p-6">You're logged in!</div>
+                    <div class="p-4">
+                        <Map />
+                    </div>
                 </div>
             </div>
         </div>

@@ -17,7 +17,7 @@ defineProps({});
             </h2>
         </template>
 
-        <div class="py-12">
+        <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div
                     class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg"
