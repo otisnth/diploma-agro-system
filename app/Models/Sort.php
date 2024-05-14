@@ -25,6 +25,6 @@ class Sort extends Model
 
     public function plant()
     {
-        return $this->belongsTo(Plant::class, 'plant_id', 'id');
+        return $this->belongsTo(Plant::class);
     }
 }

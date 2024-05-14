@@ -16,6 +16,11 @@ class SortController extends Controller
     use DisablePagination;
     protected $model = Sort::class;
 
+    public function includes() : array
+    {
+        return ['plant'];
+    }
+
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {   
         if ($request->query("limit") == "all") {

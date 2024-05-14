@@ -17,4 +17,8 @@ class Plant extends Model
         'name',
         'color',
     ];
+
+    public function sorts() {
+        return $this->hasMany(Sort::class);
+    }
 }
