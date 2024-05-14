@@ -62,7 +62,7 @@ const submit = () => {
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div
-                    class="overflow-hidden p-6 bg-neutral-700 shadow-xl sm:rounded-lg"
+                    class="overflow-hidden p-6 bg-neutral-200 shadow-xl sm:rounded-lg"
                 >
                     <p class="mt-1 text-sm max-w-xl">
                         Заполните информацию профиля и создайте учетную запись

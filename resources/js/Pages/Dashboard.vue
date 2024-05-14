@@ -42,13 +42,15 @@ const responsiveOptions = ref([
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-2xl leading-tight">Главная</h2>
+            <h2 class="font-semibold text-2xl text-800 leading-tight">
+                Главная
+            </h2>
         </template>
 
         <div class="py-6">
             <div class="flex flex-col gap-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div
-                    class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg pt-4"
+                    class="overflow-hidden bg-neutral-200 shadow-xl sm:rounded-lg pt-4"
                 >
                     <h3 class="font-semibold text-xl leading-tight ml-6">
                         Прогноз погоды
@@ -64,7 +66,7 @@ const responsiveOptions = ref([
                     >
                         <template #item="slotProps">
                             <div
-                                class="m-2 p-3 flex flex-col bg-neutral-600 rounded-2xl"
+                                class="m-2 p-3 flex flex-col bg-neutral-300 shadow-lg rounded-2xl"
                             >
                                 <span>
                                     {{ slotProps.data.date }}
@@ -101,7 +103,7 @@ const responsiveOptions = ref([
                 </div>
 
                 <div
-                    class="overflow-hidden bg-neutral-700 shadow-xl sm:rounded-lg"
+                    class="overflow-hidden bg-neutral-200 shadow-xl sm:rounded-lg"
                 >
                     <div class="p-4">
                         <Map />

@@ -61,7 +61,7 @@ const toggleProfileMenu = (event) => {
 <template>
     <div>
         <Menubar
-            class="px-4 sm:px-6 lg:px-8"
+            class="px-4 sm:px-6 lg:px-8 bg-neutral-200"
             :model="menuItems"
             :pt="{
                 start: 'mr-4',
@@ -114,7 +114,7 @@ const toggleProfileMenu = (event) => {
                             :href="route(item.route)"
                             class="flex gap-2 items-center p-1 w-full rounded-md"
                             :class="{
-                                'bg-neutral-700': route().current(item.route),
+                                'bg-neutral-200': route().current(item.route),
                             }"
                             as="button"
                         >

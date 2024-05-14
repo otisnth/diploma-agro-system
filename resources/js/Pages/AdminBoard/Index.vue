@@ -57,7 +57,7 @@ const addClickHandle = (item) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="grid grid-cols-4 gap-4 p-4 sm:p-8">
                     <div
-                        class="bg-neutral-700 shadow-xl rounded-lg p-4 flex flex-col gap-2"
+                        class="bg-neutral-200 shadow-xl rounded-lg p-4 flex flex-col gap-2"
                         v-for="(item, index) in references"
                         :key="index"
                     >
