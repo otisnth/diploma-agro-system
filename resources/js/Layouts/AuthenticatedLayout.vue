@@ -59,9 +59,9 @@ const toggleProfileMenu = (event) => {
 </script>
 
 <template>
-    <div>
+    <div class="bg-green-50">
         <Menubar
-            class="px-4 sm:px-6 lg:px-8 bg-neutral-200"
+            class="px-4 sm:px-6 lg:px-8 bg-white"
             :model="menuItems"
             :pt="{
                 start: 'mr-4',
@@ -72,7 +72,7 @@ const toggleProfileMenu = (event) => {
             <template #start>
                 <Link :href="route('dashboard')">
                     <ApplicationLogo
-                        class="block h-9 w-auto fill-current text-800"
+                        class="block h-9 w-auto fill-lime-500 text-800"
                     />
                 </Link>
             </template>
@@ -82,7 +82,7 @@ const toggleProfileMenu = (event) => {
                     class="flex align-items-center"
                     :href="route(item.route)"
                     :class="{
-                        'border-b-2 border-indigo-400': route().current(
+                        'border-b-2 border-lime-500': route().current(
                             item.route
                         ),
                     }"
@@ -114,7 +114,7 @@ const toggleProfileMenu = (event) => {
                             :href="route(item.route)"
                             class="flex gap-2 items-center p-1 w-full rounded-md"
                             :class="{
-                                'bg-neutral-200': route().current(item.route),
+                                'bg-green-50': route().current(item.route),
                             }"
                             as="button"
                         >

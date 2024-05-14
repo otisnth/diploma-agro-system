@@ -19,9 +19,7 @@ defineProps({});
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div
-                    class="overflow-hidden bg-neutral-200 shadow-xl sm:rounded-lg"
-                >
+                <div class="overflow-hidden bg-white shadow-md sm:rounded-lg">
                     <div class="p-6">Форма</div>
                 </div>
             </div>

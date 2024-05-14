@@ -50,7 +50,7 @@ const responsiveOptions = ref([
         <div class="py-6">
             <div class="flex flex-col gap-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div
-                    class="overflow-hidden bg-neutral-200 shadow-xl sm:rounded-lg pt-4"
+                    class="overflow-hidden bg-white shadow-md sm:rounded-lg pt-4"
                 >
                     <h3 class="font-semibold text-xl leading-tight ml-6">
                         Прогноз погоды
@@ -66,19 +66,23 @@ const responsiveOptions = ref([
                     >
                         <template #item="slotProps">
                             <div
-                                class="m-2 p-3 flex flex-col bg-neutral-300 shadow-lg rounded-2xl"
+                                class="m-2 p-3 flex flex-col bg-white rounded-md border-green-50"
                             >
-                                <span>
-                                    {{ slotProps.data.date }}
-                                </span>
-                                <div class="flex items-center">
-                                    <img
-                                        class="w-16"
-                                        :src="slotProps.data.icon"
-                                    />
+                                <div
+                                    class="pt-3 pl-3 weather-card-header rounded-md text-white"
+                                >
                                     <span>
-                                        {{ slotProps.data.temp }}
+                                        {{ slotProps.data.date }}
                                     </span>
+                                    <div class="flex items-center">
+                                        <img
+                                            class="w-16"
+                                            :src="slotProps.data.icon"
+                                        />
+                                        <span>
+                                            {{ slotProps.data.temp }}
+                                        </span>
+                                    </div>
                                 </div>
                                 <span>
                                     Ощущается как
@@ -102,9 +106,7 @@ const responsiveOptions = ref([
                     </Carousel>
                 </div>
 
-                <div
-                    class="overflow-hidden bg-neutral-200 shadow-xl sm:rounded-lg"
-                >
+                <div class="overflow-hidden bg-white shadow-md sm:rounded-lg">
                     <div class="p-4">
                         <Map />
                     </div>
@@ -115,9 +117,7 @@ const responsiveOptions = ref([
 </template>
 
 <style lang="stylus">
-.p-carousel-indicator.p-highlight button
-    background-color #a3e635
-
-.p-carousel-indicator button
-    background-color #a1a1aa
+.weather-card-header
+    background linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,212,255,0) 100%), url("/assets/images/sky.jpg")
+    background-size cover
 </style>

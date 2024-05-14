@@ -32,8 +32,9 @@ onMounted(() => {
                 <Link :href="route('personal.create')">
                     <Button
                         label="Зарегистрировать сотрудника"
-                        severity="contrast"
-                        outlined
+                        plain
+                        text
+                        raised
                     />
                 </Link>
             </div>
