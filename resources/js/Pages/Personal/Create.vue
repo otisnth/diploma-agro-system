@@ -59,7 +59,7 @@ const submit = () => {
             </div>
         </template>
 
-        <div class="py-6">
+        <div class="py-2">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div
                     class="overflow-hidden p-6 bg-white shadow-md sm:rounded-lg"

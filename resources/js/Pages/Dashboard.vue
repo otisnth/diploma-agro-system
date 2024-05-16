@@ -47,7 +47,7 @@ const responsiveOptions = ref([
             </h2>
         </template>
 
-        <div class="py-6">
+        <div class="py-2">
             <div class="flex flex-col gap-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div
                     class="overflow-hidden bg-white shadow-md sm:rounded-lg pt-4"
