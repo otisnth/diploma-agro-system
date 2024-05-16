@@ -38,22 +38,14 @@ initFilters();
 const fetchPersonal = () => {
     axios
         .post("/api/users/search", {
-            filters: [{ field: "role_id", operator: "=", value: "2" }],
-            sort: [{ field: "lastname", direction: "asc" }],
-            includes: [{ relation: "studgroups" }],
-            ...params,
+            // filters: [{ field: "post_id", operator: "=", value: "" }],
+            // sort: [{ field: "name", direction: "asc" }],
+            // includes: [{ relation: "" }],
         })
         .then((response) => {
-            teachers.value = response.data.data;
+            personals.value = response.data.data;
 
-            teachers.value.forEach((element, index) => {
-                let namesString = element.studgroups
-                    .map((sg) => sg.name)
-                    .join(", ");
-                teachers.value[index].studgroups = namesString;
-            });
-
-            teachersTotal.value = response.data.meta.total;
+            countPersonals.value = response.data.meta.total;
         })
         .catch((error) => {});
 };
