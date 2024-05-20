@@ -9,4 +9,14 @@ class UserController extends Controller
 {
     protected $model = User::class;
 
+    public function filterableBy(): array
+    {
+        return ['post'];
+    }
+
+    public function sortableBy(): array
+    {
+        return ['name'];
+    }
+
 }

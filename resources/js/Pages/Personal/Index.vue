@@ -1,30 +1,31 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Paginator from "primevue/paginator";
 import InputText from "primevue/inputtext";
+import Skeleton from "primevue/skeleton";
 import axios from "axios";
 import { Head, Link } from "@inertiajs/vue3";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 
-defineProps({});
+const props = defineProps({
+    posts: Array,
+});
 
 const personals = ref(null);
 const countPersonals = ref(0);
 
+const activeTab = ref(props.posts[0]);
+const activePage = ref(0);
+const activeSort = ref(null);
+
 const filters = ref();
 
 onMounted(() => {
-    axios.get(route(`api.users.index`)).then((response) => {
-        if (response.data) {
-            personals.value = response.data.data;
-            countPersonals.value = response.data.meta.total;
-            console.log(countPersonals.value);
-        }
-    });
+    fetchPersonal();
 });
 
 const initFilters = () => {
@@ -35,12 +36,31 @@ const initFilters = () => {
 
 initFilters();
 
+const initSort = () => {
+    activeSort.value = {
+        field: "name",
+        direction: "asc",
+    };
+};
+
+initSort();
+
+const toggleActiveTab = (item) => {
+    activePage.value = 0;
+    activeTab.value = item;
+    initSort();
+    fetchPersonal();
+};
+
 const fetchPersonal = () => {
     axios
         .post("/api/users/search", {
-            // filters: [{ field: "post_id", operator: "=", value: "" }],
-            // sort: [{ field: "name", direction: "asc" }],
+            filters: [
+                { field: "post", operator: "=", value: activeTab.value.id },
+            ],
+            sort: [activeSort.value],
             // includes: [{ relation: "" }],
+            page: activePage.value + 1,
         })
         .then((response) => {
             personals.value = response.data.data;
@@ -50,13 +70,29 @@ const fetchPersonal = () => {
         .catch((error) => {});
 };
 
-const sortHandler = (e) => {
-    console.log(e);
+const sortHandler = ({ sortField, sortOrder }) => {
+    if (!sortField) {
+        initSort();
+        return;
+    }
+    activeSort.value = {
+        field: sortField,
+        direction: sortOrder > 0 ? "asc" : "desc",
+    };
 };
 
 const pageHandler = ({ page }) => {
-    console.log(e);
+    activePage.value = page;
 };
+
+watch(
+    activeSort,
+    () => {
+        activePage.value = 0;
+        fetchPersonal();
+    },
+    { deep: true }
+);
 </script>
 
 <template>
@@ -76,6 +112,16 @@ const pageHandler = ({ page }) => {
 
         <div class="py-2">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div class="flex gap-2">
+                    <Button
+                        v-for="item in posts"
+                        :key="item.id"
+                        :label="item.name"
+                        @click="toggleActiveTab(item)"
+                        :severity="item == activeTab ? '' : 'secondary'"
+                    />
+                </div>
+
                 <DataTable
                     class="shadow-md"
                     v-model:filters="filters"
@@ -84,12 +130,11 @@ const pageHandler = ({ page }) => {
                     @sort="sortHandler"
                     @page="pageHandler"
                     removableSort
-                    :loading="loading"
                 >
-                    <template #empty> No customers found. </template>
-                    <template #loading>
-                        Loading customers data. Please wait.
-                    </template>
+                    <template #empty>Сотрудники не найдены</template>
+                    <!-- <template #loading>
+                        <Skeleton width="100%" height="100%"></Skeleton>
+                    </template> -->
                     <Column
                         field="name"
                         header="Полное имя"
