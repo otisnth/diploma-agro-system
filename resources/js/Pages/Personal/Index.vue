@@ -69,12 +69,7 @@ const pageHandler = ({ page }) => {
                     Сотрудники
                 </h2>
                 <Link :href="route('personal.create')">
-                    <Button
-                        label="Зарегистрировать сотрудника"
-                        plain
-                        text
-                        raised
-                    />
+                    <Button label="Зарегистрировать сотрудника" />
                 </Link>
             </div>
         </template>

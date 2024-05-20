@@ -49,9 +49,7 @@ const responsiveOptions = ref([
 
         <div class="py-2">
             <div class="flex flex-col gap-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div
-                    class="overflow-hidden bg-white shadow-md sm:rounded-lg pt-4"
-                >
+                <div class="overflow-hidden sm:rounded-lg pt-4">
                     <h3 class="font-semibold text-xl leading-tight ml-6">
                         Прогноз погоды
                     </h3>
@@ -62,11 +60,10 @@ const responsiveOptions = ref([
                         :numScroll="1"
                         :responsiveOptions="responsiveOptions"
                         circular
-                        :autoplayInterval="9000"
                     >
                         <template #item="slotProps">
                             <div
-                                class="m-2 p-3 flex flex-col bg-white rounded-md border-green-50"
+                                class="m-2 flex flex-col bg-white rounded-md border-green-50 weather-card"
                             >
                                 <div
                                     class="pt-3 pl-3 weather-card-header rounded-md text-white"
@@ -84,22 +81,24 @@ const responsiveOptions = ref([
                                         </span>
                                     </div>
                                 </div>
-                                <span>
-                                    Ощущается как
-                                    {{ slotProps.data.feels_like }}
-                                </span>
-                                <div class="flex items-center">
-                                    <WindIcon class="w-9 h-9" />
+                                <div class="py-3 pl-3 weather-card-data">
                                     <span>
-                                        {{ slotProps.data.windSpeed }}
-                                        {{ slotProps.data.windDir }}
+                                        Ощущается как
+                                        {{ slotProps.data.feels_like }}
                                     </span>
-                                </div>
-                                <div class="flex items-center">
-                                    <WaterIcon class="w-9 h-9" />
-                                    <span>
-                                        {{ slotProps.data.humidity }}
-                                    </span>
+                                    <div class="flex items-center">
+                                        <WindIcon class="w-9 h-9" />
+                                        <span>
+                                            {{ slotProps.data.windSpeed }}
+                                            {{ slotProps.data.windDir }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <WaterIcon class="w-9 h-9" />
+                                        <span>
+                                            {{ slotProps.data.humidity }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -118,6 +117,14 @@ const responsiveOptions = ref([
 
 <style lang="stylus">
 .weather-card-header
-    background linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,212,255,0) 100%), url("/assets/images/sky.jpg")
+    background linear-gradient(90deg, #acadac 0%, rgba(0, 212, 255, 0) 100%), url(/assets/images/sky.jpg)
+    // linear-gradient(90deg, #acadac 0%, rgba(0, 212, 255, 0) 100%), url(/assets/images/sky.jpg)
     background-size cover
+</style>
+
+<style>
+.weather-card {
+    box-shadow: 0 4px 6px -1px rgb(132 204 22 / 10%),
+        0 2px 4px -2px rgb(113 245 90 / 10%);
+}
 </style>
