@@ -11,6 +11,7 @@ import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import DialogService from "primevue/dialogservice";
+import ConfirmationService from "primevue/confirmationservice";
 import locale from "@/primevue.config.js";
 
 const appName =
@@ -32,6 +33,7 @@ createInertiaApp({
             })
             .use(ToastService)
             .use(DialogService)
+            .use(ConfirmationService)
             .mount(el);
     },
     progress: {

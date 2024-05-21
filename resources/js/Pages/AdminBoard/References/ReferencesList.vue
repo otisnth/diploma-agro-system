@@ -12,6 +12,10 @@ import { FilterMatchMode } from "primevue/api";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
 import ReferencesList from "@/Pages/AdminBoard/References/ReferencesList.vue";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
+
+const confirm = useConfirm();
 
 const dialog = useDialog();
 
@@ -19,6 +23,7 @@ const dialogRef = inject("dialogRef");
 
 const props = dialogRef.value.data;
 
+const deleteId = ref(null);
 const referenceData = ref(null);
 const tableColumns = ref(null);
 const filters = ref(null);
@@ -94,22 +99,52 @@ const editClickHandler = (data) => {
     });
 };
 
-const deleteClickHandler = (data) => {
-    axios
-        .delete(route(`api.${props.id}.destroy`, data.id))
-        .then(() => {
-            getTableData();
-            toastService.showSuccessToast(
-                "Успешное удаления",
-                "Сведения были удалены из системы"
-            );
-        })
-        .catch(() => {
-            toastService.showErrorToast(
-                "Ошибка",
-                "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-            );
-        });
+// const deleteClickHandler = (data) => {
+//     axios
+//         .delete(route(`api.${props.id}.destroy`, data.id))
+//         .then(() => {
+//             getTableData();
+//             toastService.showSuccessToast(
+//                 "Успешное удаления",
+//                 "Сведения были удалены из системы"
+//             );
+//         })
+//         .catch(() => {
+//             toastService.showErrorToast(
+//                 "Ошибка",
+//                 "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+//             );
+//         });
+// };
+
+const confirmDelete = (data) => {
+    deleteId.value = data.id;
+    confirm.require({
+        message: "Вы действительно хотите удалить эту запись?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-danger",
+        rejectLabel: "Отмена",
+        acceptLabel: "Удалить",
+        accept: () => {
+            axios
+                .delete(route(`api.${props.id}.destroy`, deleteId.value))
+                .then(() => {
+                    getTableData();
+                    toastService.showSuccessToast(
+                        "Успешное удаления",
+                        "Сведения были удалены из системы"
+                    );
+                })
+                .catch(() => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+                    );
+                });
+        },
+    });
 };
 
 const addClickHandle = () => {
@@ -228,30 +263,36 @@ const addClickHandle = () => {
                     </template>
                 </Column>
 
-                <Column class="flex gap-2 btn-col justify-end">
+                <Column
+                    header="Действия"
+                    v-if="props.editable || props.expandable"
+                >
                     <template #body="{ data }">
-                        <Button
-                            v-if="props.editable"
-                            @click="editClickHandler(data)"
-                            type="button"
-                            severity="secondary"
-                            icon="pi pi-pencil"
-                            rounded
-                        />
+                        <div class="flex gap-2 btn-col">
+                            <Button
+                                v-if="props.editable"
+                                @click="editClickHandler(data)"
+                                type="button"
+                                severity="secondary"
+                                icon="pi pi-pencil"
+                                rounded
+                            />
 
-                        <Button
-                            v-if="props.expandable"
-                            @click="deleteClickHandler(data)"
-                            type="button"
-                            severity="danger"
-                            icon="pi pi-trash"
-                            rounded
-                        />
+                            <Button
+                                v-if="props.expandable"
+                                @click="confirmDelete(data)"
+                                type="button"
+                                severity="danger"
+                                icon="pi pi-trash"
+                                rounded
+                            />
+                        </div>
                     </template>
                 </Column>
             </DataTable>
         </div>
         <Skeleton v-else width="100%" height="100%"></Skeleton>
+        <ConfirmDialog></ConfirmDialog>
     </div>
 </template>
 

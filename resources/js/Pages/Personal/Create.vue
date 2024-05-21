@@ -49,12 +49,16 @@ const submit = () => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col">
                 <h2 class="font-semibold text-2xl text-800 leading-tight">
                     Добавление сотрудника
                 </h2>
-                <Link :href="route('personal.index')">
-                    <Button label="К списку" plain text raised />
+                <Link
+                    :href="route('personal.index')"
+                    class="flex items-center gap-1 mt-2"
+                >
+                    <i class="pi pi-chevron-left"></i>
+                    <span class="font-semibold text-md">К списку</span>
                 </Link>
             </div>
         </template>

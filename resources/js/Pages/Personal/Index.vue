@@ -7,9 +7,14 @@ import Column from "primevue/column";
 import Paginator from "primevue/paginator";
 import InputText from "primevue/inputtext";
 import Skeleton from "primevue/skeleton";
+import toastService from "@/Services/toastService";
 import axios from "axios";
 import { Head, Link } from "@inertiajs/vue3";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
+
+const confirm = useConfirm();
 
 const props = defineProps({
     posts: Array,
@@ -17,6 +22,8 @@ const props = defineProps({
 
 const personals = ref(null);
 const countPersonals = ref(0);
+
+const deletePersonalId = ref(null);
 
 const activeTab = ref(props.posts[0]);
 const activePage = ref(0);
@@ -83,6 +90,7 @@ const sortHandler = ({ sortField, sortOrder }) => {
 
 const pageHandler = ({ page }) => {
     activePage.value = page;
+    fetchPersonal();
 };
 
 watch(
@@ -93,6 +101,37 @@ watch(
     },
     { deep: true }
 );
+
+const confirmPersonalDelete = (data) => {
+    deletePersonalId.value = data.id;
+    confirm.require({
+        message:
+            "Вы действительно хотите удалить учетную запись данного сотрудника?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-danger",
+        rejectLabel: "Отмена",
+        acceptLabel: "Удалить",
+        accept: () => {
+            axios
+                .delete(route(`api.users.destroy`, deletePersonalId.value))
+                .then(() => {
+                    fetchPersonal();
+                    toastService.showSuccessToast(
+                        "Успешное удаления",
+                        "Учетная запись сотрудника была успешно удалена"
+                    );
+                })
+                .catch(() => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+                    );
+                });
+        },
+    });
+};
 </script>
 
 <template>
@@ -149,9 +188,33 @@ watch(
                                 placeholder="Поиск по имени"
                             /> </template
                     ></Column>
-                    <Column field="post_title" header="Должность" sortable>
+                    <Column field="email" header="Email" sortable> </Column>
+                    <Column
+                        v-if="activeTab.id == 'worker'"
+                        field="status"
+                        header="Статус"
+                        sortable
+                    ></Column>
+                    <Column header="Действия">
+                        <template #body="{ data }">
+                            <div class="flex gap-2 btn-col">
+                                <Button
+                                    type="button"
+                                    severity="secondary"
+                                    icon="pi pi-pencil"
+                                    rounded
+                                />
+
+                                <Button
+                                    type="button"
+                                    @click="confirmPersonalDelete(data)"
+                                    severity="danger"
+                                    icon="pi pi-trash"
+                                    rounded
+                                />
+                            </div>
+                        </template>
                     </Column>
-                    <Column field="status" header="Статус" sortable></Column>
 
                     <template #footer>
                         <Paginator
@@ -164,6 +227,7 @@ watch(
                 </DataTable>
             </div>
         </div>
+        <ConfirmDialog></ConfirmDialog>
     </AuthenticatedLayout>
 </template>
 
