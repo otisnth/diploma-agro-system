@@ -14,7 +14,6 @@ use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\EquipmentWorkerUnitController;
 use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\OperationNoteController;
-use App\Http\Controllers\Api\OperationNoteWorkerUnitController;
 use App\Http\Controllers\Api\SortController;
 use App\Http\Controllers\Api\TechnicController;
 use App\Http\Controllers\Api\WorkerUnitController;
@@ -73,8 +72,6 @@ Route::group(['as' => 'api.'], function() {
 
     Route::get('operation-notes/properties', [OperationNoteController::class, 'properties'])->name('operation-notes.properties');
     Orion::resource('operation-notes', OperationNoteController::class);
-
-    Orion::resource('operation-notes-worker-units', OperationNoteWorkerUnitController::class);
 
     Route::get('sorts/properties', [SortController::class, 'properties'])->name('sorts.properties');
     Orion::resource('sorts', SortController::class);
