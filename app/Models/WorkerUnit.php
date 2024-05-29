@@ -14,6 +14,8 @@ class WorkerUnit extends Model
 
     protected $fillable = [
         'is_used',
+        'complete_confirm',
+        'operation_note_id',
         'worker_id',
         'technic_id',
     ];
@@ -30,5 +32,10 @@ class WorkerUnit extends Model
     public function technic()
     {
         return $this->belongsTo(Technic::class, 'technic_id', 'id');
+    }
+
+    public function operationNote()
+    {
+        return $this->belongsTo(OperationNote::class, 'operation_note_id', 'id');
     }
 }
