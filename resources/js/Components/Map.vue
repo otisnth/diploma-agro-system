@@ -69,4 +69,18 @@ onMounted(() => {
 
 <style>
 @import url(../../css/leaflet.css);
+
+.leaflet-touch .leaflet-bar {
+    border-color: transparent;
+}
+
+.leaflet-touch .leaflet-bar a:first-child {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.leaflet-touch .leaflet-bar a:last-child {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
 </style>
