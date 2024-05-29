@@ -68,9 +68,16 @@ const responsiveOptions = ref([
                                 <div
                                     class="pt-3 pl-3 weather-card-header rounded-md text-white"
                                 >
-                                    <span>
-                                        {{ slotProps.data.date }}
-                                    </span>
+                                    <div class="flex gap-1 flex-col">
+                                        <span>
+                                            {{ slotProps.data.date }}
+                                        </span>
+
+                                        <span>
+                                            {{ slotProps.data.weekday }}
+                                        </span>
+                                    </div>
+
                                     <div class="flex items-center">
                                         <img
                                             class="w-16"
@@ -82,19 +89,30 @@ const responsiveOptions = ref([
                                     </div>
                                 </div>
                                 <div class="py-3 pl-3 weather-card-data">
-                                    <span>
-                                        Ощущается как
-                                        {{ slotProps.data.feels_like }}
-                                    </span>
-                                    <div class="flex items-center">
-                                        <WindIcon class="w-9 h-9" />
+                                    <div>
+                                        <span class="weather-props-title">
+                                            Ощущается как:
+                                        </span>
+                                        <span>
+                                            {{ slotProps.data.feels_like }}
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <!-- <WindIcon class="w-9 h-9" /> -->
+                                        <span class="weather-props-title">
+                                            Ветер:
+                                        </span>
                                         <span>
                                             {{ slotProps.data.windSpeed }}
                                             {{ slotProps.data.windDir }}
                                         </span>
                                     </div>
-                                    <div class="flex items-center">
-                                        <WaterIcon class="w-9 h-9" />
+                                    <div>
+                                        <!-- <WaterIcon class="w-9 h-9" /> -->
+                                        <span class="weather-props-title">
+                                            Влажность:
+                                        </span>
                                         <span>
                                             {{ slotProps.data.humidity }}
                                         </span>
@@ -120,6 +138,9 @@ const responsiveOptions = ref([
     background linear-gradient(90deg, #acadac 0%, rgba(0, 212, 255, 0) 100%), url(/assets/images/sky.jpg)
     // linear-gradient(90deg, #acadac 0%, rgba(0, 212, 255, 0) 100%), url(/assets/images/sky.jpg)
     background-size cover
+
+.weather-props-title
+    color #acadac
 </style>
 
 <style>
