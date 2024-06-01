@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Field;
 
 class FieldPageController extends Controller
 {
@@ -19,8 +20,10 @@ class FieldPageController extends Controller
 
     public function create(Request $request): Response
     {
+        $stauses = Field::$fieldStatuses;
 
         return Inertia::render('Field/Create', [
+            'fieldStatuses' => $stauses,
         ]);
     }
 

@@ -14,12 +14,49 @@ class Field extends Model
 
     public static $fieldStatuses = array(
         [
-            'name' => 'Нуждается во вспашке',
-            'color' => '33ffaa',
+            'id' => 'stubbleTillage',
+            'name' => 'Культивация стерни',
+            'color' => '78b795',
         ],
         [
-            'name' => 'Идет уборка',
-            'color' => '99aaff',
+            'id' => 'cultivated',
+            'name' => 'Культивировано',
+            'color' => '56a3db',
+        ],
+        [
+            'id' => 'plowed',
+            'name' => 'Вспахано',
+            'color' => '52414e',
+        ],
+        [
+            'id' => 'seedbed',
+            'name' => 'Засеяно',
+            'color' => '50d3ac',
+        ],
+        [
+            'id' => 'growing',
+            'name' => 'Растет',
+            'color' => '82c722',
+        ],
+        [
+            'id' => 'readyToHarvest',
+            'name' => 'Урожай созрел',
+            'color' => 'e3941c',
+        ],
+        [
+            'id' => 'harvested',
+            'name' => 'Урожай убран',
+            'color' => '8a599f',
+        ],
+        [
+            'id' => 'removeFoliage',
+            'name' => 'Можно косить',
+            'color' => 'd93a1a',
+        ],
+        [
+            'id' => 'withered',
+            'name' => 'Урожай погиб',
+            'color' => '693c1a',
         ]
     );
 

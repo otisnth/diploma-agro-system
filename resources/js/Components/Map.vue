@@ -1,14 +1,30 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import L from "leaflet";
 
-defineProps({});
+const props = defineProps({
+    width: {
+        type: String,
+        default: "100%",
+    },
+    height: {
+        type: String,
+        default: "800px",
+    },
+    fields: {
+        type: Array,
+    },
+});
 
 const map = ref();
 const mapContainer = ref();
+const fieldsLayers = ref([]);
 
 onMounted(() => {
+    mapContainer.value.style.width = props.width;
+    mapContainer.value.style.height = props.height;
+
     map.value = L.map(mapContainer.value, {
         zoomControl: false,
     }).setView([52.609025, 39.59897], 13);
@@ -56,6 +72,34 @@ onMounted(() => {
         })
         .addTo(map.value);
 });
+
+watch(
+    () => props.fields,
+    () => {
+        fieldsLayers.value.forEach(function (layer) {
+            map.value.removeLayer(layer);
+        });
+        fieldsLayers.value = [];
+
+        for (const field of props.fields) {
+            const color = field?.color || "#84cc16";
+
+            const layer = L.geoJSON(field.coords, {
+                style: function (feature) {
+                    return {
+                        color: color,
+                        weight: 1,
+                        fillColor: color,
+                        fillOpacity: 0.5,
+                    };
+                },
+            }).addTo(map.value);
+            fieldsLayers.value.push(layer);
+            map.value.fitBounds(layer.getBounds());
+        }
+    },
+    { deep: true }
+);
 </script>
 
 <template>

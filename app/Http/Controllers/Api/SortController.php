@@ -21,6 +21,11 @@ class SortController extends Controller
         return ['plant'];
     }
 
+    public function filterableBy(): array
+    {
+        return ['plant_id'];
+    }
+
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {   
         if ($request->query("limit") == "all") {
