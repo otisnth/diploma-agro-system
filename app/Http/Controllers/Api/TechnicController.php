@@ -62,7 +62,7 @@ class TechnicController extends Controller
 
 
     protected function beforeSave(Request $request, Model $entity)
-    {   
+    {
         $this->addToTraccar($request->license_plate, $request->tr_device_id);
     }
 

@@ -13,6 +13,7 @@ import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import InlineMessage from "primevue/inlinemessage";
 import Button from "primevue/button";
+import toastService from "@/Services/toastService";
 
 const props = defineProps({
     fieldStatuses: Array,
@@ -28,6 +29,8 @@ const form = useForm({
     startDate: null,
 });
 
+const formError = ref(null);
+
 const isShowPlantBlock = ref(false);
 const cultureList = ref(null);
 const sortList = ref(null);
@@ -38,12 +41,12 @@ const fieldPreview = ref([]);
 
 const coordsValidation = ref({
     list: {
-        type: "info",
-        message: "Введите координаты минимум 3-ех точек",
+        type: "",
+        message: "",
     },
     string: {
-        type: "info",
-        message: "Введите координаты минимум 3-ех точек",
+        type: "",
+        message: "",
     },
 });
 
@@ -72,9 +75,79 @@ const removeCoordsFromList = (index) => {
 };
 
 const createField = () => {
-    form.coords = fieldPreview.value[0].coords;
+    if (!form.name) {
+        toastService.showErrorToast("Ошибка", "Введите название участка");
+        return;
+    }
 
-    // TODO: VALIDATION
+    if (!form.square) {
+        toastService.showErrorToast("Ошибка", "Введите площадь участка");
+        return;
+    }
+
+    if (!form.status) {
+        toastService.showErrorToast("Ошибка", "Выберите состояние участка");
+        return;
+    } else {
+        const showPlantStatuses = [
+            "seedbed",
+            "growing",
+            "readyToHarvest",
+            "removeFoliage",
+        ];
+
+        if (showPlantStatuses.includes(form.status)) {
+            if (!form.plant) {
+                toastService.showErrorToast("Ошибка", "Выберите культуру");
+                return;
+            }
+
+            if (!form.sort) {
+                toastService.showErrorToast("Ошибка", "Выберите сорт");
+                return;
+            }
+
+            if (!form.startDate) {
+                toastService.showErrorToast("Ошибка", "Введите дату посева");
+                return;
+            } else {
+                const today = new Date();
+                if (form.startDate > today) {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Дата посева не может быть позже текущей"
+                    );
+                    return;
+                }
+            }
+        }
+    }
+
+    if (!fieldPreview.value?.[0]) {
+        toastService.showErrorToast("Ошибка", "Введите координаты участка");
+        return;
+    }
+
+    form.coords = fieldPreview.value[0].coords;
+    form.sort_id = form.sort;
+
+    axios
+        .post(route("api.fields.store"), form, {
+            onFinish: () => form.reset(),
+        })
+        .then(() => {
+            toastService.showSuccessToast(
+                "Успешное добавление",
+                "Участок добавлен в систему"
+            );
+            router.visit("/field");
+        })
+        .catch((e) => {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+            );
+        });
 };
 
 watch(
