@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from "vue";
-
+import { ref, onMounted } from "vue";
+import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import WindIcon from "@/Components/WindIcon.vue";
 import WaterIcon from "@/Components/WaterIcon.vue";
@@ -9,7 +9,7 @@ import { Head } from "@inertiajs/vue3";
 import Carousel from "primevue/carousel";
 import Button from "primevue/button";
 
-defineProps({
+const props = defineProps({
     forecast: Object,
 });
 
@@ -35,6 +35,20 @@ const responsiveOptions = ref([
         numScroll: 1,
     },
 ]);
+
+const fields = ref([]);
+
+onMounted(() => {
+    axios
+        .post("/api/fields/search", {
+            limit: "all",
+            includes: [{ relation: "sort" }, { relation: "sort.plant" }],
+        })
+        .then((response) => {
+            fields.value = response.data.data;
+        })
+        .catch((error) => {});
+});
 </script>
 
 <template>
@@ -55,7 +69,7 @@ const responsiveOptions = ref([
                     </h3>
                     <Carousel
                         class="pt-4"
-                        :value="forecast"
+                        :value="props.forecast"
                         :numVisible="4"
                         :numScroll="1"
                         :responsiveOptions="responsiveOptions"
@@ -125,7 +139,11 @@ const responsiveOptions = ref([
 
                 <div class="overflow-hidden bg-white shadow-md sm:rounded-lg">
                     <div class="p-4">
-                        <Map />
+                        <Map
+                            :fields="fields"
+                            :isShowPopups="true"
+                            :isShowLegend="true"
+                        />
                     </div>
                 </div>
             </div>

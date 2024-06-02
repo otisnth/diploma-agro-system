@@ -69,6 +69,16 @@ class Field extends Model
         'sort_id'
     ];
 
+    protected $appends = ['field_status'];
+
+    public function getFieldStatusAttribute() {
+        foreach (self::$fieldStatuses as $status) {
+            if ($status['id'] === $this->status) {
+                return $status;
+            }
+        }
+    }
+
     protected $casts = [
         'coords' => 'array'
     ];
@@ -78,7 +88,8 @@ class Field extends Model
         return $this->belongsTo(Sort::class, 'sort_id', 'id');
     }
 
-    public function cropHistory(){
+    public function cropHistory()
+    {
         return $this->hasMany(CropRotation::class, 'field_id','id');
     }
 }

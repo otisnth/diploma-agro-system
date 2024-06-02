@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Field;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;

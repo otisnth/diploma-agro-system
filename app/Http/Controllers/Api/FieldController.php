@@ -10,6 +10,7 @@ use Orion\Http\Controllers\Controller;
 use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\HttpFoundation\Response;
 
 use MrWolfGb\Traccar\Services\TraccarService;
 
@@ -17,10 +18,15 @@ class FieldController extends Controller
 {
     protected $model = Field::class;
 
+    public function includes() : array
+    {
+        return ['sort', 'sort.plant'];
+    }
+
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {
-        if ($request->query("limit") == "all") {
-           return $query->get();
+        if ($request->limit == "all") {
+            return $query->get();
         }
         else {
             return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
@@ -91,6 +97,13 @@ class FieldController extends Controller
             $cropRotation->save();
         }
 
+    }
+
+    public function getFieldStatuses()
+    {
+        return response()->json([
+            'data' => Field::$fieldStatuses
+        ], Response::HTTP_OK);
     }
 
 }

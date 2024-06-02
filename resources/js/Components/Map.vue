@@ -15,50 +15,34 @@ const props = defineProps({
     fields: {
         type: Array,
     },
+    isShowPopups: {
+        type: Boolean,
+        default: false,
+    },
+    isShowLegend: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const map = ref();
 const mapContainer = ref();
 const fieldsLayers = ref([]);
+const mapLegend = ref();
 
-onMounted(() => {
-    mapContainer.value.style.width = props.width;
-    mapContainer.value.style.height = props.height;
+const colorScheme = ref("plant");
 
+const plantList = ref();
+const fieldStatusList = ref();
+
+const initMap = () => {
     map.value = L.map(mapContainer.value, {
         zoomControl: false,
     }).setView([52.609025, 39.59897], 13);
+
     map.value.attributionControl.setPrefix(
         '<a href="https://leafletjs.com/index.html">Leaflet</a>'
     );
-
-    // L.tileLayer(
-    //     "https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.{ext}",
-    //     {
-    //         minZoom: 0,
-    //         maxZoom: 20,
-    //         attribution:
-    //             '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    //         ext: "jpg",
-    //     }
-    // ).addTo(map.value);
-
-    // L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
-    //     maxZoom: 17,
-    //     attribution:
-    //         'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-    // }).addTo(map.value);
-
-    // L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    //     maxZoom: 19,
-    //     attribution:
-    //         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    // }).addTo(map.value);
-
-    // L.tileLayer("http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}", {
-    //     maxZoom: 19,
-    //     subdomains: ["mt0", "mt1", "mt2", "mt3"],
-    // }).addTo(map.value);
 
     L.tileLayer("http://map.otisnth.ru/tile/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -71,20 +55,85 @@ onMounted(() => {
             position: "topright",
         })
         .addTo(map.value);
-});
+};
 
-watch(
-    () => props.fields,
-    () => {
-        fieldsLayers.value.forEach(function (layer) {
-            map.value.removeLayer(layer);
-        });
-        fieldsLayers.value = [];
+const fetchLists = async () => {
+    await axios
+        .get(route("api.plants.index"), {
+            limit: "all",
+        })
+        .then((response) => {
+            plantList.value = response.data.data;
+            plantList.value.push({
+                name: "Без растений",
+                color: "84cc16",
+            });
+        })
+        .catch((error) => {});
 
-        for (const field of props.fields) {
-            const color = field?.color || "#84cc16";
+    await axios
+        .get(route("api.fields.statuses"))
+        .then((response) => {
+            fieldStatusList.value = response.data.data;
+        })
+        .catch((error) => {});
+};
 
-            const layer = L.geoJSON(field.coords, {
+const updateLegend = (type) => {
+    colorScheme.value = type;
+
+    var content = document.querySelector(".legend-content");
+    if (!content) return;
+
+    content.innerHTML = "";
+
+    if (type === "plant") {
+        for (const i in plantList.value) {
+            content.innerHTML +=
+                "<div>" +
+                '<i style="background:' +
+                "#" +
+                plantList.value[i].color +
+                '"></i> ' +
+                plantList.value[i].name +
+                "<br>" +
+                "</div>";
+        }
+    } else {
+        for (const i in fieldStatusList.value) {
+            content.innerHTML +=
+                "<div>" +
+                '<i style="background:' +
+                "#" +
+                fieldStatusList.value[i].color +
+                '"></i> ' +
+                fieldStatusList.value[i].name +
+                "<br>" +
+                "</div>";
+        }
+    }
+    renderFields();
+};
+
+const renderFields = () => {
+    fieldsLayers.value.forEach(function (layer) {
+        map.value.removeLayer(layer);
+    });
+    fieldsLayers.value = [];
+
+    for (const field of props.fields) {
+        let color;
+
+        if (colorScheme.value === "plant") {
+            color = field?.sort?.plant?.color
+                ? `#${field.sort.plant.color}`
+                : "#84cc16";
+        } else {
+            color = `#${field.field_status.color}`;
+        }
+
+        const layer = ref(
+            L.geoJSON(field.coords, {
                 style: function (feature) {
                     return {
                         color: color,
@@ -93,9 +142,127 @@ watch(
                         fillOpacity: 0.5,
                     };
                 },
-            }).addTo(map.value);
-            fieldsLayers.value.push(layer);
-            map.value.fitBounds(layer.getBounds());
+            })
+        ).value.addTo(map.value);
+
+        if (props.isShowPopups) {
+            let info = `<b>${field.name}</b>
+                        <br> <b>Площадь:</b> ${field.square} м&sup2;
+                        <br> <b>Состояние:</b> ${field.field_status.name}`;
+
+            if (field.sort) {
+                info = `${info}
+                        <br> <b>Культура:</b> ${field.sort.plant.name}
+                        <br> <b>Сорт:</b> ${field.sort.name}`;
+            }
+
+            layer.bindPopup(info).openTooltip();
+        }
+
+        fieldsLayers.value.push(layer);
+    }
+};
+
+onMounted(async () => {
+    await fetchLists();
+
+    mapContainer.value.style.width = props.width;
+    mapContainer.value.style.height = props.height;
+
+    initMap();
+
+    if (props.isShowLegend) {
+        mapLegend.value = L.control({ position: "topleft" });
+
+        mapLegend.value.onAdd = function (map) {
+            let legendContainer = L.DomUtil.create("div", "info legend"),
+                headerLegend = L.DomUtil.create(
+                    "div",
+                    "flex px-1",
+                    legendContainer
+                ),
+                legendBody = L.DomUtil.create("div", "px-1", legendContainer),
+                toggleBtn = L.DomUtil.create("button", ""),
+                content = L.DomUtil.create(
+                    "div",
+                    "legend-content py-2",
+                    legendContainer
+                ),
+                switchBox = L.DomUtil.create(
+                    "div",
+                    "mt-1 flex rounded-md bg-green-50 px-1 border-2",
+                    legendContainer
+                ),
+                plantBtn = L.DomUtil.create(
+                    "button",
+                    "border-r py-1 pr-1 legend-active",
+                    switchBox
+                ),
+                stateBtn = L.DomUtil.create(
+                    "button",
+                    "border-l py-1 pl-1",
+                    switchBox
+                );
+
+            toggleBtn.innerHTML = "<i class='pi pi-chevron-left'></i>";
+            toggleBtn.onclick = () => {
+                let display = legendBody.style.display;
+                legendBody.style.display =
+                    display === "none" ? "block" : "none";
+                toggleBtn.innerHTML =
+                    display === "none"
+                        ? "<i class='pi pi-chevron-left'></i>"
+                        : "<i class='pi pi-chevron-right'></i>";
+                legendContainer.classList.toggle("legend-hide");
+            };
+
+            plantBtn.innerHTML = "Культуры";
+            plantBtn.onclick = () => {
+                updateLegend("plant");
+                plantBtn.classList.toggle("legend-active");
+                stateBtn.classList.toggle("legend-active");
+            };
+
+            stateBtn.innerHTML = "Состояния";
+            stateBtn.onclick = () => {
+                updateLegend("state");
+                plantBtn.classList.toggle("legend-active");
+                stateBtn.classList.toggle("legend-active");
+            };
+
+            switchBox.appendChild(plantBtn);
+            switchBox.appendChild(stateBtn);
+
+            legendBody.appendChild(switchBox);
+            legendBody.appendChild(content);
+
+            headerLegend.appendChild(toggleBtn);
+
+            legendContainer.appendChild(headerLegend);
+            legendContainer.appendChild(legendBody);
+
+            return legendContainer;
+        };
+
+        mapLegend.value.addTo(map.value);
+    }
+
+    updateLegend(colorScheme.value);
+
+    if (fieldsLayers?.value?.[0]) {
+        map.value.fitBounds(fieldsLayers.value[0].getBounds());
+    }
+});
+
+watch(
+    () => props.fields,
+    (newValue, oldValue) => {
+        if (!oldValue.length) {
+            return;
+        }
+        renderFields();
+        if (fieldsLayers?.value?.[0]) {
+            map.value.fitBounds(fieldsLayers.value[0].getBounds());
         }
     },
     { deep: true }
@@ -126,5 +293,45 @@ watch(
 .leaflet-touch .leaflet-bar a:last-child {
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+}
+
+.legend {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.legend-hide {
+    background: transparent;
+    box-shadow: none;
+}
+
+.legend button {
+    width: 100%;
+    margin: 4px 0;
+}
+
+.legend .legend-content {
+    display: flex;
+    flex-direction: column;
+    width: 170px;
+    max-height: 50%;
+    overflow: scroll;
+    gap: 4px;
+}
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.legend-active {
+    color: #84cc16;
 }
 </style>
