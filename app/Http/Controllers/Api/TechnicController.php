@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use App\Policies\TruePolicy;
 
 use MrWolfGb\Traccar\Services\TraccarService;
 
@@ -16,6 +17,8 @@ class TechnicController extends Controller
 {
 
     protected $model = Technic::class;
+    protected $policy = TruePolicy::class;
+
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {   

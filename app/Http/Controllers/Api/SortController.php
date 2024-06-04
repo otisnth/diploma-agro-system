@@ -9,12 +9,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
 use Orion\Concerns\DisablePagination;
 use Illuminate\Database\Eloquent\Builder;
+use App\Policies\TruePolicy;
 
 
 class SortController extends Controller
 {
     use DisablePagination;
     protected $model = Sort::class;
+
+    protected $policy = TruePolicy::class;
 
     public function includes() : array
     {

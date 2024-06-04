@@ -10,12 +10,15 @@ use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Policies\TruePolicy;
 
 class TechnicTypeController extends Controller
 {
     use DisablePagination;
 
     protected $model = TechnicType::class;
+
+    protected $policy = TruePolicy::class;
 
     protected function afterIndex(Request $request, $entities)
     {

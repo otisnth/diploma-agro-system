@@ -6,6 +6,7 @@ use App\Models\Plant;
 use Orion\Http\Controllers\Controller;
 use Orion\Concerns\DisablePagination;
 use Symfony\Component\HttpFoundation\Response;
+use App\Policies\TruePolicy;
 
 
 class PlantController extends Controller
@@ -13,6 +14,8 @@ class PlantController extends Controller
     use DisablePagination;
 
     protected $model = Plant::class;
+
+    protected $policy = TruePolicy::class;
 
     public function properties()
     {

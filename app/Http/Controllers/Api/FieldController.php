@@ -11,12 +11,15 @@ use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\HttpFoundation\Response;
+use App\Policies\TruePolicy;
 
 use MrWolfGb\Traccar\Services\TraccarService;
 
 class FieldController extends Controller
 {
     protected $model = Field::class;
+
+    protected $policy = TruePolicy::class;
 
     public function includes() : array
     {

@@ -8,6 +8,7 @@ use Orion\Http\Controllers\Controller;
 use Orion\Concerns\DisablePagination;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
+use App\Policies\TruePolicy;
 
 
 class EquipmentModelController extends Controller
@@ -15,6 +16,8 @@ class EquipmentModelController extends Controller
     use DisablePagination;
 
     protected $model = EquipmentModel::class;
+
+    protected $policy = TruePolicy::class;
 
     protected function afterIndex(Request $request, $entities)
     {

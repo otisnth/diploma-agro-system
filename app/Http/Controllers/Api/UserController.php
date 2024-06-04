@@ -6,10 +6,13 @@ use App\Models\User;
 use Orion\Http\Controllers\Controller;
 use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
+use App\Policies\TruePolicy;
 
 class UserController extends Controller
 {
     protected $model = User::class;
+
+    protected $policy = TruePolicy::class;
 
     public function filterableBy(): array
     {

@@ -8,11 +8,14 @@ use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
 use Illuminate\Database\Eloquent\Builder;
+use App\Policies\TruePolicy;
 
 class EquipmentController extends Controller
 {
 
     protected $model = Equipment::class;
+
+    protected $policy = TruePolicy::class;
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {   

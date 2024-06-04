@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\CropRotation;
+use App\Policies\TruePolicy;
 use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -10,6 +11,8 @@ class CropRotationController extends Controller
 {
 
     protected $model = CropRotation::class;
+
+    protected $policy = TruePolicy::class;
 
     public function properties()
     {

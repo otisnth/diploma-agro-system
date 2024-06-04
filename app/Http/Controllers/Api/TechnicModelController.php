@@ -8,12 +8,15 @@ use Orion\Http\Controllers\Controller;
 use Orion\Concerns\DisablePagination;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request;
+use App\Policies\TruePolicy;
 
 
 class TechnicModelController extends Controller
 {
     use DisablePagination;
     protected $model = TechnicModel::class;
+    protected $policy = TruePolicy::class;
+
 
     protected function afterIndex(Request $request, $entities)
     {
