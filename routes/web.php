@@ -42,20 +42,22 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/adminboard', [AdminBoardController::class, 'index'])->name('adminboard');
+    Route::middleware('admin')->group(function () {
+        Route::get('/adminboard', [AdminBoardController::class, 'index'])->name('adminboard');
 
-    Route::get('/field', [FieldPageController::class, 'index'])->name('field.index');
-    Route::get('/field/create', [FieldPageController::class, 'create'])->name('field.create');
-
-
-    Route::get('/operation', [OperationPageController::class, 'index'])->name('operation.index');
-    Route::get('/operation/create', [OperationPageController::class, 'create'])->name('operation.create');
+        Route::get('/field', [FieldPageController::class, 'index'])->name('field.index');
+        Route::get('/field/create', [FieldPageController::class, 'create'])->name('field.create');
 
 
-    Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');
-    Route::get('/personal/create', [PersonalPageController::class, 'create'])->name('personal.create');
+        Route::get('/operation', [OperationPageController::class, 'index'])->name('operation.index');
+        Route::get('/operation/create', [OperationPageController::class, 'create'])->name('operation.create');
 
-    Route::post('add-personal', [RegisteredUserController::class, 'addPersonal'])->name('addPersonal');
+
+        Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');
+        Route::get('/personal/create', [PersonalPageController::class, 'create'])->name('personal.create');
+
+        Route::post('add-personal', [RegisteredUserController::class, 'addPersonal'])->name('addPersonal');
+    });
 });
 
 
