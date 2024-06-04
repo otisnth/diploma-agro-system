@@ -233,22 +233,14 @@ const confirmPersonalDelete = (data) => {
                     ></Column>
                     <Column header="Действия">
                         <template #body="{ data }">
-                            <div class="flex gap-2 btn-col">
-                                <Button
-                                    type="button"
-                                    severity="secondary"
-                                    icon="pi pi-pencil"
-                                    rounded
-                                />
-
-                                <Button
-                                    type="button"
-                                    @click="confirmPersonalDelete(data)"
-                                    severity="danger"
-                                    icon="pi pi-trash"
-                                    rounded
-                                />
-                            </div>
+                            <Button
+                                class="ml-5"
+                                type="button"
+                                @click="confirmPersonalDelete(data)"
+                                severity="danger"
+                                icon="pi pi-trash"
+                                rounded
+                            />
                         </template>
                     </Column>
 

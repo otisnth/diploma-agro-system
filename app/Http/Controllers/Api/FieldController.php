@@ -26,6 +26,16 @@ class FieldController extends Controller
         return ['sort', 'sort.plant'];
     }
 
+    public function filterableBy(): array
+    {
+        return ['name'];
+    }
+
+    public function sortableBy(): array
+    {
+        return ['name', 'square', 'status', 'sort.plant.name', 'sort.name'];
+    }
+
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {
         if ($request->limit == "all") {
