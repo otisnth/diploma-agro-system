@@ -29,7 +29,7 @@ const activeTab = ref(props.posts[0]);
 const activePage = ref(0);
 const activeSort = ref(null);
 
-const filters = ref();
+const filters = ref({});
 
 onMounted(() => {
     fetchPersonal();
@@ -38,6 +38,7 @@ onMounted(() => {
 const initFilters = () => {
     filters.value = {
         name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        email: { value: null, matchMode: FilterMatchMode.CONTAINS },
     };
 };
 
@@ -59,11 +60,12 @@ const toggleActiveTab = (item) => {
     fetchPersonal();
 };
 
-const fetchPersonal = () => {
+const fetchPersonal = (filters = []) => {
     axios
         .post("/api/users/search", {
             filters: [
                 { field: "post", operator: "=", value: activeTab.value.id },
+                ...filters,
             ],
             sort: [activeSort.value],
             // includes: [{ relation: "" }],
@@ -98,6 +100,25 @@ watch(
     () => {
         activePage.value = 0;
         fetchPersonal();
+    },
+    { deep: true }
+);
+
+watch(
+    () => filters.value,
+    () => {
+        let orionFilters = [];
+        for (const key in filters.value) {
+            if (filters.value[key].value) {
+                orionFilters.push({
+                    field: key,
+                    operator: "ilike",
+                    value: `%${filters.value[key].value}%`,
+                });
+            }
+        }
+        activePage.value = 0;
+        fetchPersonal(orionFilters);
     },
     { deep: true }
 );
@@ -186,9 +207,24 @@ const confirmPersonalDelete = (data) => {
                                 type="text"
                                 class="p-column-filter"
                                 placeholder="Поиск по имени"
-                            /> </template
-                    ></Column>
-                    <Column field="email" header="Email" sortable> </Column>
+                            />
+                        </template>
+                    </Column>
+                    <Column
+                        field="email"
+                        :showFilterMatchModes="false"
+                        header="Email"
+                        sortable
+                    >
+                        <template #filter="{ filterModel }">
+                            <InputText
+                                v-model="filterModel.value"
+                                type="text"
+                                class="p-column-filter"
+                                placeholder="Поиск по email"
+                            />
+                        </template>
+                    </Column>
                     <Column
                         v-if="activeTab.id == 'worker'"
                         field="status"

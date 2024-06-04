@@ -13,7 +13,7 @@ class UserController extends Controller
 
     public function filterableBy(): array
     {
-        return ['post'];
+        return ['post', 'name', 'email'];
     }
 
     public function sortableBy(): array
