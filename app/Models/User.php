@@ -45,7 +45,7 @@ class User extends Authenticatable
         ],
         [
             'id' => 'worker',
-            'name'=> 'Работник',
+            'name'=> 'Механизатор',
         ]
     );
 
