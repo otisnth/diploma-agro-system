@@ -171,8 +171,10 @@ const confirmPersonalDelete = (data) => {
         </template>
 
         <div class="py-2">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="flex gap-2">
+            <div
+                class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 bg-white shadow-md min-h-screen"
+            >
+                <div class="flex gap-2 pt-2">
                     <Button
                         v-for="item in posts"
                         :key="item.id"
@@ -183,7 +185,6 @@ const confirmPersonalDelete = (data) => {
                 </div>
 
                 <DataTable
-                    class="shadow-md"
                     v-model:filters="filters"
                     :value="personals"
                     filterDisplay="menu"

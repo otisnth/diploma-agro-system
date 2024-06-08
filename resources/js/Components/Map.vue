@@ -38,7 +38,7 @@ const fieldStatusList = ref();
 const initMap = () => {
     map.value = L.map(mapContainer.value, {
         zoomControl: false,
-    }).setView([52.609025, 39.59897], 13);
+    }).setView([52.6018, 39.504708], 13);
 
     map.value.attributionControl.setPrefix(
         '<a href="https://leafletjs.com/index.html">Leaflet</a>'
@@ -65,7 +65,7 @@ const fetchLists = async () => {
         .then((response) => {
             plantList.value = response.data.data;
             plantList.value.push({
-                name: "Без растений",
+                name: "Пары",
                 color: "84cc16",
             });
         })
@@ -122,6 +122,8 @@ const renderFields = () => {
     fieldsLayers.value = [];
 
     for (const field of props.fields) {
+        if (!field) continue;
+
         let color;
 
         if (colorScheme.value === "plant") {

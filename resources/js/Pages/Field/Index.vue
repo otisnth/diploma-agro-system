@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
+import PreviewField from "@/Pages/Field/Partials/PreviewField.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
@@ -11,10 +12,6 @@ import toastService from "@/Services/toastService";
 import axios from "axios";
 import { Head, Link } from "@inertiajs/vue3";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
-import ConfirmDialog from "primevue/confirmdialog";
-import { useConfirm } from "primevue/useconfirm";
-
-const confirm = useConfirm();
 
 const props = defineProps({
     posts: Array,
@@ -23,12 +20,12 @@ const props = defineProps({
 const fields = ref(null);
 const countFields = ref(0);
 
-const deleteFieldId = ref(null);
-
 const activePage = ref(0);
 const activeSort = ref(null);
 
 const filters = ref({});
+
+const selectedFields = ref({});
 
 onMounted(() => {
     fetchFields();
@@ -37,7 +34,6 @@ onMounted(() => {
 const initFilters = () => {
     filters.value = {
         name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        // status: { value: null, matchMode: FilterMatchMode.CONTAINS },
     };
 };
 
@@ -111,42 +107,6 @@ watch(
     },
     { deep: true }
 );
-
-const confirmFieldDelete = (data) => {
-    deleteFieldId.value = data.id;
-    confirm.require({
-        message: "Вы действительно хотите удалить запись о данном участке?",
-        header: "Внимание",
-        icon: "pi pi-info-circle",
-        rejectClass: "p-button-secondary p-button-outlined",
-        acceptClass: "p-button-danger",
-        rejectLabel: "Отмена",
-        acceptLabel: "Удалить",
-        accept: () => {
-            axios
-                .delete(route(`api.fields.destroy`, deleteFieldId.value))
-                .then(() => {
-                    fetchFields();
-                    toastService.showSuccessToast(
-                        "Успешное удаления",
-                        "Запись об участке удалена"
-                    );
-                })
-                .catch(() => {
-                    toastService.showErrorToast(
-                        "Ошибка",
-                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-                    );
-                });
-        },
-    });
-};
-
-function formatNumberWithSpaces(number) {
-    let integerPart = Math.floor(number).toString();
-
-    return integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
 </script>
 
 <template>
@@ -165,10 +125,14 @@ function formatNumberWithSpaces(number) {
         </template>
 
         <div class="py-2">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div
+                class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 flex bg-white shadow-md gap-2 min-h-screen"
+            >
                 <DataTable
-                    class="shadow-md"
+                    class="w-1/2"
                     v-model:filters="filters"
+                    v-model:selection="selectedFields"
+                    selectionMode="single"
                     :value="fields"
                     filterDisplay="menu"
                     @sort="sortHandler"
@@ -191,35 +155,6 @@ function formatNumberWithSpaces(number) {
                             />
                         </template>
                     </Column>
-                    <Column field="square" header="Площадь" sortable>
-                        <template #body="slotProps">
-                            {{ formatNumberWithSpaces(slotProps.data.square) }}
-                            м&sup2;
-                        </template>
-                    </Column>
-                    <Column
-                        field="field_status.name"
-                        header="Состояние"
-                        sortable
-                    ></Column>
-                    <Column
-                        field="sort.plant.name"
-                        header="Культура"
-                        sortable
-                    ></Column>
-                    <Column field="sort.name" header="Сорт" sortable></Column>
-                    <Column header="Действия">
-                        <template #body="{ data }">
-                            <Button
-                                class="ml-5"
-                                type="button"
-                                @click="confirmFieldDelete(data)"
-                                severity="danger"
-                                icon="pi pi-trash"
-                                rounded
-                            />
-                        </template>
-                    </Column>
 
                     <template #footer>
                         <Paginator
@@ -230,9 +165,10 @@ function formatNumberWithSpaces(number) {
                         </Paginator>
                     </template>
                 </DataTable>
+
+                <PreviewField class="w-1/2" :field="selectedFields" />
             </div>
         </div>
-        <ConfirmDialog></ConfirmDialog>
     </AuthenticatedLayout>
 </template>
 
