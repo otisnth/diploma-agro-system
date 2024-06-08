@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
@@ -9,7 +9,7 @@ import InputText from "primevue/inputtext";
 import Skeleton from "primevue/skeleton";
 import toastService from "@/Services/toastService";
 import axios from "axios";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, usePage } from "@inertiajs/vue3";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
@@ -153,6 +153,10 @@ const confirmPersonalDelete = (data) => {
         },
     });
 };
+
+const isShowDeleteBtn = computed(() => {
+    return usePage().props.auth.user.post === "owner";
+});
 </script>
 
 <template>
@@ -232,7 +236,7 @@ const confirmPersonalDelete = (data) => {
                         header="Статус"
                         sortable
                     ></Column>
-                    <Column header="Действия">
+                    <Column header="Действия" v-if="isShowDeleteBtn">
                         <template #body="{ data }">
                             <Button
                                 class="ml-5"

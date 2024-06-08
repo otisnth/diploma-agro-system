@@ -29,8 +29,6 @@ const form = useForm({
     startDate: null,
 });
 
-const formError = ref(null);
-
 const isShowPlantBlock = ref(false);
 const cultureList = ref(null);
 const sortList = ref(null);
