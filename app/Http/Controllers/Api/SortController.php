@@ -59,48 +59,6 @@ class SortController extends Controller
                     'type' => 'text',
                     'required' => 'true',
                     'sortable'=> true
-                ], 
-                [
-                    'title' => 'Комфортная температура',
-                    'key' => 'temperature',
-                    'type' => 'number',
-                    'inputProperties'=> [
-                        'suffix' => ' ℃',
-                        'min' => -40,
-                        'max' => 40
-                    ],
-                    'required' => 'true',
-                    'sortable'=> true,
-                ],
-                [
-                    'title' => 'Вес температуры',
-                    'key' => 'temperature_weight',
-                    'type' => 'number',
-                    'inputProperties'=> [
-                    ],
-                    'required' => 'true',
-                    'sortable'=> true,
-                ],
-                [
-                    'title' => 'Комфортная влажность',
-                    'key' => 'humidity',
-                    'type' => 'number',
-                    'inputProperties'=> [
-                        'suffix' => ' %',
-                        'min' => 0,
-                        'max' => 100
-                    ],
-                    'required' => 'true',
-                    'sortable'=> true
-                ],
-                [
-                    'title' => 'Вес влажности',
-                    'key' => 'humidity_weight',
-                    'type' => 'number',
-                    'inputProperties'=> [
-                    ],
-                    'required' => 'true',
-                    'sortable'=> true,
                 ],
                 [
                     'title' => 'Длительность вегетационного периода',

@@ -16,9 +16,14 @@ class Plant extends Model
     protected $fillable = [
         'name',
         'color',
+        'weather_rules'
     ];
 
     public function sorts() {
         return $this->hasMany(Sort::class);
     }
+
+    protected $casts = [
+        'weather_rules' => 'array',
+    ];
 }

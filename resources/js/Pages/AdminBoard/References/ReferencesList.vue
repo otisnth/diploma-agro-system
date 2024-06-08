@@ -34,6 +34,13 @@ const getTableData = () => {
         .then((response) => {
             if (response.data) {
                 tableColumns.value = response.data.data;
+
+                for (const i in tableColumns.value) {
+                    if (tableColumns.value[i]?.indexHidden) {
+                        tableColumns.value.splice(i, 1);
+                    }
+                }
+
                 filters.value = response.data.filters;
                 for (const key in filters.value) {
                     filters.value[key].matchMode =
@@ -98,24 +105,6 @@ const editClickHandler = (data) => {
         },
     });
 };
-
-// const deleteClickHandler = (data) => {
-//     axios
-//         .delete(route(`api.${props.id}.destroy`, data.id))
-//         .then(() => {
-//             getTableData();
-//             toastService.showSuccessToast(
-//                 "Успешное удаления",
-//                 "Сведения были удалены из системы"
-//             );
-//         })
-//         .catch(() => {
-//             toastService.showErrorToast(
-//                 "Ошибка",
-//                 "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-//             );
-//         });
-// };
 
 const confirmDelete = (data) => {
     deleteId.value = data.id;

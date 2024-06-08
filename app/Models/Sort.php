@@ -15,12 +15,8 @@ class Sort extends Model
 
     protected $fillable = [
         'name',
-        'temperature',
-        'humidity',
         'vegetation_period',
         'plant_id',
-        'temperature_weight',
-        'humidity_weight'
     ];
 
     public function plant()

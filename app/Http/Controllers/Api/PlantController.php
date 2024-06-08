@@ -27,7 +27,7 @@ class PlantController extends Controller
                     'type' => 'text',
                     'required' => 'true',
                     'sortable'=> true,
-                ], 
+                ],
                 [
                     'title' => 'Цвет',
                     'key' => 'color',
@@ -35,6 +35,40 @@ class PlantController extends Controller
                     'required' => 'true',
                     'sortable'=> false
                 ],
+                [
+                    'title' => 'Погодные условия',
+                    'key' => 'weather_rules',
+                    'type' => 'weather',
+                    'indexHidden' => true,
+                    'value' => [
+                        'seeding' => [
+                            'title' => 'Посев',
+                            'propeties' => [
+                                'humidity' => [
+                                    'title' => 'Влажность',
+                                    'ideal_value' => 0,
+                                    'weight' => 0
+                                ],
+                                'temperature' => [
+                                    'title' => 'Температура',
+                                    'ideal_value' => 0,
+                                    'weight' => 0
+                                ],
+                            ]
+                        ],
+                        'harvest' => [
+                            'title' => 'Уборка',
+                            'propeties' => [
+                                'humidity' => [
+                                    'title' => 'Влажность',
+                                    'ideal_value' => 0,
+                                    'weight' => 0
+                                ]
+                            ]
+                        ]
+
+                    ],
+                ]
             ],
             'filters' => [
                 'name' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],

@@ -9,6 +9,7 @@ import InputNumber from "primevue/inputnumber";
 import Dropdown from "primevue/dropdown";
 import FileUpload from "primevue/fileupload";
 import toastService from "@/Services/toastService";
+import WeatherRules from "@/Pages/AdminBoard/References/Partials/WeatherRules.vue";
 
 const dialogRef = inject("dialogRef");
 
@@ -71,7 +72,9 @@ onMounted(() => {
         })
         .then(() => {
             for (const field of formFields.value) {
-                field.value = null;
+                if (field.type != "weather") {
+                    field.value = null;
+                }
                 if (field.type === "select") {
                     field.values = null;
                     axios
@@ -178,7 +181,9 @@ const saveClickHandler = () => {
         <div v-if="isLoaded" class="flex flex-col gap-2">
             <div v-for="(item, index) in formFields" :key="index">
                 <div v-if="item.type === 'text'" class="flex flex-col gap-1">
-                    <label :for="item.key">{{ item.title }}</label>
+                    <label class="font-semibold" :for="item.key">{{
+                        item.title
+                    }}</label>
                     <InputText
                         :id="item.key"
                         v-model="item.value"
@@ -190,7 +195,9 @@ const saveClickHandler = () => {
                     v-else-if="item.type === 'color'"
                     class="flex flex-col gap-1"
                 >
-                    <label :for="item.key">{{ item.title }}</label>
+                    <label class="font-semibold" :for="item.key">{{
+                        item.title
+                    }}</label>
                     <ColorPicker :id="item.key" v-model="item.value" />
                 </div>
 
@@ -198,7 +205,9 @@ const saveClickHandler = () => {
                     v-else-if="item.type === 'image'"
                     class="flex flex-col gap-1"
                 >
-                    <label :for="item.key">{{ item.title }}</label>
+                    <label class="font-semibold" :for="item.key">{{
+                        item.title
+                    }}</label>
                     <div class="flex items-center">
                         <img
                             class="max-h-16 max-w-16"
@@ -251,7 +260,9 @@ const saveClickHandler = () => {
                     v-else-if="item.type === 'select'"
                     class="flex flex-col gap-1"
                 >
-                    <label :for="item.key">{{ item.title }}</label>
+                    <label class="font-semibold" :for="item.key">{{
+                        item.title
+                    }}</label>
 
                     <Dropdown
                         :invalid="item.error"
@@ -267,7 +278,9 @@ const saveClickHandler = () => {
                     v-else-if="item.type === 'number'"
                     class="flex flex-col gap-1"
                 >
-                    <label :for="item.key">{{ item.title }}</label>
+                    <label class="font-semibold" :for="item.key">{{
+                        item.title
+                    }}</label>
                     <InputNumber
                         v-model="item.value"
                         :invalid="item.error"
@@ -277,6 +290,16 @@ const saveClickHandler = () => {
                         :suffix="item.inputProperties.suffix"
                         :prefix="item.inputProperties.prefix"
                     />
+                </div>
+
+                <div
+                    v-else-if="item.type === 'weather'"
+                    class="flex flex-col gap-1"
+                >
+                    <label class="font-semibold" :for="item.key">
+                        {{ item.title }}
+                    </label>
+                    <WeatherRules :id="item.key" :rules="item.value" />
                 </div>
             </div>
             <Button class="mt-3" label="Сохранить" @click="saveClickHandler" />
