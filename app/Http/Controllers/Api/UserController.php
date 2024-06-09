@@ -24,6 +24,16 @@ class UserController extends Controller
         return ['name', 'email'];
     }
 
+    protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
+    {
+        if ($request->limit == "all") {
+            return $query->get();
+        }
+        else {
+            return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
+        }
+    }
+
     protected function buildIndexFetchQuery(Request $request, array $requestedRelations): Builder
     {
         $query = parent::buildIndexFetchQuery($request, $requestedRelations);

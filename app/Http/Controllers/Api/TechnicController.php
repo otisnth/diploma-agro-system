@@ -19,6 +19,10 @@ class TechnicController extends Controller
     protected $model = Technic::class;
     protected $policy = TruePolicy::class;
 
+    public function filterableBy(): array
+    {
+        return ['model_id'];
+    }
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {   

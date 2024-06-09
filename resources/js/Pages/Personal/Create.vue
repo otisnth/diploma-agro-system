@@ -81,7 +81,9 @@ const submit = () => {
                             value="{{ csrf_token() }}"
                         />
                         <div>
-                            <label for="name">Полное имя</label>
+                            <label class="font-semibold" for="name"
+                                >Полное имя</label
+                            >
                             <InputText
                                 id="name"
                                 class="mt-1 block w-full"
@@ -91,7 +93,9 @@ const submit = () => {
                         </div>
 
                         <div class="mt-4">
-                            <label for="email">Email</label>
+                            <label class="font-semibold" for="email"
+                                >Email</label
+                            >
                             <InputText
                                 id="email"
                                 type="email"
@@ -102,7 +106,9 @@ const submit = () => {
                         </div>
 
                         <div class="mt-4">
-                            <label for="email">Должность</label>
+                            <label class="font-semibold" for="email"
+                                >Должность</label
+                            >
                             <Dropdown
                                 v-model="form.post"
                                 :options="posts"
@@ -115,7 +121,9 @@ const submit = () => {
                         </div>
 
                         <div class="mt-4">
-                            <label for="password">Пароль</label>
+                            <label class="font-semibold" for="password"
+                                >Пароль</label
+                            >
                             <InputText
                                 id="password"
                                 class="mt-1 block w-full"
@@ -126,7 +134,9 @@ const submit = () => {
                         </div>
 
                         <div class="mt-4">
-                            <label for="password_confirmation"
+                            <label
+                                class="font-semibold"
+                                for="password_confirmation"
                                 >Повтор пароля</label
                             >
                             <InputText

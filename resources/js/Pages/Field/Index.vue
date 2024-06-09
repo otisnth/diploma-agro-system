@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import PreviewField from "@/Pages/Field/Partials/PreviewField.vue";
+import PreviewField from "@/Components/PreviewField.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
@@ -13,9 +13,7 @@ import axios from "axios";
 import { Head, Link } from "@inertiajs/vue3";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 
-const props = defineProps({
-    posts: Array,
-});
+const props = defineProps({});
 
 const fields = ref(null);
 const countFields = ref(0);

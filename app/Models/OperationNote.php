@@ -24,13 +24,17 @@ class OperationNote extends Model
     );
 
     public static $operations = array(
-        [   
-            'id' => 0,
-            'name' => 'Уборка урожая',
+        [
+            'id' => 'seeding',
+            'name' => 'Посев',
         ],
         [
-            'id' => 1,
-            'name' => 'Посев',
+            'id' => 'cultivation',
+            'name' => 'Культивация',
+        ],
+        [
+            'id' => 'harvest',
+            'name' => 'Уборка урожая',
         ]
     );
 

@@ -329,7 +329,9 @@ watch(
                         <div class="flex gap-10">
                             <div class="flex flex-col w-1/2">
                                 <div>
-                                    <label for="name">Название участка</label>
+                                    <label class="font-semibold" for="name"
+                                        >Название участка</label
+                                    >
                                     <InputText
                                         id="name"
                                         class="mt-1 block w-full"
@@ -339,7 +341,9 @@ watch(
                                 </div>
 
                                 <div class="mt-6">
-                                    <label for="square">Площадь</label>
+                                    <label class="font-semibold" for="square"
+                                        >Площадь</label
+                                    >
                                     <InputNumber
                                         v-model="form.square"
                                         id="square"
@@ -353,7 +357,7 @@ watch(
 
                             <div class="flex flex-col w-1/2">
                                 <div>
-                                    <label for="status"
+                                    <label class="font-semibold" for="status"
                                         >Состояние участка</label
                                     >
                                     <Dropdown
@@ -373,7 +377,11 @@ watch(
                                     v-if="isShowPlantBlock"
                                 >
                                     <div>
-                                        <label for="culture">Культура</label>
+                                        <label
+                                            class="font-semibold"
+                                            for="culture"
+                                            >Культура</label
+                                        >
                                         <Dropdown
                                             id="culture"
                                             v-model="form.plant"
@@ -387,7 +395,9 @@ watch(
                                     </div>
 
                                     <div class="mt-4">
-                                        <label for="sort">Сорт</label>
+                                        <label class="font-semibold" for="sort"
+                                            >Сорт</label
+                                        >
                                         <Dropdown
                                             id="sort"
                                             v-model="form.sort"
@@ -402,7 +412,10 @@ watch(
                                     </div>
 
                                     <div class="mt-4">
-                                        <label for="startDate">
+                                        <label
+                                            class="font-semibold"
+                                            for="startDate"
+                                        >
                                             Дата посева
                                         </label>
                                         <Calendar
@@ -458,8 +471,12 @@ watch(
                                     <div
                                         class="flex mt-2 gap-2 justify-items-start"
                                     >
-                                        <label class="w-28">Широта</label>
-                                        <label class="w-28">Долгота</label>
+                                        <label class="w-28 font-semibold"
+                                            >Широта</label
+                                        >
+                                        <label class="w-28 font-semibold"
+                                            >Долгота</label
+                                        >
                                     </div>
                                     <div
                                         class="flex mt-2 gap-2 justify-items-start"

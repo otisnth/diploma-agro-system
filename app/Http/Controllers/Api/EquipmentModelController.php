@@ -19,6 +19,11 @@ class EquipmentModelController extends Controller
 
     protected $policy = TruePolicy::class;
 
+    public function filterableBy(): array
+    {
+        return ['type_id'];
+    }
+
     protected function afterIndex(Request $request, $entities)
     {
         $newCollection = $entities->map(function ($item, $key) {

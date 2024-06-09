@@ -278,9 +278,9 @@ const saveClickHandler = () => {
                     v-else-if="item.type === 'number'"
                     class="flex flex-col gap-1"
                 >
-                    <label class="font-semibold" :for="item.key">{{
-                        item.title
-                    }}</label>
+                    <label class="font-semibold" :for="item.key">
+                        {{ item.title }}
+                    </label>
                     <InputNumber
                         v-model="item.value"
                         :invalid="item.error"
@@ -289,6 +289,8 @@ const saveClickHandler = () => {
                         :max="item.inputProperties.max"
                         :suffix="item.inputProperties.suffix"
                         :prefix="item.inputProperties.prefix"
+                        :minFractionDigits="0"
+                        :maxFractionDigits="3"
                     />
                 </div>
 

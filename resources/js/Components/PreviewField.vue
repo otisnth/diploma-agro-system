@@ -11,6 +11,14 @@ const confirm = useConfirm();
 
 const props = defineProps({
     field: Object,
+    showControls: {
+        type: Boolean,
+        default: true,
+    },
+    orientation: {
+        type: String,
+        default: "vertical",
+    },
 });
 
 const previewField = computed(() => {
@@ -88,9 +96,17 @@ const confirmFieldDelete = () => {
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <Map :fields="previewField" height="400px" />
-        <div v-if="!isFieldEmpty" class="flex p-2 justify-between">
+    <div class="flex" :class="{ 'flex-col': props.orientation == 'vertical' }">
+        <Map
+            :class="{ 'w-1/2': props.orientation == 'horizontal' }"
+            :fields="previewField"
+            height="400px"
+        />
+        <div
+            v-if="!isFieldEmpty"
+            class="flex p-2 justify-between"
+            :class="{ 'w-1/2': props.orientation == 'horizontal' }"
+        >
             <div>
                 <div v-for="(item, index) in fieldInfo" :key="index">
                     <span class="font-semibold">{{ item.title }}</span>
@@ -98,7 +114,7 @@ const confirmFieldDelete = () => {
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2" v-if="props.showControls">
                 <Button
                     severity="info"
                     label="Подробнее"

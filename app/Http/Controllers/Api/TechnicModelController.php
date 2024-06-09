@@ -17,6 +17,10 @@ class TechnicModelController extends Controller
     protected $model = TechnicModel::class;
     protected $policy = TruePolicy::class;
 
+    public function filterableBy(): array
+    {
+        return ['type_id'];
+    }
 
     protected function afterIndex(Request $request, $entities)
     {

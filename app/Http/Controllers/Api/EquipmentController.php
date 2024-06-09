@@ -17,6 +17,11 @@ class EquipmentController extends Controller
 
     protected $policy = TruePolicy::class;
 
+    public function filterableBy(): array
+    {
+        return ['model_id'];
+    }
+
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {   
         if ($request->query("limit") == "all") {
@@ -60,7 +65,6 @@ class EquipmentController extends Controller
                 ],
             ],
             'filters' => [
-                'marking' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
                 'model_id' => [ 'value' => null, 'matchMode' => 'EQUALS' ],
             ]
         ], Response::HTTP_OK);
