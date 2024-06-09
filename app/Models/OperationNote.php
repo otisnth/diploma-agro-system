@@ -33,6 +33,14 @@ class OperationNote extends Model
             'name' => 'Культивация',
         ],
         [
+            'id' => 'spraying',
+            'name' => 'Опрыскивание растений',
+        ],
+        [
+            'id' => 'fertilization',
+            'name' => 'Удобрение',
+        ],
+        [
             'id' => 'harvest',
             'name' => 'Уборка урожая',
         ]

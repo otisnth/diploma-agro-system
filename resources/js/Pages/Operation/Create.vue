@@ -9,6 +9,7 @@ import Calendar from "primevue/calendar";
 import Button from "primevue/button";
 import CascadeSelect from "primevue/cascadeselect";
 import InlineMessage from "primevue/inlinemessage";
+import toastService from "@/Services/toastService";
 
 const props = defineProps({
     operations: Array,
@@ -25,6 +26,8 @@ const equipmentList = ref();
 
 const isShowPlantBlock = ref(false);
 const isShowRecommendationBtn = ref(false);
+
+const recommendations = ref(null);
 
 const selectedField = ref();
 const selectedOperation = ref();
@@ -262,6 +265,47 @@ const equipmentChange = (index, eIndex) => {
     }
 };
 
+const getRecommendations = () => {
+    recommendations.value = null;
+    let data = {};
+
+    if (selectedField.value) {
+        data.field = selectedField.value.id;
+    } else {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Выберите поле для данного типа мероприятия"
+        );
+        return;
+    }
+
+    data.operation = selectedOperation.value.id;
+
+    if (data.operation === "seeding") {
+        if (selectedSort.value) {
+            data.plant = selectedCulture.value;
+        } else {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Выберите сорт для данного типа мероприятия"
+            );
+            return;
+        }
+    }
+
+    axios
+        .post(route("api.operation-notes.recommendations"), data)
+        .then((response) => {
+            recommendations.value = response.data.data.recommendation;
+        })
+        .catch((e) => {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+            );
+        });
+};
+
 onMounted(() => {
     fetchFieldsList();
     fetchWorkersList();
@@ -279,11 +323,16 @@ watch(
             isShowPlantBlock.value = false;
         }
 
-        if (["seeding", "harvest"].includes(selectedOperation.value.id)) {
+        if (
+            ["seeding", "harvest", "spraying", "fertilization"].includes(
+                selectedOperation.value.id
+            )
+        ) {
             isShowRecommendationBtn.value = true;
         } else {
             isShowRecommendationBtn.value = false;
         }
+        recommendations.value = null;
     }
 );
 
@@ -291,6 +340,14 @@ watch(
     () => selectedCulture.value,
     () => {
         fetchSortList();
+        recommendations.value = null;
+    }
+);
+
+watch(
+    () => selectedField.value,
+    () => {
+        recommendations.value = null;
     }
 );
 </script>
@@ -339,83 +396,86 @@ watch(
                 </div>
 
                 <div
-                    class="overflow-hidden bg-white shadow-md sm:rounded-lg p-4 flex"
+                    class="overflow-hidden bg-white shadow-md sm:rounded-lg p-4"
                 >
-                    <div class="flex flex-col gap-1 w-1/2">
-                        <label class="font-semibold">Мероприятие</label>
-                        <Dropdown
-                            v-model="selectedOperation"
-                            :options="props.operations"
-                            id="operation"
-                            optionLabel="name"
-                            placeholder="Выберите тип мероприятия"
-                            class="mt-1 w-1/2"
-                            required
-                        />
-                        <label class="font-semibold mt-2">
-                            Планируемая дата начала
-                        </label>
-                        <div class="flex gap-2 items-center">
-                            <Calendar
+                    <div class="flex">
+                        <div class="flex flex-col gap-1 w-1/2">
+                            <label class="font-semibold">Мероприятие</label>
+                            <Dropdown
+                                v-model="selectedOperation"
+                                :options="props.operations"
+                                id="operation"
+                                optionLabel="name"
+                                placeholder="Выберите тип мероприятия"
                                 class="mt-1 w-1/2"
-                                id="startDate"
-                                v-model="selectedStartDate"
-                                showIcon
-                                iconDisplay="input"
                                 required
-                                :minDate="today"
                             />
+                            <label class="font-semibold mt-2">
+                                Планируемая дата начала
+                            </label>
+                            <div class="flex gap-2 items-center">
+                                <Calendar
+                                    class="mt-1 w-1/2"
+                                    id="startDate"
+                                    v-model="selectedStartDate"
+                                    showIcon
+                                    iconDisplay="input"
+                                    required
+                                    :minDate="today"
+                                />
 
-                            <Button
-                                v-if="isShowRecommendationBtn"
-                                icon="pi pi-info"
-                                severity="success"
-                                raised
-                                rounded
-                                aria-label="Recomendation"
+                                <Button
+                                    v-if="isShowRecommendationBtn"
+                                    @click="getRecommendations"
+                                    icon="pi pi-info"
+                                    severity="success"
+                                    raised
+                                    rounded
+                                    aria-label="Recomendation"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            v-if="isShowPlantBlock"
+                            class="flex flex-col gap-1 w-1/2"
+                        >
+                            <label class="font-semibold" for="culture">
+                                Культура
+                            </label>
+                            <Dropdown
+                                id="culture"
+                                v-model="selectedCulture"
+                                :options="cultureList"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Выберите культуру"
+                                class="mt-1 w-1/2"
+                                required
+                            />
+                            <label class="font-semibold mt-2" for="sort">
+                                Сорт
+                            </label>
+                            <Dropdown
+                                id="sort"
+                                v-model="selectedSort"
+                                :options="sortList"
+                                optionLabel="name"
+                                optionValue="id"
+                                placeholder="Выберите сорт"
+                                class="mt-1 w-1/2"
+                                required
+                                :disabled="!selectedCulture"
                             />
                         </div>
-                        <InlineMessage
-                            v-if="isShowRecommendationBtn"
-                            class="mt-2 w-3/4"
-                            severity="info"
-                        >
-                            Рекомендуемая дата: xx.xx.xxxx
-                        </InlineMessage>
                     </div>
-
-                    <div
-                        v-if="isShowPlantBlock"
-                        class="flex flex-col gap-1 w-1/2"
+                    <InlineMessage
+                        v-if="recommendations"
+                        class="mt-2"
+                        severity="info"
                     >
-                        <label class="font-semibold" for="culture">
-                            Культура
-                        </label>
-                        <Dropdown
-                            id="culture"
-                            v-model="selectedCulture"
-                            :options="cultureList"
-                            optionLabel="name"
-                            optionValue="id"
-                            placeholder="Выберите культуру"
-                            class="mt-1 w-1/2"
-                            required
-                        />
-                        <label class="font-semibold mt-2" for="sort">
-                            Сорт
-                        </label>
-                        <Dropdown
-                            id="sort"
-                            v-model="selectedSort"
-                            :options="sortList"
-                            optionLabel="name"
-                            optionValue="id"
-                            placeholder="Выберите сорт"
-                            class="mt-1 w-1/2"
-                            required
-                            :disabled="!selectedCulture"
-                        />
-                    </div>
+                        {{ recommendations }}
+                    </InlineMessage>
                 </div>
 
                 <div

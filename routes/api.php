@@ -71,7 +71,7 @@ Route::group(['as' => 'api.'], function() {
     Route::get('fields/statuses', [FieldController::class, 'getFieldStatuses'])->name('fields.statuses');
     Orion::resource('fields', FieldController::class);
 
-    Route::get('operation-notes/properties', [OperationNoteController::class, 'properties'])->name('operation-notes.properties');
+    Route::post('operation-notes/recommendations', [OperationNoteController::class, 'recommendations'])->name('operation-notes.recommendations');
     Orion::resource('operation-notes', OperationNoteController::class);
 
     Route::get('sorts/properties', [SortController::class, 'properties'])->name('sorts.properties');
