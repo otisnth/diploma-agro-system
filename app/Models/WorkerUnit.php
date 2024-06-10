@@ -38,4 +38,9 @@ class WorkerUnit extends Model
     {
         return $this->belongsTo(OperationNote::class, 'operation_note_id', 'id');
     }
+
+    public function equipments()
+    {
+        return $this->belongsToMany(Equipment::class, 'equipments_worker_units');
+    }
 }

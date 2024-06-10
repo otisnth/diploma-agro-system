@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import axios from "axios";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, router } from "@inertiajs/vue3";
 import PreviewField from "@/Components/PreviewField.vue";
 import Dropdown from "primevue/dropdown";
 import Calendar from "primevue/calendar";
@@ -43,7 +43,10 @@ const selectedUnitsList = ref([
 ]);
 
 const createOperationNote = () => {
+    const unitsList = JSON.parse(JSON.stringify(selectedUnitsList.value));
     let operationNote = {};
+
+    operationNote.start_date = selectedStartDate.value;
 
     if (selectedOperation.value) {
         operationNote.operation = selectedOperation.value.id;
@@ -86,11 +89,8 @@ const createOperationNote = () => {
         operationNote.sort_id = selectedSort.value;
     }
 
-    for (const i in selectedUnitsList.value) {
-        if (
-            selectedUnitsList.value[i].worker_id &&
-            !selectedUnitsList.value[i].technic?.id
-        ) {
+    for (const i in unitsList) {
+        if (unitsList[i].worker_id && !unitsList[i].technic?.id) {
             toastService.showErrorToast(
                 "Ошибка",
                 "Проверьте выбранную технику"
@@ -98,20 +98,16 @@ const createOperationNote = () => {
             return;
         }
 
-        if (
-            !selectedUnitsList.value[i].worker_id &&
-            selectedUnitsList.value[i].technic
-        ) {
+        if (!unitsList[i].worker_id && unitsList[i].technic) {
             toastService.showErrorToast(
                 "Ошибка",
                 "Проверьте выбранных механизаторов"
             );
             return;
         }
-        console.log(selectedUnitsList.value[i]);
     }
 
-    const workerIds = selectedUnitsList.value.map((item) => item.worker_id);
+    const workerIds = unitsList.map((item) => item.worker_id);
     const uniqueWorkerIds = new Set(workerIds);
     if (uniqueWorkerIds.size !== workerIds.length) {
         toastService.showErrorToast(
@@ -121,7 +117,7 @@ const createOperationNote = () => {
         return;
     }
 
-    const technicIds = selectedUnitsList.value.map((item) => item.technic.id);
+    const technicIds = unitsList.map((item) => item.technic?.id);
     const uniquetechnicIds = new Set(technicIds);
     if (uniquetechnicIds.size !== technicIds.length) {
         toastService.showErrorToast(
@@ -131,9 +127,9 @@ const createOperationNote = () => {
         return;
     }
 
-    const equipmentIds = selectedUnitsList.value.flatMap((entry) =>
-        entry.equipments.map((equipment) => equipment.id)
-    );
+    const equipmentIds = unitsList
+        .flatMap((entry) => entry?.equipments.map((equipment) => equipment?.id))
+        .filter((id) => id != null);
     const uniqueEquipmentIds = new Set(equipmentIds);
     if (equipmentIds.length !== uniqueEquipmentIds.size) {
         toastService.showErrorToast(
@@ -142,6 +138,81 @@ const createOperationNote = () => {
         );
         return;
     }
+
+    if (operationNote.start_date && unitsList[0].worker_id) {
+        operationNote.status = "assigned";
+    } else {
+        operationNote.status = "planned";
+    }
+
+    axios
+        .post(route("api.operation-notes.store"), operationNote)
+        .then((noteRes) => {
+            const noteId = noteRes.data.data.id;
+
+            const mappedUnits = {
+                resources: unitsList.map((item) => ({
+                    worker_id: item.worker_id,
+                    technic_id: item.technic.id,
+                    equipments: item.equipments
+                        .map((equipment) => equipment.id)
+                        .filter((id) => id != null),
+                })),
+            };
+
+            axios
+                .post(
+                    route(
+                        "api.operation-notes.worker-units.batchStore",
+                        noteId
+                    ),
+                    mappedUnits
+                )
+                .then((workerUnitsRes) => {
+                    const workerUnits = workerUnitsRes.data.data;
+                    for (const i in workerUnits) {
+                        if (mappedUnits.resources[i].equipments.length) {
+                            axios
+                                .patch(
+                                    route(
+                                        "api.worker-units.equipments.sync",
+                                        workerUnits[i].id
+                                    ),
+                                    {
+                                        resources:
+                                            mappedUnits.resources[i].equipments,
+                                    }
+                                )
+                                .catch((e) => {
+                                    toastService.showErrorToast(
+                                        "Ошибка",
+                                        "Что-то пошло не так. Не удалось добавить оборудование. Проверьте данные и отредактируйте их самостоятельно"
+                                    );
+                                });
+                        }
+                    }
+                })
+                .catch((e) => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Не удалось добавить задействованные ресурсы. Отредактируйте их самостоятельно"
+                    );
+                });
+        })
+        .then(() => {
+            toastService.showSuccessToast(
+                "Действие выполнено",
+                "Мероприятие успешно запланировано"
+            );
+            router.visit("/operation");
+        })
+        .catch((e) => {
+            console.log(e);
+            toastService.showErrorToast(
+                "Ошибка",
+                "Что-то пошло не так. Не удалось создать мероприятие. Проверьте данные и повторите попытку позже"
+            );
+        });
 };
 
 const fetchFieldsList = () => {

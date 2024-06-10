@@ -9,6 +9,9 @@ use Orion\Http\Controllers\Controller;
 use App\Policies\TruePolicy;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Orion\Http\Requests\Request as OrionRequest;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use RakibDevs\Weather\Weather;
 use DateTime;
 
@@ -165,6 +168,13 @@ class OperationNoteController extends Controller
             ],
             
         ], Response::HTTP_OK);
+    }
+
+    protected function performStore(OrionRequest $request, Model $entity, array $attributes): void
+    {
+        $attributes['created_by'] = Auth()->user()->id;
+        $this->performFill($request, $entity, $attributes);
+        $entity->save();
     }
 
 }

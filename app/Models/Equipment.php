@@ -22,4 +22,9 @@ class Equipment extends Model
     {
         return $this->belongsTo(EquipmentModel::class, 'model_id', 'id');
     }
+
+    public function workerUnits()
+    {
+        return $this->belongsToMany(WorkerUnit::class, 'equipments_worker_units');
+    }
 }

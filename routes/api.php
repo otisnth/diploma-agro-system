@@ -11,13 +11,14 @@ use App\Http\Controllers\Api\EquipmentModelController;
 use App\Http\Controllers\Api\TechnicModelController;
 use App\Http\Controllers\Api\CropRotationController;
 use App\Http\Controllers\Api\EquipmentController;
-use App\Http\Controllers\Api\EquipmentWorkerUnitController;
+use App\Http\Controllers\Api\WorkerUnitEquipmentsController;
 use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\OperationNoteController;
 use App\Http\Controllers\Api\SortController;
 use App\Http\Controllers\Api\TechnicController;
 use App\Http\Controllers\Api\WorkerUnitController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\OperationNoteWorkerUnitsController;
 
 
 use App\Http\Controllers\Api\FieldStatusController;
@@ -65,8 +66,6 @@ Route::group(['as' => 'api.'], function() {
     Route::get('equipments/properties', [EquipmentController::class, 'properties'])->name('equipments.properties');
     Orion::resource('equipments', EquipmentController::class);
 
-    Orion::resource('equipments-worker-units', EquipmentWorkerUnitController::class);
-
     Route::get('fields/properties', [FieldController::class, 'properties'])->name('fields.properties');
     Route::get('fields/statuses', [FieldController::class, 'getFieldStatuses'])->name('fields.statuses');
     Orion::resource('fields', FieldController::class);
@@ -95,4 +94,7 @@ Route::group(['as' => 'api.'], function() {
     Route::get('posts/properties', [PostController::class, 'properties'])->name('posts.properties');
     Route::resource('posts', PostController::class);
 
+    Orion::hasManyResource('operation-notes', 'worker-units', OperationNoteWorkerUnitsController::class);
+
+    Orion::belongsToManyResource('worker-units', 'equipments' , WorkerUnitEquipmentsController::class);
 });

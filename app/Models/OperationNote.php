@@ -13,13 +13,29 @@ class OperationNote extends Model
     protected $primaryKey = 'id';
 
     public static $operationStatuses = array(
-        [   
-            'id' => 0,
-            'name' => 'В работе',
+        [
+            'id' => 'planned',
+            'name' => 'Запланировано',
         ],
         [
-            'id' => 1,
+            'id' => 'assigned',
+            'name' => 'Назначено',
+        ],
+        [
+            'id' => 'idProgress',
+            'name' => 'Выполняется',
+        ],
+        [
+            'id' => 'awaitConfirm',
+            'name' => 'Ожидает подтверждения выполнения',
+        ],
+        [
+            'id' => 'completed',
             'name' => 'Завершено',
+        ],
+        [
+            'id' => 'canceled',
+            'name' => 'Отменено',
         ]
     );
 
@@ -113,11 +129,11 @@ class OperationNote extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by','id');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
     public function workerUnits()
     {
-        return $this->belongsToMany(WorkerUnit::class, 'operation_notes_worker_units', 'operation_note_id', 'worker_unit_id');
+        return $this->hasMany(WorkerUnit::class, 'operation_note_id', 'id');
     }
 }
