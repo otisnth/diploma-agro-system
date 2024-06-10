@@ -26,23 +26,69 @@ class OperationNote extends Model
     public static $operations = array(
         [
             'id' => 'seeding',
+            'currentFieldStatus' => ['cultivated', 'stubbleTillage'],
+            'nextFieldStatus' => ['seedbed'],
+            'isNeedField' => true,
             'name' => 'Посев',
+            'efficiencyCalculate' => true,
+        ],
+        [
+            'id' => 'mowingTops',
+            'currentFieldStatus' => ['removeFoliage'],
+            'nextFieldStatus' => ['withered', 'readyToHarvest'],
+            'isNeedField' => true,
+            'name' => 'Покос ботвы',
+            'efficiencyCalculate' => true,
+        ],
+        [
+            'id' => 'plowing',
+            'currentFieldStatus' => ['cultivated', 'stubbleTillage', 'withered', 'harvested'],
+            'nextFieldStatus' => ['plowed'],
+            'isNeedField' => true,
+            'name' => 'Вспашка',
+            'efficiencyCalculate' => true,
         ],
         [
             'id' => 'cultivation',
+            'currentFieldStatus' => ['stubbleTillage', 'withered'],
+            'nextFieldStatus' => ['cultivated'],
+            'isNeedField' => true,
             'name' => 'Культивация',
+            'efficiencyCalculate' => true,
         ],
         [
             'id' => 'spraying',
+            'currentFieldStatus' => ['growing'],
+            'isNeedField' => true,
             'name' => 'Опрыскивание растений',
+            'efficiencyCalculate' => true,
         ],
         [
             'id' => 'fertilization',
+            'isNeedField' => true,
             'name' => 'Удобрение',
+            'efficiencyCalculate' => true,
         ],
         [
             'id' => 'harvest',
+            'currentFieldStatus' => ['readyToHarvest', 'removeFoliage'],
+            'nextFieldStatus' => ['harvested'],
+            'isNeedField' => true,
             'name' => 'Уборка урожая',
+            'efficiencyCalculate' => true,
+        ],
+        [
+            'id' => 'unloadingField',
+            'currentFieldStatus' => ['readyToHarvest'],
+            'isNeedField' => true,
+            'name' => 'Разгрузка комбайна',
+            'efficiencyCalculate' => false,
+        ],
+        [
+            'id' => 'transportation',
+            'isNeedField' => false,
+            'name' => 'Перевозка продукции',
+            'efficiencyCalculate' => false,
         ]
     );
 

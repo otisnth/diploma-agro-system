@@ -54,7 +54,6 @@ class OperationNoteController extends Controller
 
         $datesArray = array();
 
-        // dd($weatherRules[$operation]['propeties']['humidity']['weight']);
 
         if ($operation == "spraying" || $operation == "fertilization") {
             $findedDate = false;

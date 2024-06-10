@@ -42,6 +42,108 @@ const selectedUnitsList = ref([
     },
 ]);
 
+const createOperationNote = () => {
+    let operationNote = {};
+
+    if (selectedOperation.value) {
+        operationNote.operation = selectedOperation.value.id;
+    } else {
+        toastService.showErrorToast("Ошибка", "Выберите тип мероприятия");
+        return;
+    }
+
+    if (selectedOperation.value.isNeedField) {
+        if (!selectedField.value) {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Для данного мероприятия необходимо выбрать поле"
+            );
+            return;
+        } else {
+            if (
+                selectedOperation.value.currentFieldStatus.includes(
+                    selectedField.value.status
+                )
+            ) {
+                operationNote.field_id = selectedField.value.id;
+            } else {
+                toastService.showErrorToast(
+                    "Ошибка",
+                    "Выбран неподходящий тип мероприятия для текущего состояния поля"
+                );
+                return;
+            }
+        }
+    }
+
+    if (operationNote.operation == "seeding" && !selectedSort.value) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Выберите сорт растения для данного мероприятия"
+        );
+        return;
+    } else {
+        operationNote.sort_id = selectedSort.value;
+    }
+
+    for (const i in selectedUnitsList.value) {
+        if (
+            selectedUnitsList.value[i].worker_id &&
+            !selectedUnitsList.value[i].technic?.id
+        ) {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Проверьте выбранную технику"
+            );
+            return;
+        }
+
+        if (
+            !selectedUnitsList.value[i].worker_id &&
+            selectedUnitsList.value[i].technic
+        ) {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Проверьте выбранных механизаторов"
+            );
+            return;
+        }
+        console.log(selectedUnitsList.value[i]);
+    }
+
+    const workerIds = selectedUnitsList.value.map((item) => item.worker_id);
+    const uniqueWorkerIds = new Set(workerIds);
+    if (uniqueWorkerIds.size !== workerIds.length) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Невозможно выбрать механизатора более одного раза"
+        );
+        return;
+    }
+
+    const technicIds = selectedUnitsList.value.map((item) => item.technic.id);
+    const uniquetechnicIds = new Set(technicIds);
+    if (uniquetechnicIds.size !== technicIds.length) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Невозможно выбрать технику более одного раза"
+        );
+        return;
+    }
+
+    const equipmentIds = selectedUnitsList.value.flatMap((entry) =>
+        entry.equipments.map((equipment) => equipment.id)
+    );
+    const uniqueEquipmentIds = new Set(equipmentIds);
+    if (equipmentIds.length !== uniqueEquipmentIds.size) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Невозможно выбрать оборудование более одного раза"
+        );
+        return;
+    }
+};
+
 const fetchFieldsList = () => {
     axios
         .post("/api/fields/search", {
@@ -190,16 +292,6 @@ const technicGroupChange = (value) => {
     }
 };
 
-const technicChange = (index) => {
-    if (!!selectedUnitsList.value[index].technic.id) {
-        selectedUnitsList.value[
-            index
-        ].technic.name = `${selectedUnitsList.value[index].technic.name} - ${selectedUnitsList.value[index].technic.model_id}`;
-    } else {
-        selectedUnitsList.value[index].technic = null;
-    }
-};
-
 const equipmentGroupChange = (value) => {
     if (value.value?.models) {
         axios
@@ -252,16 +344,6 @@ const equipmentGroupChange = (value) => {
                 }
             })
             .catch((error) => {});
-    }
-};
-
-const equipmentChange = (index, eIndex) => {
-    if (!!selectedUnitsList.value[index].equipments[eIndex].id) {
-        selectedUnitsList.value[index].equipments[
-            eIndex
-        ].name = `${selectedUnitsList.value[index].equipments[eIndex].name} - ${selectedUnitsList.value[index].equipments[eIndex].model_id}`;
-    } else {
-        selectedUnitsList.value[index].equipments[eIndex] = null;
     }
 };
 
@@ -485,7 +567,7 @@ watch(
                         Задейстованные ресурсы
                     </label>
 
-                    <InlineMessage class="w-1/2" severity="info">
+                    <InlineMessage class="mt-2 w-1/2" severity="info">
                         Ожидаемое время выполнения
                     </InlineMessage>
 
@@ -512,7 +594,6 @@ watch(
                         <div class="flex flex-col gap-1 w-1/3">
                             <label v-if="index == 0">Техника</label>
                             <CascadeSelect
-                                @change="technicChange(index)"
                                 @group-change="technicGroupChange"
                                 v-model="item.technic"
                                 :options="technicList"
@@ -521,7 +602,20 @@ watch(
                                 :optionGroupChildren="['models', 'technics']"
                                 class="mt-1 w-80"
                                 placeholder="Выберите технику"
-                            />
+                            >
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value?.id">
+                                        <span>
+                                            {{ slotProps.value.license_plate }}
+                                            -
+                                            {{ slotProps.value.model_id }}
+                                        </span>
+                                    </div>
+                                    <span v-else>
+                                        {{ slotProps.placeholder }}
+                                    </span>
+                                </template>
+                            </CascadeSelect>
                         </div>
 
                         <div class="flex flex-col gap-1 w-1/3">
@@ -533,7 +627,6 @@ watch(
                                 :key="eIndex"
                             >
                                 <CascadeSelect
-                                    @change="equipmentChange(index, eIndex)"
                                     @group-change="equipmentGroupChange"
                                     v-model="item.equipments[eIndex]"
                                     :options="equipmentList"
@@ -545,7 +638,20 @@ watch(
                                     ]"
                                     class="mt-1 w-80"
                                     placeholder="Выберите оборудование"
-                                />
+                                >
+                                    <template #value="slotProps">
+                                        <div v-if="slotProps.value?.id">
+                                            <span>
+                                                {{ slotProps.value.marking }} -
+                                                {{ slotProps.value.model_id }}
+                                            </span>
+                                        </div>
+
+                                        <span v-else>
+                                            {{ slotProps.placeholder }}
+                                        </span>
+                                    </template>
+                                </CascadeSelect>
 
                                 <Button
                                     :class="{ '-z-50': eIndex == 0 }"
@@ -590,7 +696,10 @@ watch(
                 <div
                     class="overflow-hidden p-6 bg-white shadow-md sm:rounded-lg"
                 >
-                    <Button label="Запланировать мероприятие" />
+                    <Button
+                        @click="createOperationNote"
+                        label="Запланировать мероприятие"
+                    />
                 </div>
             </div>
         </div>
