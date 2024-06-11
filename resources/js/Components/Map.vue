@@ -347,7 +347,8 @@ watch(
             return;
         }
         renderFields();
-        if (fieldsLayers?.value?.[0]) {
+
+        if (newValue[0] && Object.keys(newValue[0]).length) {
             map.value.fitBounds(fieldsLayers.value[0].getBounds());
         }
 

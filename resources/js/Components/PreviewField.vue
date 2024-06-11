@@ -9,6 +9,8 @@ import Button from "primevue/button";
 
 const confirm = useConfirm();
 
+const emit = defineEmits(["deleteField"]);
+
 const props = defineProps({
     field: Object,
     showControls: {
@@ -78,7 +80,7 @@ const confirmFieldDelete = () => {
             axios
                 .delete(route(`api.fields.destroy`, props.field.id))
                 .then(() => {
-                    fetchFields();
+                    emit("deleteField");
                     toastService.showSuccessToast(
                         "Успешное удаления",
                         "Запись об участке удалена"

@@ -88,6 +88,22 @@ class FieldController extends Controller
         return $geofence;
     }
 
+    protected function removeFromTraccar($id)
+    {
+        $traccarService = new TraccarService(
+            baseUrl: config('traccar.base_url'),
+            email: config('traccar.auth.username'),
+            password: config('traccar.auth.password'),
+            token: config('traccar.auth.token'),
+            headers: [
+                'Accept' => 'application/json'
+            ]
+        );
+        $geofenceRepo = $traccarService->geofenceRepository();
+
+        $geofenceRepo->deleteGeofence($id);
+    }
+
     protected function beforeSave(Request $request, Model $entity)
     {
         $area = $this->geoJsonToWkt($request->coords);
@@ -110,6 +126,14 @@ class FieldController extends Controller
             $cropRotation->save();
         }
 
+    }
+
+    protected function afterDestroy(Request $request, Model $entity)
+    {   
+        if($entity->getAttribute("tr_geofence_id"))
+        {
+            $this->removeFromTraccar($entity->getAttribute("tr_geofence_id"));
+        }
     }
 
     public function getFieldStatuses()

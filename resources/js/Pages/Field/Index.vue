@@ -78,6 +78,11 @@ const pageHandler = ({ page }) => {
     fetchFields();
 };
 
+const deleteFieldHandler = () => {
+    selectedFields.value = {};
+    fetchFields();
+};
+
 watch(
     activeSort,
     () => {
@@ -164,7 +169,11 @@ watch(
                     </template>
                 </DataTable>
 
-                <PreviewField class="w-1/2" :field="selectedFields" />
+                <PreviewField
+                    class="w-1/2"
+                    :field="selectedFields"
+                    @delete-field="deleteFieldHandler"
+                />
             </div>
         </div>
     </AuthenticatedLayout>
