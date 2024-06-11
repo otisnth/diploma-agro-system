@@ -174,11 +174,11 @@ const saveClickHandler = () => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 w-96 h-full">
+    <div class="flex flex-col gap-4 h-full px-2">
         <h3 class="font-semibold text-lg text-800 leading-tight">
             {{ props.name }}
         </h3>
-        <div v-if="isLoaded" class="flex flex-col gap-2">
+        <div v-if="isLoaded" class="flex flex-col gap-4">
             <div v-for="(item, index) in formFields" :key="index">
                 <div v-if="item.type === 'text'" class="flex flex-col gap-1">
                     <label class="font-semibold" :for="item.key">{{
@@ -312,6 +312,7 @@ const saveClickHandler = () => {
 
 <style lang="stylus">
 .reference-form
+    min-width 600px
     min-height 240px
 
 .p-fileupload-buttonbar
