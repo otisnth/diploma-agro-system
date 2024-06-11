@@ -37,8 +37,9 @@ const responsiveOptions = ref([
 ]);
 
 const fields = ref([]);
+const technics = ref({});
 
-onMounted(() => {
+const fetchFields = () => {
     axios
         .post("/api/fields/search", {
             limit: "all",
@@ -48,6 +49,24 @@ onMounted(() => {
             fields.value = response.data.data;
         })
         .catch((error) => {});
+};
+
+const fetchTechnics = () => {
+    axios
+        .post("/api/technics/positions", {
+            technics: [],
+        })
+        .then((response) => {
+            technics.value = response.data.data;
+        })
+        .catch((error) => {});
+};
+
+onMounted(() => {
+    fetchFields();
+
+    fetchTechnics();
+    setInterval(fetchTechnics, 1000 * 60);
 });
 </script>
 
@@ -141,6 +160,7 @@ onMounted(() => {
                     <div class="p-4">
                         <Map
                             :fields="fields"
+                            :technics="technics"
                             :isShowPopups="true"
                             :isShowLegend="true"
                         />

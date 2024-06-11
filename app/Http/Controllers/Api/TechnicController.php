@@ -123,4 +123,74 @@ class TechnicController extends Controller
             ]
         ], Response::HTTP_OK);
     }
+
+    public function positions(Request $request)
+    {
+
+        if (!count($request->technics)) 
+        {
+            $technics = Technic::whereNotNull('tr_device_id')->get()->load('model.type');
+
+            foreach ($technics as $id => $value) {
+                $value->workerUnit = $value->workerUnits()->where('is_used', true)->first();
+                if ($value->workerUnit){
+                    $value->workerUnit->load('worker')->load('equipments.model.type');
+                }
+            }
+
+        } else {
+            
+        }
+
+        // dd($technics);
+        $traccarService = new TraccarService(
+            baseUrl: config('traccar.base_url'),
+            email: config('traccar.auth.username'),
+            password: config('traccar.auth.password'),
+            token: config('traccar.auth.token'),
+            headers: [
+                'Accept' => 'application/json'
+            ]
+        );
+        $deviceRepo = $traccarService->deviceRepository();
+
+        $positionRepo = $traccarService->positionRepository();
+
+        foreach ($technics as $id => $value) {
+
+            $device = $deviceRepo->getDeviceByUniqueId($value->tr_device_id);
+
+            if ($device->lastUpdate)
+            {
+                $position = $positionRepo->fetchListPositions(
+                    from: '', 
+                    to: '', 
+                    id: $device->positionId
+                );
+
+                $mappedPosition = array(
+                    'datetime' => $position[0]['serverTime'],
+                    'lat' => $position[0]['latitude'],
+                    'lon' => $position[0]['longitude'],
+                    'speed' => $position[0]['speed'],
+                );
+            } else {
+                $mappedPosition = null;
+            }
+
+            // dd($mappedPosition);
+            
+            $value->position = $mappedPosition;
+        }
+
+        $technics = $technics->reject(function ($tech) {
+            return $tech->position == null;
+        });
+
+        // dd($technics);
+
+        return response()->json([
+            'data' =>  $technics
+        ], Response::HTTP_OK);
+    }
 }

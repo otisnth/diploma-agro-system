@@ -23,4 +23,9 @@ class Technic extends Model
     {
         return $this->belongsTo(TechnicModel::class, 'model_id', 'id');
     }
+
+    public function workerUnits()
+    {
+        return $this->hasMany(WorkerUnit::class, 'technic_id', 'id');
+    }
 }

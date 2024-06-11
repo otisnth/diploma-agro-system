@@ -19,4 +19,10 @@ class TechnicType extends Model
         'icon'
     ];
 
+    protected $appends = ['icon_path'];
+
+    public function getIconPathAttribute() {
+        return asset(Storage::url($this->icon));
+    }
+
 }

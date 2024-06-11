@@ -15,6 +15,9 @@ const props = defineProps({
     fields: {
         type: Array,
     },
+    technics: {
+        type: [Array, Object],
+    },
     isShowPopups: {
         type: Boolean,
         default: false,
@@ -28,6 +31,7 @@ const props = defineProps({
 const map = ref();
 const mapContainer = ref();
 const fieldsLayers = ref([]);
+const technicsLayers = ref([]);
 const mapLegend = ref();
 
 const colorScheme = ref("plant");
@@ -165,6 +169,78 @@ const renderFields = () => {
     }
 };
 
+const renderTechnics = () => {
+    technicsLayers.value.forEach(function (layer) {
+        map.value.removeLayer(layer);
+    });
+    technicsLayers.value = [];
+
+    for (const i in props.technics) {
+        const technic = props.technics[i];
+
+        if (!technic) continue;
+
+        const technicIcon = L.icon({
+            className: "technic-icon",
+            iconUrl: technic.model.type.icon_path,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16],
+        });
+
+        const marker = ref(
+            L.marker([technic.position.lat, technic.position.lon], {
+                icon: technicIcon,
+            })
+        ).value.addTo(map.value);
+
+        technicsLayers.value.push(marker);
+
+        const lastUpdate = new Date(technic.position.datetime);
+
+        const formattedDate =
+            String(lastUpdate.getDate()).padStart(2, "0") +
+            "." +
+            String(lastUpdate.getMonth() + 1).padStart(2, "0") +
+            "." +
+            lastUpdate.getFullYear() +
+            " " +
+            String(lastUpdate.getHours()).padStart(2, "0") +
+            ":" +
+            String(lastUpdate.getMinutes()).padStart(2, "0");
+
+        let info = `
+        <b>${technic.model.type.name}</b> ${technic.model.name}
+        <br> <b>Госномер:</b> ${technic.license_plate}
+        <br> <b>Скорость:</b> ${technic.position.speed} км/ч
+        <br> <b>Последнее обновление:</b> ${formattedDate}
+        `;
+
+        const workerUnit = technic.workerUnit;
+
+        if (workerUnit) {
+            info = `${info}
+        <br> <b>Механизатор:</b> ${workerUnit.worker.name}
+            `;
+
+            const equipments = workerUnit.equipments;
+            if (equipments) {
+                info = `${info}
+                <br> <b>Оборудование:</b>
+                <br>
+                `;
+
+                for (const eq in equipments) {
+                    info = `${info}
+                 - ${equipments[eq].model.name}`;
+                }
+            }
+        }
+
+        marker.bindPopup(info).openTooltip();
+    }
+};
+
 onMounted(async () => {
     await fetchLists();
 
@@ -250,6 +326,7 @@ onMounted(async () => {
     }
 
     updateLegend(colorScheme.value);
+    renderTechnics();
 
     if (fieldsLayers?.value?.[0]) {
         map.value.fitBounds(fieldsLayers.value[0].getBounds());
@@ -266,6 +343,17 @@ watch(
         if (fieldsLayers?.value?.[0]) {
             map.value.fitBounds(fieldsLayers.value[0].getBounds());
         }
+    },
+    { deep: true }
+);
+
+watch(
+    () => props.technics,
+    (newValue, oldValue) => {
+        if (Object.keys(oldValue).length === 0) {
+            return;
+        }
+        renderTechnics();
     },
     { deep: true }
 );
@@ -336,5 +424,10 @@ watch(
 
 .legend-active {
     color: #84cc16;
+}
+
+.technic-icon {
+    border-radius: 50%;
+    border: 2px solid black;
 }
 </style>

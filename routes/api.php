@@ -77,6 +77,7 @@ Route::group(['as' => 'api.'], function() {
     Orion::resource('sorts', SortController::class);
 
     Route::get('technics/properties', [TechnicController::class, 'properties'])->name('technics.properties');
+    Route::post('technics/positions', [TechnicController::class, 'positions'])->name('technics.positions');
     Orion::resource('technics', TechnicController::class);
 
     Route::get('worker-units/properties', [WorkerUnitController::class, 'properties'])->name('worker-units.properties');
