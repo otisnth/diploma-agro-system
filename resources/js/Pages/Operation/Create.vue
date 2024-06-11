@@ -10,12 +10,18 @@ import Button from "primevue/button";
 import CascadeSelect from "primevue/cascadeselect";
 import InlineMessage from "primevue/inlinemessage";
 import toastService from "@/Services/toastService";
+import Chart from "primevue/chart";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
 
 const props = defineProps({
     operations: Array,
 });
 
 const today = new Date();
+
+const chartOptions = ref();
+const chartData = ref();
 
 const fieldsList = ref();
 const cultureList = ref();
@@ -25,7 +31,6 @@ const technicList = ref();
 const equipmentList = ref();
 
 const isShowPlantBlock = ref(false);
-const isShowRecommendationBtn = ref(false);
 
 const recommendations = ref(null);
 
@@ -423,25 +428,19 @@ const getRecommendations = () => {
     let data = {};
 
     if (selectedField.value) {
-        data.field = selectedField.value.id;
+        data.field = selectedField.value?.id;
     } else {
-        toastService.showErrorToast(
-            "Ошибка",
-            "Выберите поле для данного типа мероприятия"
-        );
         return;
     }
 
-    data.operation = selectedOperation.value.id;
+    data.operation = selectedOperation.value?.id;
+
+    if (!data.operation) return;
 
     if (data.operation === "seeding") {
-        if (selectedSort.value) {
+        if (selectedCulture.value) {
             data.plant = selectedCulture.value;
         } else {
-            toastService.showErrorToast(
-                "Ошибка",
-                "Выберите сорт для данного типа мероприятия"
-            );
             return;
         }
     }
@@ -450,13 +449,57 @@ const getRecommendations = () => {
         .post(route("api.operation-notes.recommendations"), data)
         .then((response) => {
             recommendations.value = response.data.data.recommendation;
+            chartData.value = {
+                labels: response.data.data.period,
+                datasets: [
+                    {
+                        label: "Отклонение от идеальных условий",
+                        data: response.data.data.values,
+                        tension: 0.4,
+                    },
+                ],
+            };
         })
-        .catch((e) => {
-            toastService.showErrorToast(
-                "Ошибка",
-                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-            );
-        });
+        .catch((e) => {});
+};
+
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue("--text-color");
+    const textColorSecondary = documentStyle.getPropertyValue(
+        "--text-color-secondary"
+    );
+    const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor,
+                },
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary,
+                },
+                grid: {
+                    color: surfaceBorder,
+                },
+            },
+            y: {
+                ticks: {
+                    color: textColorSecondary,
+                },
+                grid: {
+                    color: surfaceBorder,
+                },
+            },
+        },
+    };
 };
 
 onMounted(() => {
@@ -464,6 +507,7 @@ onMounted(() => {
     fetchWorkersList();
     fetchTechnicTypeList();
     fetchEquipmnetTypeList();
+    chartOptions.value = setChartOptions();
 });
 
 watch(
@@ -476,16 +520,16 @@ watch(
             isShowPlantBlock.value = false;
         }
 
+        chartData.value = null;
+        recommendations.value = null;
+
         if (
             ["seeding", "harvest", "spraying", "fertilization"].includes(
                 selectedOperation.value.id
             )
         ) {
-            isShowRecommendationBtn.value = true;
-        } else {
-            isShowRecommendationBtn.value = false;
+            getRecommendations();
         }
-        recommendations.value = null;
     }
 );
 
@@ -493,14 +537,18 @@ watch(
     () => selectedCulture.value,
     () => {
         fetchSortList();
+        chartData.value = null;
         recommendations.value = null;
+        getRecommendations();
     }
 );
 
 watch(
     () => selectedField.value,
     () => {
+        chartData.value = null;
         recommendations.value = null;
+        getRecommendations();
     }
 );
 </script>
@@ -566,27 +614,16 @@ watch(
                             <label class="font-semibold mt-2">
                                 Планируемая дата начала
                             </label>
-                            <div class="flex gap-2 items-center">
-                                <Calendar
-                                    class="mt-1 w-1/2"
-                                    id="startDate"
-                                    v-model="selectedStartDate"
-                                    showIcon
-                                    iconDisplay="input"
-                                    required
-                                    :minDate="today"
-                                />
 
-                                <Button
-                                    v-if="isShowRecommendationBtn"
-                                    @click="getRecommendations"
-                                    icon="pi pi-info"
-                                    severity="success"
-                                    raised
-                                    rounded
-                                    aria-label="Recomendation"
-                                />
-                            </div>
+                            <Calendar
+                                class="mt-1 w-1/2"
+                                id="startDate"
+                                v-model="selectedStartDate"
+                                showIcon
+                                iconDisplay="input"
+                                required
+                                :minDate="today"
+                            />
                         </div>
 
                         <div
@@ -622,13 +659,33 @@ watch(
                             />
                         </div>
                     </div>
-                    <InlineMessage
-                        v-if="recommendations"
-                        class="mt-2"
-                        severity="info"
-                    >
-                        {{ recommendations }}
-                    </InlineMessage>
+
+                    <div v-if="recommendations" class="mt-2">
+                        <InlineMessage class="mt-2" severity="info">
+                            {{ recommendations }}
+                        </InlineMessage>
+                        <Accordion v-if="chartData">
+                            <AccordionTab>
+                                <template #header>
+                                    <span>
+                                        <span
+                                            class="font-bold white-space-nowrap"
+                                        >
+                                            Подробнее
+                                        </span>
+                                    </span>
+                                </template>
+                                <p class="m-0">
+                                    <Chart
+                                        type="line"
+                                        :data="chartData"
+                                        :options="chartOptions"
+                                        class="h-96"
+                                    />
+                                </p>
+                            </AccordionTab>
+                        </Accordion>
+                    </div>
                 </div>
 
                 <div
@@ -776,3 +833,10 @@ watch(
         </div>
     </AuthenticatedLayout>
 </template>
+
+<style>
+.p-accordion .p-accordion-header .p-accordion-header-link {
+    gap: 1rem;
+    justify-content: start;
+}
+</style>

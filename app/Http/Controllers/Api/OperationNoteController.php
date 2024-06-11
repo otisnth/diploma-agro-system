@@ -10,7 +10,6 @@ use App\Policies\TruePolicy;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Orion\Http\Requests\Request as OrionRequest;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use RakibDevs\Weather\Weather;
 use DateTime;
@@ -100,14 +99,17 @@ class OperationNoteController extends Controller
                     'value' => NULL
                 );
 
-                foreach ($day->weather as $weather) {
-                    if ($weather->main == 'Rain' || $weather->main == 'Snow') {
+                foreach ($day->weather as $wh) {
+                    if ($wh->main == 'Rain' || $wh->main == 'Snow') {
                         $ci['value'] = INF;
                         break;
                     }
                 }
 
-                if ($ci['value'] == INF) break;
+                if ($ci['value'] == INF) {
+                    array_push($datesArray, $ci);
+                    continue;
+                }
 
                 $dayHum = $day->main->humidity;
                 $ci['value'] = sqrt($humWeight * pow(($dayHum - $humIdeal), 2));
@@ -161,10 +163,41 @@ class OperationNoteController extends Controller
 
         }
 
+        $periodDates = array();
+        $values = array();
+
+
+        foreach ($datesArray as $dateVal) {
+            array_push($values, $dateVal['value']);
+            array_push($periodDates, $dateVal['date']);
+        }
+
+        function maxWithoutInf($array) {
+            $filteredArray = array_filter($array, function($value) {
+                return $value !== INF;
+            });
         
+            if (empty($filteredArray)) {
+                return 100;
+            }
+        
+            return round(max($filteredArray));
+        }
+
+        $maxVal = maxWithoutInf($values);
+
+        foreach ($values as $i => $ival) {
+            if ($ival == INF) 
+            {
+                $values[$i] = $maxVal;
+            }
+        }
+
         return response()->json([
             'data' => [
-                'recommendation' => $recommendation
+                'recommendation' => $recommendation,
+                'period' => $periodDates,
+                'values' => $values
             ],
             
         ], Response::HTTP_OK);
