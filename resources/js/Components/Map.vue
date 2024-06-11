@@ -2,6 +2,9 @@
 import { Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
 import L from "leaflet";
+import "leaflet-draw";
+
+const emit = defineEmits(["changeSquare"]);
 
 const props = defineProps({
     width: {
@@ -23,6 +26,10 @@ const props = defineProps({
         default: false,
     },
     isShowLegend: {
+        type: Boolean,
+        default: false,
+    },
+    getFieldSquare: {
         type: Boolean,
         default: false,
     },
@@ -335,13 +342,22 @@ onMounted(async () => {
 
 watch(
     () => props.fields,
-    (newValue, oldValue) => {
+    async (newValue, oldValue) => {
         if (!oldValue.length) {
             return;
         }
         renderFields();
         if (fieldsLayers?.value?.[0]) {
             map.value.fitBounds(fieldsLayers.value[0].getBounds());
+        }
+
+        if (props.getFieldSquare && fieldsLayers?.value?.[0]) {
+            const area = L.GeometryUtil.geodesicArea(
+                fieldsLayers.value[0].getLayers()[0].getLatLngs()[0]
+            );
+            emit("changeSquare", area);
+        } else {
+            emit("changeSquare", 0);
         }
     },
     { deep: true }

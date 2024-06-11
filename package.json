@@ -20,6 +20,7 @@
     "dependencies": {
         "chart.js": "^4.4.3",
         "leaflet": "^1.9.4",
+        "leaflet-draw": "^1.0.4",
         "primeicons": "^7.0.0",
         "primevue": "^3.51.0",
         "stylus": "^0.63.0"

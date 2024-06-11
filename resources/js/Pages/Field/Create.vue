@@ -72,6 +72,10 @@ const removeCoordsFromList = (index) => {
     coordsList.value = coordsList.value.filter((_, i) => i !== index);
 };
 
+const changeSquareHandler = (area) => {
+    form.square = Math.round(area);
+};
+
 const createField = () => {
     if (!form.name) {
         toastService.showErrorToast("Ошибка", "Введите название участка");
@@ -286,6 +290,12 @@ watch(
     },
     { deep: true }
 );
+
+function formatNumberWithSpaces(number) {
+    let integerPart = Math.floor(number).toString();
+
+    return integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
 </script>
 
 <template>
@@ -326,9 +336,9 @@ watch(
                             value="{{ csrf_token() }}"
                         />
 
-                        <div class="flex gap-10">
-                            <div class="flex flex-col w-1/2">
-                                <div>
+                        <div class="flex flex-col">
+                            <div class="flex gap-10">
+                                <div class="flex flex-col w-1/2">
                                     <label class="font-semibold" for="name"
                                         >Название участка</label
                                     >
@@ -340,23 +350,7 @@ watch(
                                     />
                                 </div>
 
-                                <div class="mt-6">
-                                    <label class="font-semibold" for="square"
-                                        >Площадь</label
-                                    >
-                                    <InputNumber
-                                        v-model="form.square"
-                                        id="square"
-                                        :min="0"
-                                        suffix=" м&sup2;"
-                                        class="mt-1 w-full"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col w-1/2">
-                                <div>
+                                <div class="flex flex-col w-1/2">
                                     <label class="font-semibold" for="status"
                                         >Состояние участка</label
                                     >
@@ -371,63 +365,61 @@ watch(
                                         required
                                     />
                                 </div>
+                            </div>
 
-                                <div
-                                    class="mt-4 p-4 pt-2 bg-neutral-100 sm:rounded-lg"
-                                    v-if="isShowPlantBlock"
-                                >
-                                    <div>
-                                        <label
-                                            class="font-semibold"
-                                            for="culture"
-                                            >Культура</label
-                                        >
-                                        <Dropdown
-                                            id="culture"
-                                            v-model="form.plant"
-                                            :options="cultureList"
-                                            optionLabel="name"
-                                            optionValue="id"
-                                            placeholder="Выберите культуру"
-                                            class="mt-1 w-full md:w-14rem"
-                                            required
-                                        />
-                                    </div>
+                            <div
+                                class="mt-4 p-4 pt-2 bg-neutral-100 sm:rounded-lg flex gap-8"
+                                v-if="isShowPlantBlock"
+                            >
+                                <div class="flex flex-col w-1/3">
+                                    <label class="font-semibold" for="culture"
+                                        >Культура</label
+                                    >
+                                    <Dropdown
+                                        id="culture"
+                                        v-model="form.plant"
+                                        :options="cultureList"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        placeholder="Выберите культуру"
+                                        class="mt-1 w-full md:w-14rem"
+                                        required
+                                    />
+                                </div>
 
-                                    <div class="mt-4">
-                                        <label class="font-semibold" for="sort"
-                                            >Сорт</label
-                                        >
-                                        <Dropdown
-                                            id="sort"
-                                            v-model="form.sort"
-                                            :options="sortList"
-                                            optionLabel="name"
-                                            optionValue="id"
-                                            placeholder="Выберите сорт"
-                                            class="mt-1 w-full md:w-14rem"
-                                            required
-                                            :disabled="!form.plant"
-                                        />
-                                    </div>
+                                <div class="flex flex-col w-1/3">
+                                    <label class="font-semibold" for="sort"
+                                        >Сорт</label
+                                    >
+                                    <Dropdown
+                                        id="sort"
+                                        v-model="form.sort"
+                                        :options="sortList"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        placeholder="Выберите сорт"
+                                        class="mt-1 w-full md:w-14rem"
+                                        required
+                                        :disabled="!form.plant"
+                                    />
+                                </div>
 
-                                    <div class="mt-4">
-                                        <label
-                                            class="font-semibold"
-                                            for="startDate"
-                                        >
-                                            Дата посева
-                                        </label>
-                                        <Calendar
-                                            class="mt-1 w-full md:w-14rem"
-                                            id="startDate"
-                                            v-model="form.startDate"
-                                            showIcon
-                                            iconDisplay="input"
-                                            :disabled="!form.sort"
-                                            required
-                                        />
-                                    </div>
+                                <div class="flex flex-col w-1/3">
+                                    <label
+                                        class="font-semibold"
+                                        for="startDate"
+                                    >
+                                        Дата посева
+                                    </label>
+                                    <Calendar
+                                        class="mt-1 w-full md:w-14rem"
+                                        id="startDate"
+                                        v-model="form.startDate"
+                                        showIcon
+                                        iconDisplay="input"
+                                        :disabled="!form.sort"
+                                        required
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -560,8 +552,22 @@ watch(
                             </TabView>
                         </div>
 
-                        <div class="flex flex-col w-1/2">
-                            <Map height="560px" :fields="fieldPreview" />
+                        <div class="flex flex-col w-1/2 gap-2">
+                            <div v-if="form.square">
+                                <span class="text-md font-semibold">
+                                    Площадь участка:
+                                </span>
+                                <span>
+                                    {{ formatNumberWithSpaces(form.square) }}
+                                    м&sup2;
+                                </span>
+                            </div>
+                            <Map
+                                height="560px"
+                                :fields="fieldPreview"
+                                :getFieldSquare="true"
+                                @change-square="changeSquareHandler"
+                            />
                         </div>
                     </div>
                 </div>
