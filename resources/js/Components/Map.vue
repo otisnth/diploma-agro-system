@@ -321,7 +321,8 @@ watch(
     flex-direction: column;
     width: 170px;
     max-height: 50%;
-    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
     gap: 4px;
 }
 
