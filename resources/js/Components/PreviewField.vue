@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import { router } from "@inertiajs/vue3";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import Map from "@/Components/Map.vue";
@@ -67,6 +68,10 @@ const fieldInfo = computed(() => {
     return infoArr;
 });
 
+const detailHandler = () => {
+    router.visit(`/field/${props.field.id}`);
+};
+
 const confirmFieldDelete = () => {
     confirm.require({
         message: "Вы действительно хотите удалить запись о данном участке?",
@@ -118,6 +123,7 @@ const confirmFieldDelete = () => {
 
             <div class="flex flex-col gap-2" v-if="props.showControls">
                 <Button
+                    @click="detailHandler"
                     severity="info"
                     label="Подробнее"
                     icon="pi pi-info-circle"

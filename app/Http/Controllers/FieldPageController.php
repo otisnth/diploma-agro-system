@@ -27,4 +27,14 @@ class FieldPageController extends Controller
         ]);
     }
 
+    public function detail(string $id): Response
+    {
+        $stauses = Field::$fieldStatuses;
+
+        return Inertia::render('Field/Detail', [
+            'id' => $id,
+            'fieldStatuses' => $stauses,
+        ]);
+    }
+
 }

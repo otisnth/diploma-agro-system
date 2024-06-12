@@ -28,7 +28,7 @@ class FieldController extends Controller
 
     public function filterableBy(): array
     {
-        return ['name'];
+        return ['name', 'id'];
     }
 
     public function sortableBy(): array

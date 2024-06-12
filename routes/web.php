@@ -47,6 +47,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/field', [FieldPageController::class, 'index'])->name('field.index');
         Route::get('/field/create', [FieldPageController::class, 'create'])->name('field.create');
+        Route::get('/field/{id}', [FieldPageController::class, 'detail'])
+            ->where('id', '[0-9]+')
+            ->name('field.detail');
 
 
         Route::get('/operation', [OperationPageController::class, 'index'])->name('operation.index');

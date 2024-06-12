@@ -14,6 +14,21 @@ class CropRotationController extends Controller
 
     protected $policy = TruePolicy::class;
 
+    public function includes() : array
+    {
+        return ['sort', 'sort.plant'];
+    }
+
+    public function filterableBy(): array
+    {
+        return ['field_id'];
+    }
+
+    public function sortableBy(): array
+    {
+        return ['start_date', 'end_date'];
+    }
+
     public function properties()
     {
         return response()->json([
