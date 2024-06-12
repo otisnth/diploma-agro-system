@@ -3,8 +3,9 @@ import { Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
 import L from "leaflet";
 import "leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
 
-const emit = defineEmits(["changeSquare"]);
+const emit = defineEmits(["changeSquare", "drawEdited"]);
 
 const props = defineProps({
     width: {
@@ -33,6 +34,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    drawPolygon: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const map = ref();
@@ -45,6 +50,24 @@ const colorScheme = ref("plant");
 
 const plantList = ref();
 const fieldStatusList = ref();
+
+const drawnFeatures = ref(new L.FeatureGroup());
+const drawControl = ref(
+    new L.Control.Draw({
+        position: "topleft",
+        draw: {
+            marker: false,
+            rectangle: false,
+            circle: false,
+            circlemarker: false,
+            polyline: false,
+        },
+        edit: {
+            featureGroup: drawnFeatures,
+            remove: true,
+        },
+    })
+);
 
 const initMap = () => {
     map.value = L.map(mapContainer.value, {
@@ -66,6 +89,113 @@ const initMap = () => {
             position: "topright",
         })
         .addTo(map.value);
+
+    L.drawLocal = {
+        draw: {
+            toolbar: {
+                actions: {
+                    title: "Отменить рисование",
+                    text: "Отменить",
+                },
+                finish: {
+                    title: "Завершить рисование",
+                    text: "Завершить",
+                },
+                undo: {
+                    title: "Удалить последнюю точку",
+                    text: "Удалить последнюю точку",
+                },
+                buttons: {
+                    polyline: "Нарисовать полилинию",
+                    polygon: "Нарисовать полигон",
+                    rectangle: "Нарисовать прямоугольник",
+                    circle: "Нарисовать круг",
+                    marker: "Добавить маркер",
+                    circlemarker: "Добавить круглый маркер",
+                },
+            },
+            handlers: {
+                circle: {
+                    tooltip: {
+                        start: "Кликните и перетащите, чтобы нарисовать круг.",
+                    },
+                    radius: "Радиус",
+                },
+                circlemarker: {
+                    tooltip: {
+                        start: "Кликните на карту, чтобы добавить круглый маркер.",
+                    },
+                },
+                marker: {
+                    tooltip: {
+                        start: "Кликните на карту, чтобы добавить маркер.",
+                    },
+                },
+                polygon: {
+                    tooltip: {
+                        start: "Кликните, чтобы начать рисование.",
+                        cont: "Кликните, чтобы продолжить рисование.",
+                        end: "Кликните на первую точку, чтобы завершить рисование.",
+                    },
+                },
+                polyline: {
+                    error: "<strong>Ошибка:</strong> линии не могут пересекаться!",
+                    tooltip: {
+                        start: "Кликните, чтобы начать рисование линии.",
+                        cont: "Кликните, чтобы продолжить рисование линии.",
+                        end: "Кликните на последнюю точку, чтобы завершить рисование.",
+                    },
+                },
+                rectangle: {
+                    tooltip: {
+                        start: "Кликните и перетащите, чтобы нарисовать прямоугольник.",
+                    },
+                },
+                simpleshape: {
+                    tooltip: {
+                        end: "Отпустите мышь, чтобы завершить рисование.",
+                    },
+                },
+            },
+        },
+        edit: {
+            toolbar: {
+                actions: {
+                    save: {
+                        title: "Сохранить изменения.",
+                        text: "Сохранить",
+                    },
+                    cancel: {
+                        title: "Отменить все изменения.",
+                        text: "Отменить",
+                    },
+                    clearAll: {
+                        title: "Очистить все.",
+                        text: "Очистить",
+                    },
+                },
+                buttons: {
+                    edit: "Редактировать слои.",
+                    editDisabled: "Нет слоев для редактирования.",
+                    remove: "Удалить слои.",
+                    removeDisabled: "Нет слоев для удаления.",
+                },
+            },
+            handlers: {
+                edit: {
+                    tooltip: {
+                        text: "Перетащите маркеры или точки для редактирования.",
+                        subtext: "Кликните отменить, чтобы сбросить изменения.",
+                    },
+                },
+                remove: {
+                    tooltip: {
+                        text: "",
+                    },
+                },
+            },
+        },
+    };
 };
 
 const fetchLists = async () => {
@@ -145,16 +275,16 @@ const renderFields = () => {
             color = `#${field.field_status.color}`;
         }
 
+        const style = {
+            color: color,
+            weight: 1,
+            fillColor: color,
+            fillOpacity: 0.5,
+        };
+
         const layer = ref(
             L.geoJSON(field.coords, {
-                style: function (feature) {
-                    return {
-                        color: color,
-                        weight: 1,
-                        fillColor: color,
-                        fillOpacity: 0.5,
-                    };
-                },
+                style: style,
             })
         ).value.addTo(map.value);
 
@@ -248,6 +378,26 @@ const renderTechnics = () => {
     }
 };
 
+// function parseCoordinates(coordinatesString) {
+//     var coordinatesArray = coordinatesString
+//         .split("\n")
+//         .map(function (coordinate) {
+//             var latLng = coordinate
+//                 .substring(1, coordinate.length - 1)
+//                 .split(", ");
+//             return [parseFloat(latLng[0]), parseFloat(latLng[1])];
+//         });
+//     return coordinatesArray;
+// }
+
+// const renderPolyline = () => {
+//     const coordinatesString = ``;
+
+//     const coordinates = parseCoordinates(coordinatesString);
+
+//     const polyline = L.polyline(coordinates, { color: "red" }).addTo(map.value);
+// };
+
 onMounted(async () => {
     await fetchLists();
 
@@ -334,6 +484,7 @@ onMounted(async () => {
 
     updateLegend(colorScheme.value);
     renderTechnics();
+    // renderPolyline();
 
     if (fieldsLayers?.value?.[0]) {
         map.value.fitBounds(fieldsLayers.value[0].getBounds());
@@ -343,7 +494,7 @@ onMounted(async () => {
 watch(
     () => props.fields,
     async (newValue, oldValue) => {
-        if (!oldValue.length) {
+        if (!oldValue.length && !props.drawPolygon) {
             return;
         }
         renderFields();
@@ -373,6 +524,53 @@ watch(
         renderTechnics();
     },
     { deep: true }
+);
+
+const onDrawCreated = function (e) {
+    const layer = e.layer;
+
+    if (drawnFeatures.value.getLayers().length > 0) {
+        drawnFeatures.value.clearLayers();
+    }
+
+    emit("drawEdited", layer.toGeoJSON());
+    drawnFeatures.value.addLayer(layer);
+};
+
+const onDrawDeleteStop = function (e) {
+    if (!drawnFeatures.value.getLayers().length) {
+        emit("drawEdited", null);
+    }
+};
+
+const onDrawEdited = function (e) {
+    const layers = e.layers;
+    layers.eachLayer(function (layer) {
+        emit("drawEdited", layer.toGeoJSON());
+    });
+};
+
+watch(
+    () => props.drawPolygon,
+    () => {
+        if (props.drawPolygon) {
+            map.value.addLayer(drawnFeatures.value);
+
+            map.value.addControl(drawControl.value);
+
+            map.value.on("draw:created", onDrawCreated);
+            map.value.on("draw:edited", onDrawEdited);
+            map.value.on("draw:deletestop", onDrawDeleteStop);
+        } else {
+            drawnFeatures.value.clearLayers();
+            map.value.removeLayer(drawnFeatures.value);
+
+            map.value.removeControl(drawControl.value);
+            map.value.off("draw:created", onDrawCreated);
+            map.value.off("draw:edited", onDrawEdited);
+            map.value.off("draw:deletestop", onDrawDeleteStop);
+        }
+    }
 );
 </script>
 

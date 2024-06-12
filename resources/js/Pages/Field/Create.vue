@@ -14,6 +14,7 @@ import TabPanel from "primevue/tabpanel";
 import InlineMessage from "primevue/inlinemessage";
 import Button from "primevue/button";
 import toastService from "@/Services/toastService";
+import { geoJson } from "leaflet";
 
 const props = defineProps({
     fieldStatuses: Array,
@@ -48,6 +49,8 @@ const coordsValidation = ref({
     },
 });
 
+const coordsInputMode = ref();
+
 const fetchCultureList = () => {
     axios.get(route(`api.plants.index`)).then((response) => {
         if (response.data.length != 0) cultureList.value = response.data.data;
@@ -74,6 +77,19 @@ const removeCoordsFromList = (index) => {
 
 const changeSquareHandler = (area) => {
     form.square = Math.round(area);
+};
+
+const drawEditedHandler = (geoJson) => {
+    fieldPreview.value = [];
+    if (!geoJson) {
+        return;
+    }
+
+    geoJson.geometry.coordinates[0].pop();
+
+    fieldPreview.value.push({
+        coords: geoJson,
+    });
 };
 
 const createField = () => {
@@ -291,6 +307,15 @@ watch(
     { deep: true }
 );
 
+watch(
+    () => coordsInputMode.value,
+    () => {
+        fieldPreview.value = [];
+        coordsList.value = [[0, 0]];
+        coordsString.value = "";
+    }
+);
+
 function formatNumberWithSpaces(number) {
     let integerPart = Math.floor(number).toString();
 
@@ -434,7 +459,7 @@ function formatNumberWithSpaces(number) {
                             <label class="font-semibold text-md" for="coords"
                                 >Координаты участка</label
                             >
-                            <TabView>
+                            <TabView v-model:active-index="coordsInputMode">
                                 <TabPanel header="Покоординатный ввод">
                                     <p class="mt-1 mb-2 text-sm max-w-xl">
                                         Введите координаты крайних точек
@@ -549,6 +574,15 @@ function formatNumberWithSpaces(number) {
                                         cols="30"
                                     />
                                 </TabPanel>
+
+                                <TabPanel header="Ручной ввод">
+                                    <p class="mt-1 mb-2 text-sm max-w-xl">
+                                        Отметьте границы участка в ручном
+                                        режиме. Для этого воспользуйтесь
+                                        инструментами в левом верхнем углу
+                                        карты.
+                                    </p>
+                                </TabPanel>
                             </TabView>
                         </div>
 
@@ -566,6 +600,10 @@ function formatNumberWithSpaces(number) {
                                 height="560px"
                                 :fields="fieldPreview"
                                 :getFieldSquare="true"
+                                :draw-polygon="
+                                    coordsInputMode == 2 ? true : false
+                                "
+                                @draw-edited="drawEditedHandler"
                                 @change-square="changeSquareHandler"
                             />
                         </div>
