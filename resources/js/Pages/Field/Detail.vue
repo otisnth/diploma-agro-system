@@ -16,6 +16,7 @@ import InlineMessage from "primevue/inlinemessage";
 import Textarea from "primevue/textarea";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
+import Tag from "primevue/tag";
 
 const props = defineProps({
     fieldStatuses: Array,
@@ -45,6 +46,37 @@ const coordsValidation = ref({
         message: "",
     },
 });
+
+const isShowNextStatus = computed(() => {
+    return field.value.status == "growing";
+});
+
+const isShowConfirmGrow = computed(() => {
+    return field.value.status == "seedbed";
+});
+
+const nextStatusArray = computed(() => {
+    return props.fieldStatuses.filter((status) =>
+        ["readyToHarvest", "withered", "removeFoliage"].includes(status.id)
+    );
+});
+
+const nextStatusSelect = ref(false);
+
+const confirmGrowHandler = () => {
+    field.value.status = "growing";
+    field.value.field_status.name = props.fieldStatuses.find(
+        (status) => status.id == field.value.status
+    ).name;
+    isFieldEdit.value = true;
+};
+
+const cancelChangeHandler = () => {
+    fetchField();
+    isFieldEdit.value = false;
+    isFieldNameEdit.value = false;
+    nextStatusSelect.value = false;
+};
 
 function formatNumberWithSpaces(number) {
     let integerPart = Math.floor(number).toString();
@@ -295,7 +327,7 @@ onMounted(() => {
                                 ></i>
                             </div>
 
-                            <div class="grid grid-cols-2">
+                            <div class="grid grid-cols-2 gap-2">
                                 <span class="text-lg font-semibold">
                                     Площадь:
                                 </span>
@@ -307,7 +339,56 @@ onMounted(() => {
                                 <span class="text-lg font-semibold">
                                     Состояние поля:
                                 </span>
-                                <span>{{ field.field_status.name }}</span>
+                                <div class="flex flex-col">
+                                    <Dropdown
+                                        v-if="nextStatusSelect"
+                                        id="status"
+                                        v-model="field.status"
+                                        :options="nextStatusArray"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        placeholder="Выберите состояние"
+                                        pt:root:class="border-0 shadow-none"
+                                        pt:input:class="p-0"
+                                        required
+                                        @change="isFieldEdit = true"
+                                    />
+                                    <span v-else>
+                                        {{ field.field_status.name }}
+                                    </span>
+                                    <Tag
+                                        v-if="isShowConfirmGrow"
+                                        @click="confirmGrowHandler"
+                                        class="self-start cursor-pointer"
+                                        severity="success"
+                                        value="Подтвердить прорастание"
+                                    ></Tag>
+
+                                    <Tag
+                                        v-if="
+                                            isShowNextStatus &&
+                                            !nextStatusSelect
+                                        "
+                                        @click="
+                                            nextStatusSelect = !nextStatusSelect
+                                        "
+                                        class="self-start cursor-pointer"
+                                        severity="success"
+                                        value="Обновить состояние"
+                                    ></Tag>
+
+                                    <Tag
+                                        v-if="
+                                            isShowNextStatus && nextStatusSelect
+                                        "
+                                        @click="
+                                            nextStatusSelect = !nextStatusSelect
+                                        "
+                                        class="self-start cursor-pointer"
+                                        severity="danger"
+                                        value="Отмена"
+                                    ></Tag>
+                                </div>
 
                                 <span
                                     v-if="field.sort"
@@ -342,6 +423,13 @@ onMounted(() => {
                                 <Button
                                     v-if="isFieldEdit"
                                     label="Сохранить изменения"
+                                />
+
+                                <Button
+                                    v-if="isFieldEdit"
+                                    @click="cancelChangeHandler"
+                                    severity="secondary"
+                                    label="Отменить изменения"
                                 />
                             </div>
                         </div>

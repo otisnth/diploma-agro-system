@@ -413,9 +413,9 @@ function formatNumberWithSpaces(number) {
                                 </div>
 
                                 <div class="flex flex-col w-1/3">
-                                    <label class="font-semibold" for="sort"
-                                        >Сорт</label
-                                    >
+                                    <label class="font-semibold" for="sort">
+                                        Сорт
+                                    </label>
                                     <Dropdown
                                         id="sort"
                                         v-model="form.sort"
@@ -456,9 +456,9 @@ function formatNumberWithSpaces(number) {
                 >
                     <div class="flex gap-10 justify-between">
                         <div class="flex flex-col w-1/2">
-                            <label class="font-semibold text-md" for="coords"
-                                >Координаты участка</label
-                            >
+                            <label class="font-semibold text-md" for="coords">
+                                Координаты участка
+                            </label>
                             <TabView v-model:active-index="coordsInputMode">
                                 <TabPanel header="Покоординатный ввод">
                                     <p class="mt-1 mb-2 text-sm max-w-xl">
