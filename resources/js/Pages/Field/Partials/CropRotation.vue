@@ -26,6 +26,7 @@ const form = useForm({
 });
 
 const selectedCulture = ref();
+const today = new Date();
 
 const cropRotation = ref(null);
 const countCropRotation = ref(0);
@@ -232,7 +233,7 @@ watch(
 <template>
     <div class="flex flex-col gap-2">
         <div class="bg-green-50 rounded-lg p-4 border-2">
-            <span class="font-semibold">Добавление записи</span>
+            <span class="text-lg font-semibold">Добавление записи</span>
             <div class="flex gap-2 justify-between mt-2">
                 <div class="flex flex-col">
                     <label for="">Дата посева</label>
@@ -243,6 +244,7 @@ watch(
                         showIcon
                         iconDisplay="input"
                         required
+                        :maxDate="today"
                     />
                 </div>
 
@@ -255,6 +257,7 @@ watch(
                         showIcon
                         iconDisplay="input"
                         required
+                        :maxDate="today"
                     />
                 </div>
 

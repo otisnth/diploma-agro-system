@@ -222,6 +222,7 @@ const fetchLists = async () => {
 
 const updateLegend = (type) => {
     colorScheme.value = type;
+    renderFields();
 
     var content = document.querySelector(".legend-content");
     if (!content) return;
@@ -253,7 +254,6 @@ const updateLegend = (type) => {
                 "</div>";
         }
     }
-    renderFields();
 };
 
 const renderFields = () => {
@@ -486,7 +486,7 @@ onMounted(async () => {
     renderTechnics();
     // renderPolyline();
 
-    if (fieldsLayers?.value?.[0]) {
+    if (props.fields[0] && Object.keys(props.fields[0]).length) {
         map.value.fitBounds(fieldsLayers.value[0].getBounds());
     }
 });
