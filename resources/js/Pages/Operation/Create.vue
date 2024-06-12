@@ -156,53 +156,58 @@ const createOperationNote = () => {
             const noteId = noteRes.data.data.id;
 
             const mappedUnits = {
-                resources: unitsList.map((item) => ({
-                    worker_id: item.worker_id,
-                    technic_id: item.technic.id,
-                    equipments: item.equipments
-                        .map((equipment) => equipment.id)
-                        .filter((id) => id != null),
-                })),
+                resources: unitsList
+                    .map((item) => ({
+                        worker_id: item.worker_id,
+                        technic_id: item.technic?.id,
+                        equipments: item.equipments
+                            .map((equipment) => equipment?.id)
+                            .filter((id) => id != null),
+                    }))
+                    .filter((item) => item.worker_id != null),
             };
 
-            axios
-                .post(
-                    route(
-                        "api.operation-notes.worker-units.batchStore",
-                        noteId
-                    ),
-                    mappedUnits
-                )
-                .then((workerUnitsRes) => {
-                    const workerUnits = workerUnitsRes.data.data;
-                    for (const i in workerUnits) {
-                        if (mappedUnits.resources[i].equipments.length) {
-                            axios
-                                .patch(
-                                    route(
-                                        "api.worker-units.equipments.sync",
-                                        workerUnits[i].id
-                                    ),
-                                    {
-                                        resources:
-                                            mappedUnits.resources[i].equipments,
-                                    }
-                                )
-                                .catch((e) => {
-                                    toastService.showErrorToast(
-                                        "Ошибка",
-                                        "Что-то пошло не так. Не удалось добавить оборудование. Проверьте данные и отредактируйте их самостоятельно"
-                                    );
-                                });
+            if (mappedUnits.length) {
+                axios
+                    .post(
+                        route(
+                            "api.operation-notes.worker-units.batchStore",
+                            noteId
+                        ),
+                        mappedUnits
+                    )
+                    .then((workerUnitsRes) => {
+                        const workerUnits = workerUnitsRes.data.data;
+                        for (const i in workerUnits) {
+                            if (mappedUnits.resources[i].equipments.length) {
+                                axios
+                                    .patch(
+                                        route(
+                                            "api.worker-units.equipments.sync",
+                                            workerUnits[i].id
+                                        ),
+                                        {
+                                            resources:
+                                                mappedUnits.resources[i]
+                                                    .equipments,
+                                        }
+                                    )
+                                    .catch((e) => {
+                                        toastService.showErrorToast(
+                                            "Ошибка",
+                                            "Что-то пошло не так. Не удалось добавить оборудование. Проверьте данные и отредактируйте их самостоятельно"
+                                        );
+                                    });
+                            }
                         }
-                    }
-                })
-                .catch((e) => {
-                    toastService.showErrorToast(
-                        "Ошибка",
-                        "Что-то пошло не так. Не удалось добавить задействованные ресурсы. Отредактируйте их самостоятельно"
-                    );
-                });
+                    })
+                    .catch((e) => {
+                        toastService.showErrorToast(
+                            "Ошибка",
+                            "Что-то пошло не так. Не удалось добавить задействованные ресурсы. Отредактируйте их самостоятельно"
+                        );
+                    });
+            }
         })
         .then(() => {
             toastService.showSuccessToast(

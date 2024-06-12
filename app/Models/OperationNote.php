@@ -114,7 +114,8 @@ class OperationNote extends Model
         'status',
         'operation',
         'field_id',
-        'created_by'
+        'created_by',
+        'sort_id'
     ];
 
     protected $dates = [

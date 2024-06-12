@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\OperationNote;
 use App\Models\Field;
 use App\Models\Plant;
+use App\Models\Sort;
 use Orion\Http\Controllers\Controller;
 use App\Policies\TruePolicy;
 use Illuminate\Http\Request;
@@ -208,6 +209,33 @@ class OperationNoteController extends Controller
         $attributes['created_by'] = Auth()->user()->id;
         $this->performFill($request, $entity, $attributes);
         $entity->save();
+    }
+
+    protected function afterSave(Request $request, Model $entity)
+    {
+
+        if ($request['operation'] == "seeding")
+        {
+            if ($request['start_date'])
+            {
+                $sort = Sort::find($request['sort_id']);
+                $date = new DateTime($request['start_date']);
+                $date->modify('+'.$sort->vegetation_period.' days');
+            }
+            else {
+               $date = null;
+            }
+            $operationNote = new OperationNote;
+
+            $operationNote['start_date'] = $date;
+            $operationNote['status'] = "planned";
+            $operationNote['operation'] = "harvest";
+            $operationNote['field_id'] = $entity['field_id'];
+            $operationNote['created_by'] = $entity['created_by'];
+
+            $operationNote->save();
+        }
+
     }
 
 }
