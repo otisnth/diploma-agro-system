@@ -33,7 +33,7 @@ class FieldController extends Controller
 
     public function sortableBy(): array
     {
-        return ['name', 'square', 'status', 'sort.plant.name', 'sort.name'];
+        return ['name', 'square', 'status', 'sort.plant.name', 'sort.name', 'id'];
     }
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)

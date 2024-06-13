@@ -44,6 +44,12 @@ const fetchFields = () => {
         .post("/api/fields/search", {
             limit: "all",
             includes: [{ relation: "sort" }, { relation: "sort.plant" }],
+            sort: [
+                {
+                    field: "id",
+                    direction: "asc",
+                },
+            ],
         })
         .then((response) => {
             fields.value = response.data.data;
