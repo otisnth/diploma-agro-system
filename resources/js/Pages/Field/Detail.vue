@@ -6,6 +6,8 @@ import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import { Head, useForm, Link, router } from "@inertiajs/vue3";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
 import toastService from "@/Services/toastService";
 import Map from "@/Components/Map.vue";
 import CropRotation from "@/Pages/Field/Partials/CropRotation.vue";
@@ -17,6 +19,8 @@ import Textarea from "primevue/textarea";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import Tag from "primevue/tag";
+
+const confirm = useConfirm();
 
 const props = defineProps({
     fieldStatuses: Array,
@@ -98,6 +102,35 @@ const saveChangeHandler = () => {
                 "Что-то пошло не так. Проверьте данные и повторите попытку позже"
             );
         });
+};
+
+const confirmFieldDelete = () => {
+    confirm.require({
+        message: "Вы действительно хотите удалить запись о данном участке?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-danger",
+        rejectLabel: "Отмена",
+        acceptLabel: "Удалить",
+        accept: () => {
+            axios
+                .delete(route(`api.fields.destroy`, field.value.id))
+                .then(() => {
+                    toastService.showSuccessToast(
+                        "Успешное удаления",
+                        "Запись об участке удалена"
+                    );
+                    router.visit("/field");
+                })
+                .catch(() => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+                    );
+                });
+        },
+    });
 };
 
 function formatNumberWithSpaces(number) {
@@ -440,7 +473,11 @@ onMounted(() => {
                             </div>
 
                             <div class="flex gap-2 items-end h-full">
-                                <Button severity="danger" label="Удалить" />
+                                <Button
+                                    @click="confirmFieldDelete"
+                                    severity="danger"
+                                    label="Удалить"
+                                />
 
                                 <Button
                                     v-if="isFieldEdit"
@@ -614,6 +651,7 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+        <ConfirmDialog></ConfirmDialog>
     </AuthenticatedLayout>
 </template>
 
