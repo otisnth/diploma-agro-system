@@ -6,6 +6,8 @@ use App\Models\CropRotation;
 use App\Policies\TruePolicy;
 use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Orion\Http\Requests\Request;
+use Illuminate\Database\Eloquent\Model;
 
 class CropRotationController extends Controller
 {
@@ -27,6 +29,22 @@ class CropRotationController extends Controller
     public function sortableBy(): array
     {
         return ['start_date', 'end_date'];
+    }
+
+    protected function beforeStore(Request $request, Model $entity)
+    {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        $overlappingCropRotations = CropRotation::where(function($query) use ($start_date, $end_date) {
+            $query->where('start_date', '<', $end_date)
+                  ->where('end_date', '>', $start_date);
+        })->exists();
+
+        if ($overlappingCropRotations) {
+            return response()->json(['error' => 'Введенный период пересекается с существующим'], 422);
+        }
+
     }
 
     public function properties()

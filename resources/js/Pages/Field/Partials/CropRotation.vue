@@ -201,10 +201,14 @@ const createCropRotation = () => {
             fetchCropRotation();
         })
         .catch((e) => {
-            toastService.showErrorToast(
-                "Ошибка",
-                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-            );
+            if (e?.response?.data?.error) {
+                toastService.showErrorToast("Ошибка", e.response.data.error);
+            } else {
+                toastService.showErrorToast(
+                    "Ошибка",
+                    "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                );
+            }
         });
 };
 
