@@ -316,7 +316,7 @@ watch(
                 </template>
             </Column>
 
-            <Column field="end_date" header="Дата уборки" sortable>
+            <Column field="end_date" header="Дата уборки">
                 <template #body="slotProps">
                     {{ formatDate(slotProps.data.end_date) }}
                 </template>

@@ -238,14 +238,22 @@ const isShowDeleteBtn = computed(() => {
                     ></Column>
                     <Column header="Действия" v-if="isShowDeleteBtn">
                         <template #body="{ data }">
-                            <Button
-                                class="ml-5"
-                                type="button"
-                                @click="confirmPersonalDelete(data)"
-                                severity="danger"
-                                icon="pi pi-trash"
-                                rounded
-                            />
+                            <div class="flex gap-2">
+                                <Button
+                                    type="button"
+                                    severity="info"
+                                    icon="pi pi-info-circle"
+                                    rounded
+                                />
+
+                                <Button
+                                    type="button"
+                                    @click="confirmPersonalDelete(data)"
+                                    severity="danger"
+                                    icon="pi pi-trash"
+                                    rounded
+                                />
+                            </div>
                         </template>
                     </Column>
 

@@ -13,8 +13,12 @@ class OperationPageController extends Controller
 
     public function index(Request $request): Response
     {
+        $operations = OperationNote::$operations;
+        $operationStatuses = OperationNote::$operationStatuses;
 
         return Inertia::render('Operation/Index', [
+            'operations' => $operations,
+            'operationStatuses' => $operationStatuses
         ]);
     }
 
