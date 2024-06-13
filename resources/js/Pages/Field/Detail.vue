@@ -78,6 +78,28 @@ const cancelChangeHandler = () => {
     nextStatusSelect.value = false;
 };
 
+const saveChangeHandler = () => {
+    field.value.coords = JSON.parse(JSON.stringify(fieldPreview.value.coords));
+
+    axios
+        .patch(route("api.fields.update", field.value.id), field.value)
+        .then(() => {
+            toastService.showSuccessToast(
+                "Успешное обновление",
+                "Сведения об участке успешно обновлены в системе"
+            );
+            isFieldEdit.value = false;
+            isFieldNameEdit.value = false;
+            nextStatusSelect.value = false;
+        })
+        .catch((e) => {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+            );
+        });
+};
+
 function formatNumberWithSpaces(number) {
     let integerPart = Math.floor(number).toString();
 
@@ -110,8 +132,8 @@ const removeCoordsFromList = (index) => {
 };
 
 const changeSquareHandler = (area) => {
+    if (field.value.square != Math.round(area)) isFieldEdit.value = true;
     field.value.square = Math.round(area);
-    isFieldEdit.value = true;
 };
 
 const drawEditedHandler = (geoJson) => {
@@ -422,6 +444,7 @@ onMounted(() => {
 
                                 <Button
                                     v-if="isFieldEdit"
+                                    @click="saveChangeHandler"
                                     label="Сохранить изменения"
                                 />
 

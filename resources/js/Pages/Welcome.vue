@@ -10,7 +10,7 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Welcome" />
+    <Head title="Добро пожаловать" />
 
     <div
         class="relative sm:flex sm:justify-center sm:items-center min-h-screen"
@@ -23,7 +23,7 @@ defineProps({
                 v-if="$page.props.auth.user"
                 :href="route('dashboard')"
                 class="font-semibold"
-                >Dashboard</Link
+                >Главная</Link
             >
 
             <template v-else>

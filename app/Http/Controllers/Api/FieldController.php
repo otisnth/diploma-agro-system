@@ -104,7 +104,7 @@ class FieldController extends Controller
         $geofenceRepo->deleteGeofence($id);
     }
 
-    protected function beforeSave(Request $request, Model $entity)
+    protected function beforeStore(Request $request, Model $entity)
     {
         $area = $this->geoJsonToWkt($request->coords);
         $traccarGeoFence = $this->addToTraccar($request->name, $area);
@@ -113,7 +113,7 @@ class FieldController extends Controller
 
     }
 
-    protected function afterSave(Request $request, Model $entity)
+    protected function afterStore(Request $request, Model $entity)
     {
         if ($request['sort_id'])
         {
