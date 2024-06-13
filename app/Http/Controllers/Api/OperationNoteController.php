@@ -22,6 +22,21 @@ class OperationNoteController extends Controller
 
     protected $policy = TruePolicy::class;
 
+    public function includes() : array
+    {
+        return ['field'];
+    }
+
+    public function filterableBy(): array
+    {
+        return ['field_id', 'status'];
+    }
+
+    public function sortableBy(): array
+    {
+        return ['start_date', 'end_date'];
+    }
+
     public function recommendations(Request $request): Response
     {
         $field = Field::find($request->field);

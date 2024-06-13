@@ -5,7 +5,7 @@ import axios from "axios";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
-import { Head, useForm, Link, router } from "@inertiajs/vue3";
+import { Head, Link, router } from "@inertiajs/vue3";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import toastService from "@/Services/toastService";
@@ -29,6 +29,11 @@ const props = defineProps({
 
 const field = ref(null);
 const isLoaded = ref(false);
+
+const operationNote = ref({
+    title: "Запланированных мероприятий нет",
+    content: false,
+});
 
 const coordsList = ref([[0, 0]]);
 const coordsString = ref("");
@@ -64,6 +69,49 @@ const nextStatusArray = computed(() => {
         ["readyToHarvest", "withered", "removeFoliage"].includes(status.id)
     );
 });
+
+function pad(num) {
+    return (num < 10 ? "0" : "") + num;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    const formattedDate = pad(day) + "." + pad(month) + "." + year;
+
+    return formattedDate;
+}
+
+const showedOperationNote = (oNote) => {
+    let note = {};
+    if (!oNote || !oNote.length) {
+        note.title = "Запланированных мероприятий нет";
+        note.content = false;
+    } else if (["planned", "assigned"].includes(oNote[0].status)) {
+        note.title = "Ближайшее мероприятие";
+        note.id = oNote[0].id;
+        note.content = true;
+        note.type = oNote[0].note_operation.name;
+        note.status = oNote[0].note_status.name;
+        note.start_date = oNote[0].start_date
+            ? formatDate(oNote[0].start_date)
+            : "-";
+    } else {
+        note.title = "Текущее мероприятие";
+        note.id = oNote[0].id;
+        note.content = true;
+        note.type = oNote[0].note_operation.name;
+        note.status = oNote[0].note_status.name;
+        note.start_date = formatDate(oNote[0].start_date);
+    }
+
+    return note;
+};
 
 const nextStatusSelect = ref(false);
 
@@ -145,7 +193,7 @@ const fetchField = () => {
         .then((response) => {
             field.value = response.data.data;
             fieldPreview.value = JSON.parse(JSON.stringify(response.data.data));
-            isLoaded.value = true;
+            fetchOperationNote();
             coordsList.value = extractCoordinates(
                 JSON.parse(JSON.stringify(field.value.coords))
             );
@@ -154,6 +202,49 @@ const fetchField = () => {
             );
         })
         .catch((error) => {});
+};
+
+const fetchOperationNote = () => {
+    axios
+        .post("/api/operation-notes/search", {
+            filters: [
+                {
+                    field: "field_id",
+                    value: field.value.id,
+                    operator: "=",
+                },
+                {
+                    field: "status",
+                    value: [
+                        "planned",
+                        "assigned",
+                        "inProgress",
+                        "awaitConfirm",
+                    ],
+                    operator: "in",
+                },
+            ],
+            sort: [
+                {
+                    field: "start_date",
+                    direction: "asc",
+                },
+            ],
+            limit: 1,
+        })
+        .then((response) => {
+            operationNote.value = showedOperationNote(response.data.data);
+            isLoaded.value = true;
+        })
+        .catch((error) => {
+            isLoaded.value = true;
+        });
+};
+
+const goToOperationNote = () => {
+    if (operationNote.value.content) {
+        console.log(operationNote.value.id);
+    }
 };
 
 const addCoordsToList = () => {
@@ -466,10 +557,41 @@ onMounted(() => {
                                 </span>
                             </div>
 
-                            <div>
+                            <div
+                                class="bg-green-50 rounded-lg p-2 border-2 text-neutral-800"
+                                :class="{
+                                    'cursor-pointer': operationNote.content,
+                                }"
+                                @click="goToOperationNote"
+                            >
                                 <span class="text-lg font-semibold">
-                                    Мероприятие:
+                                    {{ operationNote.title }}
                                 </span>
+                                <div
+                                    v-if="operationNote.content"
+                                    class="grid grid-cols-2 cursor-pointer"
+                                >
+                                    <label class="font-semibold cursor-pointer">
+                                        Тип:
+                                    </label>
+                                    <span>
+                                        {{ operationNote.type }}
+                                    </span>
+
+                                    <label class="font-semibold cursor-pointer">
+                                        Статус:
+                                    </label>
+                                    <span>
+                                        {{ operationNote.status }}
+                                    </span>
+
+                                    <label class="font-semibold cursor-pointer">
+                                        Дата начала:
+                                    </label>
+                                    <span>
+                                        {{ operationNote.start_date }}
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="flex gap-2 items-end h-full">

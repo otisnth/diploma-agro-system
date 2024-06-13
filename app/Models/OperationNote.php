@@ -22,7 +22,7 @@ class OperationNote extends Model
             'name' => 'Назначено',
         ],
         [
-            'id' => 'idProgress',
+            'id' => 'inProgress',
             'name' => 'Выполняется',
         ],
         [
@@ -122,6 +122,24 @@ class OperationNote extends Model
         'start_date',
         'end_date'
     ];
+
+    protected $appends = ['note_status', 'note_operation'];
+
+    public function getNoteStatusAttribute() {
+        foreach (self::$operationStatuses as $status) {
+            if ($status['id'] === $this->status) {
+                return $status;
+            }
+        }
+    }
+
+    public function getNoteOperationAttribute() {
+        foreach (self::$operations as $operation) {
+            if ($operation['id'] === $this->operation) {
+                return $operation;
+            }
+        }
+    }
 
     public function field()
     {
