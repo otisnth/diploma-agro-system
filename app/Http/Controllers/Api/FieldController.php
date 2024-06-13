@@ -88,6 +88,28 @@ class FieldController extends Controller
         return $geofence;
     }
 
+    protected function updateToTraccar($id, $area)
+    {
+
+        $traccarService = new TraccarService(
+            baseUrl: config('traccar.base_url'),
+            email: config('traccar.auth.username'),
+            password: config('traccar.auth.password'),
+            token: config('traccar.auth.token'),
+            headers: [
+                'Accept' => 'application/json'
+            ]
+        );
+        $geofenceRepo = $traccarService->geofenceRepository();
+        $list = $geofenceRepo->fetchListGeofences();
+
+        $fence = $list->where('id', $id)->first();
+
+        $fence->area = $area;
+
+        $geofence = $geofenceRepo->updateGeofence($fence);
+    }
+
     protected function removeFromTraccar($id)
     {
         $traccarService = new TraccarService(
@@ -111,6 +133,14 @@ class FieldController extends Controller
 
         $request['tr_geofence_id'] = $traccarGeoFence->id;
 
+    }
+
+    protected function beforeUpdate(Request $request, Model $entity)
+    {
+        if ($request->tr_geofence_id) {
+            $area = $this->geoJsonToWkt($request->coords);
+            $this->updateToTraccar($request->tr_geofence_id, $area);
+        }
     }
 
     protected function afterStore(Request $request, Model $entity)
