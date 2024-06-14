@@ -8,6 +8,7 @@ import Paginator from "primevue/paginator";
 import InputText from "primevue/inputtext";
 import Skeleton from "primevue/skeleton";
 import SelectButton from "primevue/selectbutton";
+import MultiSelect from "primevue/multiselect";
 import toastService from "@/Services/toastService";
 import axios from "axios";
 import { Head, Link } from "@inertiajs/vue3";
@@ -35,6 +36,7 @@ onMounted(() => {
 const initFilters = () => {
     filters.value = {
         status: { value: null, matchMode: FilterMatchMode.IN },
+        operation: { value: null, matchMode: FilterMatchMode.IN },
     };
 };
 
@@ -195,9 +197,9 @@ watch(
 
                     <Column field="start_date" header="Дата начала" sortable>
                         <template #body="slotProps">
-                            <span v-if="slotProps.data.start_date">{{
-                                formatDate(slotProps.data.start_date)
-                            }}</span>
+                            <span v-if="slotProps.data.start_date">
+                                {{ formatDate(slotProps.data.start_date) }}
+                            </span>
                             <span v-else>Не назначена</span>
                         </template>
                     </Column>
@@ -209,9 +211,26 @@ watch(
                     </Column>
 
                     <Column
-                        field="note_operation.name"
+                        field="operation"
                         header="Мероприятие"
-                    ></Column>
+                        :showFilterMatchModes="false"
+                    >
+                        <template #body="slotProps">
+                            <span>
+                                {{ slotProps.data.note_operation.name }}
+                            </span>
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <MultiSelect
+                                v-model="filterModel.value"
+                                :options="props.operations"
+                                optionLabel="name"
+                                optionValue="id"
+                                filter
+                                class="p-column-filter w-60"
+                            />
+                        </template>
+                    </Column>
 
                     <Column field="field.name" header="Участок"></Column>
 

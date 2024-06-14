@@ -29,7 +29,7 @@ class OperationNoteController extends Controller
 
     public function filterableBy(): array
     {
-        return ['field_id', 'status'];
+        return ['field_id', 'status', 'operation'];
     }
 
     public function sortableBy(): array
