@@ -241,7 +241,7 @@ const isShowDeleteBtn = computed(() => {
                             <div class="flex gap-2">
                                 <Button
                                     type="button"
-                                    severity="info"
+                                    severity="success"
                                     icon="pi pi-info-circle"
                                     rounded
                                 />

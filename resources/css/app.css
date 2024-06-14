@@ -9,6 +9,10 @@
     @tailwind utilities;
 }
 
+#app {
+    height: 100vh;
+}
+
 .bg-green-50 {
     --tw-bg-opacity: 1;
     background-color: rgb(240 253 244 / var(--tw-bg-opacity));

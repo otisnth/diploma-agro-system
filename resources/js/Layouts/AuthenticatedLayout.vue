@@ -70,7 +70,7 @@ const toggleProfileMenu = (event) => {
             }"
         >
             <template #start>
-                <Link :href="route('dashboard')">
+                <Link :href="route('welcome')">
                     <ApplicationLogo
                         class="block h-9 w-auto fill-lime-500 text-800"
                     />

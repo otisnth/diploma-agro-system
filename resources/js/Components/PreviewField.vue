@@ -124,7 +124,7 @@ const confirmFieldDelete = () => {
             <div class="flex flex-col gap-2" v-if="props.showControls">
                 <Button
                     @click="detailHandler"
-                    severity="info"
+                    severity="success"
                     label="Подробнее"
                     icon="pi pi-info-circle"
                 />
