@@ -26,6 +26,7 @@ const confirm = useConfirm();
 const props = defineProps({
     operationStatuses: Array,
     operations: Array,
+    fieldStatuses: Array,
     id: String,
 });
 
@@ -37,6 +38,9 @@ const isAuthorEdit = ref(false);
 const isStartDateEdit = ref(false);
 const isEndDateEdit = ref(false);
 const isNoteEdited = ref(false);
+const nextFieldStatus = ref(null);
+
+const isShowNextFieldStatus = ref(false);
 
 function pad(num) {
     return (num < 10 ? "0" : "") + num;
@@ -65,6 +69,20 @@ const noteStatusCanceled = computed(
     () => operationNote.value.status == "canceled"
 );
 
+const nextFieldStatuses = computed(() => {
+    return props.fieldStatuses.filter((status) =>
+        operationNote.value.note_operation.nextFieldStatus.includes(status.id)
+    );
+});
+
+const completeIsAvailable = computed(() => {
+    return (
+        ["awaitConfirm", "inProgress"].includes(operationNote.value.status) &&
+        (usePage().props.auth.user.post == "owner" ||
+            usePage().props.auth.user.id == operationNote.value.created_by)
+    );
+});
+
 const editingIsAvailable = computed(() => {
     return (
         ["inProgress", "assigned", "planned"].includes(
@@ -74,6 +92,14 @@ const editingIsAvailable = computed(() => {
             usePage().props.auth.user.id == operationNote.value.created_by)
     );
 });
+
+const cancelChangeHandler = () => {
+    fetchOperationNote();
+    isStartDateEdit.value = false;
+    isEndDateEdit.value = false;
+    isAuthorEdit.value = false;
+    isNoteEdited.value = false;
+};
 
 // const saveChangeHandler = () => {
 //     field.value.coords = JSON.parse(JSON.stringify(fieldPreview.value.coords));
@@ -97,6 +123,99 @@ const editingIsAvailable = computed(() => {
 //         });
 // };
 
+const confirmNoteCancel = () => {
+    confirm.require({
+        message: "Вы действительно хотите отменить данное мероприятие?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-danger",
+        rejectLabel: "Назад",
+        acceptLabel: "Отменить",
+        accept: () => {
+            operationNote.value.status = "canceled";
+            // axios
+            //     .delete(route(`api.fields.destroy`, field.value.id))
+            //     .then(() => {
+            //         toastService.showSuccessToast(
+            //             "Успешное удаления",
+            //             "Запись об участке удалена"
+            //         );
+            //         router.visit("/field");
+            //     })
+            //     .catch(() => {
+            //         toastService.showErrorToast(
+            //             "Ошибка",
+            //             "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+            //         );
+            //     });
+        },
+    });
+};
+
+const confirmNoteComplete = () => {
+    confirm.require({
+        message: "Вы действительно хотите завершить данное мероприятие?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-success",
+        rejectLabel: "Назад",
+        acceptLabel: "Завершить",
+        accept: () => {
+            operationNote.value.status = "completed";
+            isShowNextFieldStatus.value = false;
+            // axios
+            //     .delete(route(`api.fields.destroy`, field.value.id))
+            //     .then(() => {
+            //         toastService.showSuccessToast(
+            //             "Успешное удаления",
+            //             "Запись об участке удалена"
+            //         );
+            //         router.visit("/field");
+            //     })
+            //     .catch(() => {
+            //         toastService.showErrorToast(
+            //             "Ошибка",
+            //             "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+            //         );
+            //     });
+        },
+        reject: () => {
+            isShowNextFieldStatus.value = false;
+        },
+    });
+};
+
+const confirmDeleteNote = () => {
+    confirm.require({
+        message: "Вы действительно хотите удалить данное мероприятие?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-danger",
+        rejectLabel: "Отмена",
+        acceptLabel: "Удалить",
+        accept: () => {
+            // axios
+            //     .delete(route(`api.fields.destroy`, field.value.id))
+            //     .then(() => {
+            //         toastService.showSuccessToast(
+            //             "Успешное удаления",
+            //             "Запись об участке удалена"
+            //         );
+            //         router.visit("/field");
+            //     })
+            //     .catch(() => {
+            //         toastService.showErrorToast(
+            //             "Ошибка",
+            //             "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+            //         );
+            //     });
+        },
+    });
+};
+
 const fetchOperationNote = () => {
     axios
         .get(`/api/operation-notes/${props.id}?include=field,author`)
@@ -109,6 +228,7 @@ const fetchOperationNote = () => {
             );
             operationNote.value = response.data.data;
             isLoaded.value = true;
+            isNoteEdited.value = false;
         })
         .catch((error) => {});
 };
@@ -130,6 +250,7 @@ watch(
     () => {
         isStartDateEdit.value = false;
         isAuthorEdit.value = false;
+        isNoteEdited.value = true;
     }
 );
 
@@ -138,6 +259,7 @@ watch(
     () => {
         isEndDateEdit.value = false;
         isAuthorEdit.value = false;
+        isNoteEdited.value = true;
     }
 );
 
@@ -146,6 +268,7 @@ watch(
     () => {
         isStartDateEdit.value = false;
         isEndDateEdit.value = false;
+        isNoteEdited.value = true;
     }
 );
 
@@ -155,7 +278,6 @@ watch(
         if (!old) {
             return;
         }
-        isNoteEdited.value = true;
         operationNote.value.created_by = operationNote.value.author.id;
     },
     { deep: true }
@@ -225,9 +347,51 @@ onMounted(() => {
                                 <span class="text-lg font-semibold">
                                     Статус:
                                 </span>
-                                <span>
-                                    {{ operationNote.note_status.name }}
-                                </span>
+                                <div class="flex flex-col gap-2">
+                                    <span>
+                                        {{ operationNote.note_status.name }}
+                                    </span>
+
+                                    <Tag
+                                        v-if="editingIsAvailable"
+                                        @click="confirmNoteCancel"
+                                        class="self-start cursor-pointer"
+                                        severity="danger"
+                                        value="Отменить"
+                                    ></Tag>
+
+                                    <div v-if="completeIsAvailable">
+                                        <Tag
+                                            v-if="!isShowNextFieldStatus"
+                                            @click="
+                                                isShowNextFieldStatus = true
+                                            "
+                                            class="self-start cursor-pointer"
+                                            severity="success"
+                                            value="Завершить"
+                                        ></Tag>
+
+                                        <div v-else class="flex items-center">
+                                            <Dropdown
+                                                id="fieldStatus"
+                                                class="w-48"
+                                                v-model="nextFieldStatus"
+                                                :options="nextFieldStatuses"
+                                                optionLabel="name"
+                                                placeholder="Состояние поля"
+                                                pt:root:class="border-0 shadow-none"
+                                                pt:input:class="p-0"
+                                                required
+                                            />
+
+                                            <i
+                                                v-if="editingIsAvailable"
+                                                class="cursor-pointer pi pi-check"
+                                                @click="confirmNoteComplete"
+                                            ></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -249,6 +413,7 @@ onMounted(() => {
                                         pt:root:class="border-0 shadow-none"
                                         pt:input:class="p-0"
                                         required
+                                        filter
                                     />
                                     <Link
                                         v-else
@@ -349,6 +514,7 @@ onMounted(() => {
                     <div class="flex gap-2 items-end h-full">
                         <Button
                             v-if="noteStatusCanceled"
+                            @click="confirmDeleteNote"
                             severity="danger"
                             label="Удалить"
                         />
@@ -360,6 +526,7 @@ onMounted(() => {
 
                         <Button
                             v-if="isNoteEdited"
+                            @click="cancelChangeHandler"
                             severity="secondary"
                             label="Отменить изменения"
                         />
