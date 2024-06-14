@@ -61,6 +61,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');
         Route::get('/personal/create', [PersonalPageController::class, 'create'])->name('personal.create');
+        Route::get('/personal/{id}', [PersonalPageController::class, 'detail'])
+            ->where('id', '[0-9]+')
+            ->name('personal.detail');
 
         Route::post('add-personal', [RegisteredUserController::class, 'addPersonal'])->name('addPersonal');
     });

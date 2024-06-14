@@ -9,8 +9,8 @@ import InputText from "primevue/inputtext";
 import Skeleton from "primevue/skeleton";
 import toastService from "@/Services/toastService";
 import axios from "axios";
-import { Head, Link, usePage } from "@inertiajs/vue3";
-import { FilterMatchMode, FilterOperator } from "primevue/api";
+import { Head, Link, usePage, router } from "@inertiajs/vue3";
+import { FilterMatchMode } from "primevue/api";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 
@@ -88,6 +88,10 @@ const sortHandler = ({ sortField, sortOrder }) => {
         field: sortField,
         direction: sortOrder > 0 ? "asc" : "desc",
     };
+};
+
+const detailHandler = (data) => {
+    router.visit(`/personal/${data.id}`);
 };
 
 const pageHandler = ({ page }) => {
@@ -244,6 +248,7 @@ const isShowDeleteBtn = computed(() => {
                         <template #body="{ data }">
                             <div class="flex gap-2">
                                 <Button
+                                    @click="detailHandler(data)"
                                     type="button"
                                     severity="success"
                                     icon="pi pi-info-circle"

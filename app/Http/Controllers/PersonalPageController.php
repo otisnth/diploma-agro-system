@@ -42,4 +42,21 @@ class PersonalPageController extends Controller
         ]);
     }
 
+    public function detail(string $id): Response
+    {
+        $posts = User::$posts;
+
+        $posts = array_reduce($posts, function($carry, $item) {
+            if ($item['id'] !== 'owner') {
+                $carry[] = $item;
+            }
+            return $carry;
+        }, []);
+
+        return Inertia::render('Personal/Detail', [
+            'id' => $id,
+            'posts' => $posts,
+        ]);
+    }
+
 }
