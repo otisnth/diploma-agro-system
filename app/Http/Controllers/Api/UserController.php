@@ -14,9 +14,14 @@ class UserController extends Controller
 
     protected $policy = TruePolicy::class;
 
+    public function includes() : array
+    {
+        return ['workerUnits', 'workerUnits.operationNote', 'workerUnits.operationNote.field'];
+    }
+
     public function filterableBy(): array
     {
-        return ['post', 'name', 'email'];
+        return ['post', 'name', 'email', 'workerUnits.is_used'];
     }
 
     public function sortableBy(): array

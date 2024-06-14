@@ -61,22 +61,58 @@ const toggleActiveTab = (item) => {
 };
 
 const fetchPersonal = () => {
-    axios
-        .post("/api/users/search", {
-            filters: [
-                { field: "post", operator: "=", value: activeTab.value.id },
-                ...orionFilters.value.mainFilters,
-            ],
-            sort: [activeSort.value],
-            // includes: [{ relation: "" }],
-            page: activePage.value + 1,
-        })
-        .then((response) => {
-            personals.value = response.data.data;
+    if (activeTab.value.id == "worker") {
+        axios
+            .post("/api/users/search", {
+                filters: [
+                    { field: "post", operator: "=", value: activeTab.value.id },
+                    ...orionFilters.value.mainFilters,
+                ],
+                sort: [activeSort.value],
+                includes: [
+                    {
+                        relation: "workerUnits",
+                        filters: [
+                            {
+                                field: "workerUnits.is_used",
+                                operator: "=",
+                                value: true,
+                            },
+                        ],
+                        limit: 1,
+                    },
+                    {
+                        relation: "workerUnits.operationNote",
+                    },
+                    {
+                        relation: "workerUnits.operationNote.field",
+                    },
+                ],
+                page: activePage.value + 1,
+            })
+            .then((response) => {
+                personals.value = response.data.data;
 
-            countPersonals.value = response.data.meta.total;
-        })
-        .catch((error) => {});
+                countPersonals.value = response.data.meta.total;
+            })
+            .catch((error) => {});
+    } else {
+        axios
+            .post("/api/users/search", {
+                filters: [
+                    { field: "post", operator: "=", value: activeTab.value.id },
+                    ...orionFilters.value.mainFilters,
+                ],
+                sort: [activeSort.value],
+                page: activePage.value + 1,
+            })
+            .then((response) => {
+                personals.value = response.data.data;
+
+                countPersonals.value = response.data.meta.total;
+            })
+            .catch((error) => {});
+    }
 };
 
 const sortHandler = ({ sortField, sortOrder }) => {
@@ -243,7 +279,33 @@ const isShowDeleteBtn = computed(() => {
                         field="status"
                         header="Статус"
                         sortable
-                    ></Column>
+                    >
+                        <template #body="{ data }">
+                            <span
+                                v-if="
+                                    data.worker_units &&
+                                    data.worker_units.length
+                                "
+                            >
+                                {{
+                                    data.worker_units[0].operation_note
+                                        .note_operation.name
+                                }}
+                                <span
+                                    v-if="
+                                        data.worker_units[0].operation_note
+                                            .field
+                                    "
+                                >
+                                    -
+                                    {{
+                                        data.worker_units[0].operation_note
+                                            .field.name
+                                    }}</span
+                                >
+                            </span>
+                        </template>
+                    </Column>
                     <Column header="Действия" v-if="isShowDeleteBtn">
                         <template #body="{ data }">
                             <div class="flex gap-2">
