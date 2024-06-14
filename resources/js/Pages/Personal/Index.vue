@@ -60,12 +60,12 @@ const toggleActiveTab = (item) => {
     fetchPersonal();
 };
 
-const fetchPersonal = (filters = []) => {
+const fetchPersonal = () => {
     axios
         .post("/api/users/search", {
             filters: [
                 { field: "post", operator: "=", value: activeTab.value.id },
-                ...filters,
+                ...orionFilters.value.mainFilters,
             ],
             sort: [activeSort.value],
             // includes: [{ relation: "" }],
@@ -95,6 +95,20 @@ const pageHandler = ({ page }) => {
     fetchPersonal();
 };
 
+const orionFilters = computed(() => {
+    let mainFilters = [];
+    for (const key in filters.value) {
+        if (filters.value[key].value) {
+            mainFilters.push({
+                field: key,
+                operator: "ilike",
+                value: `%${filters.value[key].value}%`,
+            });
+        }
+    }
+    return { mainFilters };
+});
+
 watch(
     activeSort,
     () => {
@@ -107,18 +121,8 @@ watch(
 watch(
     () => filters.value,
     () => {
-        let orionFilters = [];
-        for (const key in filters.value) {
-            if (filters.value[key].value) {
-                orionFilters.push({
-                    field: key,
-                    operator: "ilike",
-                    value: `%${filters.value[key].value}%`,
-                });
-            }
-        }
         activePage.value = 0;
-        fetchPersonal(orionFilters);
+        fetchPersonal();
     },
     { deep: true }
 );

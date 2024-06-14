@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
@@ -9,6 +9,7 @@ import InputText from "primevue/inputtext";
 import Skeleton from "primevue/skeleton";
 import SelectButton from "primevue/selectbutton";
 import MultiSelect from "primevue/multiselect";
+import Checkbox from "primevue/checkbox";
 import toastService from "@/Services/toastService";
 import axios from "axios";
 import { Head, Link } from "@inertiajs/vue3";
@@ -25,18 +26,28 @@ const countNotes = ref(0);
 const activePage = ref(0);
 const activeSort = ref(null);
 
-const selectedStatuses = ref([]);
+const selectedStatuses = ref(["planned", "assigned", "inProgress"]);
 
 const filters = ref({});
 
 onMounted(() => {
-    fetchOperationNotes();
+    fetchOperationNotes([
+        {
+            field: "status",
+            value: ["planned", "assigned", "inProgress"],
+            operator: "in",
+        },
+    ]);
 });
 
 const initFilters = () => {
     filters.value = {
-        status: { value: null, matchMode: FilterMatchMode.IN },
+        status: {
+            value: ["planned", "assigned", "inProgress"],
+            matchMode: FilterMatchMode.IN,
+        },
         operation: { value: null, matchMode: FilterMatchMode.IN },
+        field_id: { value: null, matchMode: FilterMatchMode.CONTAINS },
     };
 };
 
@@ -51,21 +62,71 @@ const initSort = () => {
 
 initSort();
 
-const fetchOperationNotes = (filters = []) => {
+const fetchOperationNotes = () => {
     axios
         .post("/api/operation-notes/search", {
-            filters: [...filters],
+            filters: [...orionFilters.value.mainFilters],
             sort: [activeSort.value],
-            includes: [{ relation: "field" }, { relation: "createdBy" }],
+            includes: [
+                { relation: "field", filters: orionFilters.value.fieldFilters },
+                {
+                    relation: "createdBy",
+                    filters: orionFilters.value.userFilters,
+                },
+            ],
             page: activePage.value + 1,
         })
         .then((response) => {
             operationNotes.value = response.data.data;
 
+            for (const i of operationNotes.value) {
+                if (!i.field_id) {
+                    i.field_id = "Отсутствует";
+                } else {
+                    i.field_id = i.field.name;
+                }
+            }
+
             countNotes.value = response.data.meta.total;
         })
         .catch((error) => {});
 };
+
+const orionFilters = computed(() => {
+    let mainFilters = [];
+    let fieldFilters = [];
+    let userFilters = [];
+    for (const key in filters.value) {
+        if (filters.value[key].value) {
+            if (
+                filters.value[key].matchMode == FilterMatchMode.IN &&
+                filters.value[key].value.length
+            ) {
+                mainFilters.push({
+                    field: key,
+                    operator: "in",
+                    value: filters.value[key].value,
+                });
+            }
+            if (key == "field_id") {
+                if (filters.value[key].value == "Отсутствует") {
+                    mainFilters.push({
+                        field: "field_id",
+                        operator: "=",
+                        value: null,
+                    });
+                } else {
+                    mainFilters.push({
+                        field: "field.name",
+                        operator: "ilike",
+                        value: `%${filters.value[key].value}%`,
+                    });
+                }
+            }
+        }
+    }
+    return { mainFilters, fieldFilters, userFilters };
+});
 
 const sortHandler = ({ sortField, sortOrder }) => {
     if (!sortField) {
@@ -117,28 +178,8 @@ watch(
 watch(
     () => filters.value,
     () => {
-        let orionFilters = [];
-        for (const key in filters.value) {
-            if (filters.value[key].value) {
-                if (
-                    filters.value[key].matchMode == FilterMatchMode.IN &&
-                    filters.value[key].value.length
-                ) {
-                    orionFilters.push({
-                        field: key,
-                        operator: "in",
-                        value: filters.value[key].value,
-                    });
-                }
-                // orionFilters.push({
-                //     field: key,
-                //     operator: "ilike",
-                //     value: `%${filters.value[key].value}%`,
-                // });
-            }
-        }
         activePage.value = 0;
-        fetchOperationNotes(orionFilters);
+        fetchOperationNotes();
     },
     { deep: true }
 );
@@ -146,7 +187,6 @@ watch(
 watch(
     () => selectedStatuses.value,
     () => {
-        console.log("status");
         filters.value.status.value = selectedStatuses.value;
     }
 );
@@ -204,7 +244,7 @@ watch(
                         </template>
                     </Column>
 
-                    <Column field="end_Date" header="Дата окончания" sortable>
+                    <Column field="end_date" header="Дата окончания" sortable>
                         <template #body="slotProps">
                             {{ formatDate(slotProps.data.end_Date) }}
                         </template>
@@ -232,7 +272,38 @@ watch(
                         </template>
                     </Column>
 
-                    <Column field="field.name" header="Участок"></Column>
+                    <Column
+                        field="field_id"
+                        header="Участок"
+                        :showFilterMatchModes="false"
+                    >
+                        <template #body="slotProps">
+                            <span v-if="slotProps.data.field">
+                                {{ slotProps.data.field.name }}
+                            </span>
+                        </template>
+
+                        <template #filter="{ filterModel }">
+                            <div class="flex items-center">
+                                <Checkbox
+                                    v-model="filterModel.value"
+                                    inputId="empty"
+                                    name="empty"
+                                    value="Отсутствует"
+                                />
+                                <label for="empty" class="ml-2">
+                                    Отсутствует
+                                </label>
+                            </div>
+                            <InputText
+                                v-model="filterModel.value"
+                                :disabled="filterModel.value == 'Отсутствует'"
+                                type="text"
+                                class="p-column-filter mt-1"
+                                placeholder="Поиск по названию"
+                            />
+                        </template>
+                    </Column>
 
                     <Column
                         field="created_by.name"
@@ -240,7 +311,7 @@ watch(
                     ></Column>
 
                     <Column header="Действия">
-                        <template #body="{}">
+                        <template #body="{ data }">
                             <div class="flex gap-2">
                                 <Button
                                     type="button"
@@ -250,6 +321,7 @@ watch(
                                 />
 
                                 <Button
+                                    v-if="data.status == 'canceled'"
                                     type="button"
                                     severity="danger"
                                     icon="pi pi-trash"

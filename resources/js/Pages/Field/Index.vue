@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import PreviewField from "@/Components/PreviewField.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
@@ -49,7 +49,7 @@ initSort();
 const fetchFields = (filters = []) => {
     axios
         .post("/api/fields/search", {
-            filters: [...filters],
+            filters: [...orionFilters.value.mainFilters],
             sort: [activeSort.value],
             includes: [{ relation: "sort" }, { relation: "sort.plant" }],
             page: activePage.value + 1,
@@ -83,6 +83,20 @@ const deleteFieldHandler = () => {
     fetchFields();
 };
 
+const orionFilters = computed(() => {
+    let mainFilters = [];
+    for (const key in filters.value) {
+        if (filters.value[key].value) {
+            mainFilters.push({
+                field: key,
+                operator: "ilike",
+                value: `%${filters.value[key].value}%`,
+            });
+        }
+    }
+    return { mainFilters };
+});
+
 watch(
     activeSort,
     () => {
@@ -95,18 +109,8 @@ watch(
 watch(
     () => filters.value,
     () => {
-        let orionFilters = [];
-        for (const key in filters.value) {
-            if (filters.value[key].value) {
-                orionFilters.push({
-                    field: key,
-                    operator: "ilike",
-                    value: `%${filters.value[key].value}%`,
-                });
-            }
-        }
         activePage.value = 0;
-        fetchFields(orionFilters);
+        fetchFields();
     },
     { deep: true }
 );
@@ -154,7 +158,7 @@ watch(
                                 v-model="filterModel.value"
                                 type="text"
                                 class="p-column-filter"
-                                placeholder="Поиск по имени"
+                                placeholder="Поиск по названию"
                             />
                         </template>
                     </Column>
