@@ -13,8 +13,8 @@ import Checkbox from "primevue/checkbox";
 import ToggleButton from "primevue/togglebutton";
 import toastService from "@/Services/toastService";
 import axios from "axios";
-import { Head, Link, usePage } from "@inertiajs/vue3";
-import { FilterMatchMode, FilterOperator } from "primevue/api";
+import { Head, Link, usePage, router } from "@inertiajs/vue3";
+import { FilterMatchMode } from "primevue/api";
 
 const props = defineProps({
     operations: Array,
@@ -170,9 +170,13 @@ const pageHandler = ({ page }) => {
     fetchOperationNotes();
 };
 
-const deleteFieldHandler = () => {
-    selectedFields.value = {};
-    fetchFields();
+// const deleteFieldHandler = () => {
+//     selectedFields.value = {};
+//     fetchFields();
+// };
+
+const detailHandler = (data) => {
+    router.visit(`/operation/${data.id}`);
 };
 
 function pad(num) {
@@ -375,6 +379,7 @@ watch(
                         <template #body="{ data }">
                             <div class="flex gap-2">
                                 <Button
+                                    @click="detailHandler(data)"
                                     type="button"
                                     severity="success"
                                     icon="pi pi-info-circle"

@@ -243,7 +243,7 @@ const fetchOperationNote = () => {
 
 const goToOperationNote = () => {
     if (operationNote.value.content) {
-        console.log(operationNote.value.id);
+        router.visit(`/operation/${operationNote.value.id}`);
     }
 };
 

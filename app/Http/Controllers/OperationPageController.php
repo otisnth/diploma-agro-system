@@ -31,4 +31,16 @@ class OperationPageController extends Controller
         ]);
     }
 
+    public function detail(string $id): Response
+    {
+        $operations = OperationNote::$operations;
+        $operationStatuses = OperationNote::$operationStatuses;
+
+        return Inertia::render('Operation/Detail', [
+            'id' => $id,
+            'operations' => $operations,
+            'operationStatuses' => $operationStatuses
+        ]);
+    }
+
 }

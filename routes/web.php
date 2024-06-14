@@ -54,6 +54,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/operation', [OperationPageController::class, 'index'])->name('operation.index');
         Route::get('/operation/create', [OperationPageController::class, 'create'])->name('operation.create');
+        Route::get('/operation/{id}', [OperationPageController::class, 'detail'])
+            ->where('id', '[0-9]+')
+            ->name('operation.detail');
 
 
         Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');
