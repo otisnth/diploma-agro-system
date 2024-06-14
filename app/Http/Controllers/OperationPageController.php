@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\OperationNote;
+use App\Models\Field;
 
 class OperationPageController extends Controller
 {
@@ -35,9 +36,11 @@ class OperationPageController extends Controller
     {
         $operations = OperationNote::$operations;
         $operationStatuses = OperationNote::$operationStatuses;
+        $statuses = Field::$fieldStatuses;
 
         return Inertia::render('Operation/Detail', [
             'id' => $id,
+            'fieldStatuses' => $statuses,
             'operations' => $operations,
             'operationStatuses' => $operationStatuses
         ]);

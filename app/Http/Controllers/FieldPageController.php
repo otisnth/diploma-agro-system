@@ -20,20 +20,20 @@ class FieldPageController extends Controller
 
     public function create(Request $request): Response
     {
-        $stauses = Field::$fieldStatuses;
+        $statuses = Field::$fieldStatuses;
 
         return Inertia::render('Field/Create', [
-            'fieldStatuses' => $stauses,
+            'fieldStatuses' => $statuses,
         ]);
     }
 
     public function detail(string $id): Response
     {
-        $stauses = Field::$fieldStatuses;
+        $statuses = Field::$fieldStatuses;
 
         return Inertia::render('Field/Detail', [
             'id' => $id,
-            'fieldStatuses' => $stauses,
+            'fieldStatuses' => $statuses,
         ]);
     }
 
