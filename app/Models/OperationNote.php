@@ -146,7 +146,7 @@ class OperationNote extends Model
         return $this->belongsTo(Field::class, 'field_id', 'id');
     }
 
-    public function createdBy()
+    public function author()
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
     }

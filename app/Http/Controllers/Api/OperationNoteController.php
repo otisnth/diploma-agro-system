@@ -24,12 +24,12 @@ class OperationNoteController extends Controller
 
     public function includes() : array
     {
-        return ['field', 'createdBy'];
+        return ['field', 'author'];
     }
 
     public function filterableBy(): array
     {
-        return ['field_id', 'status', 'operation', 'field.name'];
+        return ['field_id', 'status', 'operation', 'field.name', 'author.name', 'created_by'];
     }
 
     public function sortableBy(): array

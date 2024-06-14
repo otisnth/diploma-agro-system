@@ -10,9 +10,10 @@ import Skeleton from "primevue/skeleton";
 import SelectButton from "primevue/selectbutton";
 import MultiSelect from "primevue/multiselect";
 import Checkbox from "primevue/checkbox";
+import ToggleButton from "primevue/togglebutton";
 import toastService from "@/Services/toastService";
 import axios from "axios";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, usePage } from "@inertiajs/vue3";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 
 const props = defineProps({
@@ -25,6 +26,8 @@ const countNotes = ref(0);
 
 const activePage = ref(0);
 const activeSort = ref(null);
+
+const myNotes = ref(false);
 
 const selectedStatuses = ref(["planned", "assigned", "inProgress"]);
 
@@ -48,6 +51,7 @@ const initFilters = () => {
         },
         operation: { value: null, matchMode: FilterMatchMode.IN },
         field_id: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        created_by: { value: null, matchMode: FilterMatchMode.CONTAINS },
     };
 };
 
@@ -70,7 +74,7 @@ const fetchOperationNotes = () => {
             includes: [
                 { relation: "field", filters: orionFilters.value.fieldFilters },
                 {
-                    relation: "createdBy",
+                    relation: "author",
                     filters: orionFilters.value.userFilters,
                 },
             ],
@@ -84,6 +88,12 @@ const fetchOperationNotes = () => {
                     i.field_id = "Отсутствует";
                 } else {
                     i.field_id = i.field.name;
+                }
+
+                if (myNotes.value) {
+                    i.created_by = "MyNotes";
+                } else {
+                    i.created_by = i.author.name;
                 }
             }
 
@@ -118,6 +128,22 @@ const orionFilters = computed(() => {
                 } else {
                     mainFilters.push({
                         field: "field.name",
+                        operator: "ilike",
+                        value: `%${filters.value[key].value}%`,
+                    });
+                }
+            }
+
+            if (key == "created_by") {
+                if (filters.value[key].value == "MyNotes") {
+                    mainFilters.push({
+                        field: "created_by",
+                        operator: "=",
+                        value: usePage().props.auth.user.id,
+                    });
+                } else {
+                    mainFilters.push({
+                        field: "author.name",
                         operator: "ilike",
                         value: `%${filters.value[key].value}%`,
                     });
@@ -185,6 +211,17 @@ watch(
 );
 
 watch(
+    () => myNotes.value,
+    () => {
+        if (myNotes.value) {
+            filters.value.created_by.value = "MyNotes";
+        } else {
+            filters.value.created_by.value = null;
+        }
+    }
+);
+
+watch(
     () => selectedStatuses.value,
     () => {
         filters.value.status.value = selectedStatuses.value;
@@ -222,6 +259,13 @@ watch(
                         optionLabel="name"
                         optionValue="id"
                         multiple
+                    />
+
+                    <ToggleButton
+                        class="self-start"
+                        v-model="myNotes"
+                        onLabel="Мои мероприятия"
+                        offLabel="Все мероприятия"
                     />
                 </div>
 
@@ -306,9 +350,26 @@ watch(
                     </Column>
 
                     <Column
-                        field="created_by.name"
+                        field="created_by"
                         header="Ответственный"
-                    ></Column>
+                        v-if="!myNotes"
+                        :showFilterMatchModes="false"
+                    >
+                        <template #body="slotProps">
+                            <span>
+                                {{ slotProps.data.author.name }}
+                            </span>
+                        </template>
+
+                        <template #filter="{ filterModel }">
+                            <InputText
+                                v-model="filterModel.value"
+                                type="text"
+                                class="p-column-filter mt-1"
+                                placeholder="Поиск по имени"
+                            />
+                        </template>
+                    </Column>
 
                     <Column header="Действия">
                         <template #body="{ data }">
