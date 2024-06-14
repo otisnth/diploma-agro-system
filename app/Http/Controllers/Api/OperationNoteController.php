@@ -226,7 +226,7 @@ class OperationNoteController extends Controller
         $entity->save();
     }
 
-    protected function afterSave(Request $request, Model $entity)
+    protected function afterStore(Request $request, Model $entity)
     {
 
         if ($request['operation'] == "seeding")

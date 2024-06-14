@@ -36,7 +36,6 @@ const isLoaded = ref(false);
 const adminList = ref();
 const isAuthorEdit = ref(false);
 const isStartDateEdit = ref(false);
-const isEndDateEdit = ref(false);
 const isNoteEdited = ref(false);
 const nextFieldStatus = ref(null);
 
@@ -96,32 +95,40 @@ const editingIsAvailable = computed(() => {
 const cancelChangeHandler = () => {
     fetchOperationNote();
     isStartDateEdit.value = false;
-    isEndDateEdit.value = false;
     isAuthorEdit.value = false;
     isNoteEdited.value = false;
 };
 
-// const saveChangeHandler = () => {
-//     field.value.coords = JSON.parse(JSON.stringify(fieldPreview.value.coords));
-
-//     axios
-//         .patch(route("api.fields.update", field.value.id), field.value)
-//         .then(() => {
-//             toastService.showSuccessToast(
-//                 "Успешное обновление",
-//                 "Сведения об участке успешно обновлены в системе"
-//             );
-//             isFieldEdit.value = false;
-//             isFieldNameEdit.value = false;
-//             nextStatusSelect.value = false;
-//         })
-//         .catch((e) => {
-//             toastService.showErrorToast(
-//                 "Ошибка",
-//                 "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-//             );
-//         });
-// };
+const saveChangeHandler = () => {
+    const utcDate = new Date(
+        Date.UTC(
+            operationNote.value.start_date.getFullYear(),
+            operationNote.value.start_date.getMonth(),
+            operationNote.value.start_date.getDate()
+        )
+    );
+    operationNote.value.start_date = utcDate;
+    axios
+        .patch(
+            route("api.operation-notes.update", operationNote.value.id),
+            operationNote.value
+        )
+        .then(() => {
+            toastService.showSuccessToast(
+                "Успешное обновление",
+                "Сведения о мероприятии успешно обновлены в системе"
+            );
+            isStartDateEdit.value = false;
+            isAuthorEdit.value = false;
+            isNoteEdited.value = false;
+        })
+        .catch((e) => {
+            toastService.showErrorToast(
+                "Ошибка",
+                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+            );
+        });
+};
 
 const confirmNoteCancel = () => {
     confirm.require({
@@ -134,26 +141,38 @@ const confirmNoteCancel = () => {
         acceptLabel: "Отменить",
         accept: () => {
             operationNote.value.status = "canceled";
-            // axios
-            //     .delete(route(`api.fields.destroy`, field.value.id))
-            //     .then(() => {
-            //         toastService.showSuccessToast(
-            //             "Успешное удаления",
-            //             "Запись об участке удалена"
-            //         );
-            //         router.visit("/field");
-            //     })
-            //     .catch(() => {
-            //         toastService.showErrorToast(
-            //             "Ошибка",
-            //             "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-            //         );
-            //     });
+            axios
+                .patch(
+                    route("api.operation-notes.update", operationNote.value.id),
+                    operationNote.value
+                )
+                .then(() => {
+                    toastService.showSuccessToast(
+                        "Успешная отмена",
+                        "Мероприятие отменено"
+                    );
+                    isStartDateEdit.value = false;
+                    isAuthorEdit.value = false;
+                    isNoteEdited.value = false;
+                })
+                .catch((e) => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                    );
+                });
         },
     });
 };
 
 const confirmNoteComplete = () => {
+    if (!nextFieldStatus.value) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Выберите следующее состояние поля"
+        );
+        return;
+    }
     confirm.require({
         message: "Вы действительно хотите завершить данное мероприятие?",
         header: "Внимание",
@@ -165,21 +184,47 @@ const confirmNoteComplete = () => {
         accept: () => {
             operationNote.value.status = "completed";
             isShowNextFieldStatus.value = false;
-            // axios
-            //     .delete(route(`api.fields.destroy`, field.value.id))
-            //     .then(() => {
-            //         toastService.showSuccessToast(
-            //             "Успешное удаления",
-            //             "Запись об участке удалена"
-            //         );
-            //         router.visit("/field");
-            //     })
-            //     .catch(() => {
-            //         toastService.showErrorToast(
-            //             "Ошибка",
-            //             "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-            //         );
-            //     });
+            axios
+                .patch(
+                    route("api.operation-notes.update", operationNote.value.id),
+                    operationNote.value
+                )
+                .then(() => {
+                    toastService.showSuccessToast(
+                        "Успешное завершение",
+                        "Мероприятие завершено"
+                    );
+                    isStartDateEdit.value = false;
+                    isAuthorEdit.value = false;
+                    isNoteEdited.value = false;
+
+                    axios
+                        .patch(
+                            route(
+                                "api.fields.update",
+                                operationNote.value.field_id
+                            ),
+                            {
+                                status: nextFieldStatus.value,
+                                ...(operationNote.value.sort_id && {
+                                    sort_id: operationNote.value.sort_id,
+                                }),
+                            }
+                        )
+                        .then(() => {})
+                        .catch((e) => {
+                            toastService.showErrorToast(
+                                "Ошибка",
+                                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                            );
+                        });
+                })
+                .catch((e) => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                    );
+                });
         },
         reject: () => {
             isShowNextFieldStatus.value = false;
@@ -246,18 +291,8 @@ const fetchAdminList = () => {
 };
 
 watch(
-    () => isEndDateEdit.value,
-    () => {
-        isStartDateEdit.value = false;
-        isAuthorEdit.value = false;
-        isNoteEdited.value = true;
-    }
-);
-
-watch(
     () => isStartDateEdit.value,
     () => {
-        isEndDateEdit.value = false;
         isAuthorEdit.value = false;
         isNoteEdited.value = true;
     }
@@ -267,7 +302,6 @@ watch(
     () => isAuthorEdit.value,
     () => {
         isStartDateEdit.value = false;
-        isEndDateEdit.value = false;
         isNoteEdited.value = true;
     }
 );
@@ -378,6 +412,7 @@ onMounted(() => {
                                                 v-model="nextFieldStatus"
                                                 :options="nextFieldStatuses"
                                                 optionLabel="name"
+                                                optionValue="id"
                                                 placeholder="Состояние поля"
                                                 pt:root:class="border-0 shadow-none"
                                                 pt:input:class="p-0"
@@ -481,37 +516,15 @@ onMounted(() => {
                                 <span class="text-lg font-semibold">
                                     Дата окончания:
                                 </span>
-                                <div class="grid-line">
-                                    <Calendar
-                                        v-if="isEndDateEdit"
-                                        class="w-64"
-                                        id="startDate"
-                                        v-model="operationNote.end_date"
-                                        showIcon
-                                        iconDisplay="input"
-                                        required
-                                        pt:input:class="p-0 border-0 shadow-none"
-                                    />
-                                    <span class="w-64" v-else>
-                                        {{ formatDate(operationNote.end_date) }}
-                                    </span>
 
-                                    <i
-                                        v-if="editingIsAvailable"
-                                        class="cursor-pointer pi"
-                                        :class="
-                                            isEndDateEdit
-                                                ? 'pi-check'
-                                                : 'pi-pen-to-square'
-                                        "
-                                        @click="isEndDateEdit = !isEndDateEdit"
-                                    ></i>
-                                </div>
+                                <span class="w-64">
+                                    {{ formatDate(operationNote.end_date) }}
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex gap-2 items-end h-full">
+                    <div class="flex gap-2 items-end h-full mt-4">
                         <Button
                             v-if="noteStatusCanceled"
                             @click="confirmDeleteNote"
@@ -521,6 +534,7 @@ onMounted(() => {
 
                         <Button
                             v-if="isNoteEdited"
+                            @click="saveChangeHandler"
                             label="Сохранить изменения"
                         />
 
