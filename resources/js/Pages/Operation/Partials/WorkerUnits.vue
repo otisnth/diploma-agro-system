@@ -27,6 +27,8 @@ const confirm = useConfirm();
 
 const props = defineProps({
     noteId: String,
+    isAvailableAdd: Boolean,
+    isAvailableDelete: Boolean,
 });
 
 const workerUnits = ref(null);
@@ -216,27 +218,77 @@ const deleteWorkerUnitHandler = (data) => {
         });
 };
 
-// const saveChangeHandler = () => {
-//     field.value.coords = JSON.parse(JSON.stringify(fieldPreview.value.coords));
+const addWorkerUnitHandler = () => {
+    if (!newWorkerUnit.value.worker_id) {
+        toastService.showErrorToast("Ошибка", "Выберите механизатора");
+        return;
+    }
 
-//     axios
-//         .patch(route("api.fields.update", field.value.id), field.value)
-//         .then(() => {
-//             toastService.showSuccessToast(
-//                 "Успешное обновление",
-//                 "Сведения об участке успешно обновлены в системе"
-//             );
-//             isFieldEdit.value = false;
-//             isFieldNameEdit.value = false;
-//             nextStatusSelect.value = false;
-//         })
-//         .catch((e) => {
-//             toastService.showErrorToast(
-//                 "Ошибка",
-//                 "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-//             );
-//         });
-// };
+    if (!newWorkerUnit.value.technic?.id) {
+        toastService.showErrorToast("Ошибка", "Выберите технику");
+        return;
+    }
+
+    const equipmentsIds = newWorkerUnit.value.equipments
+        .map((item) => item.id)
+        .filter((id) => id != null);
+    const uniqueEquipmentsIds = new Set(equipmentsIds);
+    if (uniqueEquipmentsIds.size !== equipmentsIds.length) {
+        toastService.showErrorToast(
+            "Ошибка",
+            "Невозможно выбрать оборудование более одного раза"
+        );
+        return;
+    }
+
+    const mappedUnit = {
+        worker_id: newWorkerUnit.value.worker_id,
+        technic_id: newWorkerUnit.value.technic.id,
+        equipments: Array.from(uniqueEquipmentsIds),
+    };
+
+    axios
+        .post(
+            route("api.operation-notes.worker-units.store", props.noteId),
+            mappedUnit
+        )
+        .then((workerUnitRes) => {
+            const workerUnit = workerUnitRes.data.data;
+
+            if (mappedUnit.equipments.length) {
+                axios
+                    .patch(
+                        route(
+                            "api.worker-units.equipments.sync",
+                            workerUnit.id
+                        ),
+                        {
+                            resources: mappedUnit.equipments,
+                        }
+                    )
+                    .then(() => {
+                        fetchWorkerUnits();
+                    })
+                    .catch((e) => {});
+            }
+            fetchWorkerUnits();
+
+            toastService.showSuccessToast(
+                "Успешное добавление",
+                "Исполнитель успешно добавлен"
+            );
+        })
+        .catch((e) => {
+            if (e?.response?.data?.error) {
+                toastService.showErrorToast("Ошибка", e.response.data.error);
+            } else {
+                toastService.showErrorToast(
+                    "Ошибка",
+                    "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                );
+            }
+        });
+};
 
 const fetchWorkerUnits = () => {
     axios
@@ -271,7 +323,7 @@ onMounted(() => {
         </InlineMessage>
 
         <Accordion class="border-2 rounded-lg mt-4">
-            <AccordionTab>
+            <AccordionTab v-if="props.isAvailableAdd">
                 <template #header>
                     <span class="font-bold white-space-nowrap">
                         Добавить исполнителя
@@ -379,6 +431,7 @@ onMounted(() => {
 
                 <Button
                     class="p-2 mt-2 w-64"
+                    @click="addWorkerUnitHandler"
                     label="Добавить исполнителя"
                     severity="success"
                     icon="pi pi-plus"
@@ -435,7 +488,7 @@ onMounted(() => {
                     </template>
                 </Column>
 
-                <Column header="Действия">
+                <Column header="Действия" v-if="props.isAvailableDelete">
                     <template #body="{ data }">
                         <Button
                             class="ml-5"

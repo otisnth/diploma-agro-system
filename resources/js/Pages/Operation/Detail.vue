@@ -59,6 +59,14 @@ const noteStatusCanceled = computed(
     () => operationNote.value.status == "canceled"
 );
 
+const isAvailableAddWorkerUnits = computed(() =>
+    ["inProgress", "assigned", "planned"].includes(operationNote.value.status)
+);
+
+const isAvailableDeleteWorkerUnits = computed(
+    () => !["canceled", "completed"].includes(operationNote.value.status)
+);
+
 const nextFieldStatuses = computed(() => {
     return props.fieldStatuses.filter((status) =>
         operationNote.value.note_operation.nextFieldStatus.includes(status.id)
@@ -550,7 +558,11 @@ onMounted(() => {
                 <div
                     class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
                 >
-                    <WorkerUnits :note-id="props.id" />
+                    <WorkerUnits
+                        :note-id="props.id"
+                        :is-available-add="isAvailableAddWorkerUnits"
+                        :is-available-delete="isAvailableDeleteWorkerUnits"
+                    />
                 </div>
             </div>
         </div>

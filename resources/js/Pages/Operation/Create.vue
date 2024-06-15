@@ -51,15 +51,19 @@ const createOperationNote = () => {
     const unitsList = JSON.parse(JSON.stringify(selectedUnitsList.value));
     let operationNote = {};
 
-    const utcDate = new Date(
-        Date.UTC(
-            selectedStartDate.value.getFullYear(),
-            selectedStartDate.value.getMonth(),
-            selectedStartDate.value.getDate()
-        )
-    );
+    if (selectedStartDate.value) {
+        const utcDate = new Date(
+            Date.UTC(
+                selectedStartDate.value.getFullYear(),
+                selectedStartDate.value.getMonth(),
+                selectedStartDate.value.getDate()
+            )
+        );
 
-    operationNote.start_date = utcDate;
+        operationNote.start_date = utcDate;
+    } else {
+        operationNote.start_date = null;
+    }
 
     if (selectedOperation.value) {
         operationNote.operation = selectedOperation.value.id;
@@ -168,14 +172,18 @@ const createOperationNote = () => {
                     .map((item) => ({
                         worker_id: item.worker_id,
                         technic_id: item.technic?.id,
-                        equipments: item.equipments
-                            .map((equipment) => equipment?.id)
-                            .filter((id) => id != null),
+                        equipments: Array.from(
+                            item.equipments
+                                .map((equipment) => equipment?.id)
+                                .filter((id) => id != null)
+                        ),
                     }))
                     .filter((item) => item.worker_id != null),
             };
 
-            if (mappedUnits.length) {
+            console.log(mappedUnits);
+
+            if (mappedUnits.resources.length) {
                 axios
                     .post(
                         route(
