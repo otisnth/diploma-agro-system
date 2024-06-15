@@ -42,22 +42,56 @@ const isPersonalEdited = ref(false);
 
 const selectedPost = ref(null);
 
-function pad(num) {
-    return (num < 10 ? "0" : "") + num;
-}
+const currentOperation = ref({});
 
-function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
+const fields = ref([]);
+const technics = ref([]);
 
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+const fetchFields = async () => {
+    if (personal.value.post != "worker") {
+        return;
+    }
+    if (!currentOperation.value?.operation_note?.field_id) {
+        fields.value = [];
+        return;
+    }
+    axios
+        .post("/api/fields/search", {
+            limit: "all",
+            includes: [{ relation: "sort" }, { relation: "sort.plant" }],
+            filters: [
+                {
+                    field: "id",
+                    operator: "=",
+                    value: currentOperation.value.operation_note.field_id,
+                },
+            ],
+            sort: [
+                {
+                    field: "id",
+                    direction: "asc",
+                },
+            ],
+        })
+        .then((response) => {
+            fields.value = response.data.data;
+        })
+        .catch((error) => {});
+};
 
-    const formattedDate = pad(day) + "." + pad(month) + "." + year;
-
-    return formattedDate;
-}
+const fetchTechnics = () => {
+    if (!currentOperation.value?.technic_id) {
+        return;
+    }
+    axios
+        .post("/api/technics/positions", {
+            technics: [currentOperation.value.technic_id],
+        })
+        .then(async (response) => {
+            technics.value = response.data.data;
+        })
+        .catch((error) => {});
+};
 
 const isEditAvailable = computed(() => {
     return (
@@ -65,6 +99,8 @@ const isEditAvailable = computed(() => {
         personal.value.post == "worker"
     );
 });
+
+const isWorkerPage = computed(() => personal.value.post == "worker");
 
 const changePostHandler = () => {
     personal.value.post = selectedPost.value.id;
@@ -142,19 +178,61 @@ const newPasswordHandler = () => {
         });
 };
 
-const fetchPersonal = () => {
+const fetchPersonal = async () => {
     axios
         .get(`/api/users/${props.id}`)
         .then((response) => {
             personal.value = response.data.data;
             originalEmail.value = personal.value.email;
-            isLoaded.value = true;
+        })
+        .then(() => {
+            fetchCurrentOperation();
         })
         .catch((error) => {});
 };
 
-onMounted(() => {
-    fetchPersonal();
+const fetchCurrentOperation = () => {
+    if (personal.value.post != "worker") {
+        Promise.resolve();
+    }
+    axios
+        .post("/api/worker-units/search", {
+            filters: [
+                { field: "is_used", operator: "=", value: true },
+                { field: "worker_id", operator: "=", value: personal.value.id },
+            ],
+            includes: [
+                { relation: "operationNote" },
+                {
+                    relation: "operationNote.field",
+                },
+                { relation: "technic" },
+                {
+                    relation: "technic.model",
+                },
+                { relation: "technic.model.type" },
+                {
+                    relation: "equipments",
+                },
+                {
+                    relation: "equipments.model",
+                },
+            ],
+            limit: 1,
+        })
+        .then((response) => {
+            currentOperation.value = response.data.data?.[0];
+            fetchFields();
+            isLoaded.value = true;
+        })
+        .then(() => {
+            fetchTechnics();
+            setInterval(fetchTechnics, 1000 * 60);
+        });
+};
+
+onMounted(async () => {
+    await fetchPersonal();
 });
 
 watch(
@@ -326,7 +404,7 @@ watch(
 
                 <div
                     v-if="isEditAvailable"
-                    class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
+                    class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-2"
                 >
                     <Accordion>
                         <AccordionTab header="Сбросить пароль">
@@ -370,9 +448,101 @@ watch(
                 </div>
 
                 <div
-                    class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
+                    v-if="isWorkerPage"
+                    class="rounded-lg bg-white shadow-md p-6"
                 >
-                    {{ personal }}
+                    <div v-if="currentOperation?.id">
+                        <Link
+                            class="flex flex-col gap-4 bg-green-50 p-2 border-2 rounded-lg"
+                            :href="
+                                route(
+                                    'operation.detail',
+                                    currentOperation.operation_note_id
+                                )
+                            "
+                        >
+                            <h3 class="text-xl font-semibold">
+                                Текущее мероприятие -
+                                {{
+                                    currentOperation.operation_note
+                                        .note_operation.name
+                                }}
+                            </h3>
+                            <span
+                                class="text-lg"
+                                v-if="currentOperation.operation_note.field"
+                            >
+                                {{ currentOperation.operation_note.field.name }}
+                            </span>
+                            <div class="flex gap-32">
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-semibold">
+                                        Техника:
+                                    </span>
+                                    <span>
+                                        {{
+                                            currentOperation.technic.model.type
+                                                .name
+                                        }}
+                                    </span>
+                                    <span>
+                                        {{
+                                            currentOperation.technic.model.name
+                                        }}
+                                    </span>
+                                    <span>
+                                        {{
+                                            currentOperation.technic
+                                                .license_plate
+                                        }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    v-if="currentOperation.equipments.length"
+                                    class="flex flex-col"
+                                >
+                                    <span class="text-lg font-semibold"
+                                        >Оборудование:</span
+                                    >
+                                    <span
+                                        v-for="(
+                                            item, index
+                                        ) in currentOperation.equipments"
+                                        :key="index"
+                                    >
+                                        {{ item.marking }} -
+                                        {{ item.model.name }}
+                                    </span>
+                                </div>
+                            </div>
+                        </Link>
+
+                        <Accordion
+                            class="border-2 rounded-lg mt-4"
+                            :activeIndex="0"
+                        >
+                            <AccordionTab value="0">
+                                <template #header>
+                                    <span class="font-bold white-space-nowrap">
+                                        Просмотреть на карте
+                                    </span>
+                                </template>
+
+                                <Map
+                                    :fields="fields"
+                                    :technics="technics"
+                                    :isShowPopups="true"
+                                    :is-zoom-to-field="false"
+                                    height="500px"
+                                />
+                            </AccordionTab>
+                        </Accordion>
+                    </div>
+
+                    <h3 v-else class="text-xl font-semibold">
+                        Текущих мероприятий нет
+                    </h3>
                 </div>
             </div>
         </div>

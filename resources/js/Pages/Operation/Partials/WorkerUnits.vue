@@ -77,10 +77,10 @@ const fetchFields = async () => {
         .catch((error) => {});
 };
 
-const fetchTechnics = (ids = []) => {
+const fetchTechnics = () => {
     axios
         .post("/api/technics/positions", {
-            technics: ids,
+            technics: technicsIds.value,
         })
         .then(async (response) => {
             technics.value = response.data.data;
@@ -336,17 +336,23 @@ const addWorkerUnitHandler = () => {
         });
 };
 
-const fetchWorkerUnits = () => {
+const fetchWorkerUnits = async () => {
     axios
         .get(
             `/api/operation-notes/${props.noteId}/worker-units?include=worker,technic,technic.model,technic.model.type,equipments,equipments.model`
         )
         .then((response) => {
             workerUnits.value = response.data.data;
-            technicsIds.value = workerUnits.value.map(
+            technicsIds.value = response.data.data.map(
                 (item) => item.technic_id
             );
-
+        })
+        .then(() => {
+            fetchTechnics();
+            setInterval(fetchTechnics, 1000 * 60);
+        })
+        .then(() => {
+            fetchTechnics();
             isLoaded.value = true;
         })
         .catch((error) => {});
@@ -358,13 +364,10 @@ const toWorkerDetailHandler = (data) => {
 
 onMounted(async () => {
     await fetchFields();
-    fetchWorkerUnits();
+    await fetchWorkerUnits();
     fetchWorkersList();
     fetchTechnicTypeList();
     fetchEquipmnetTypeList();
-
-    fetchTechnics(technicsIds.value);
-    setInterval(fetchTechnics, 1000 * 60, technicsIds.value);
 });
 </script>
 
@@ -389,6 +392,7 @@ onMounted(async () => {
                     :technics="technics"
                     :isShowPopups="true"
                     :is-zoom-to-field="false"
+                    height="500px"
                 />
             </AccordionTab>
             <AccordionTab v-if="props.isAvailableAdd" value="1">
