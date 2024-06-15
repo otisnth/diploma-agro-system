@@ -29,9 +29,11 @@ const props = defineProps({
     noteId: String,
     isAvailableAdd: Boolean,
     isAvailableDelete: Boolean,
+    isShowMap: Boolean,
+    fieldId: Number,
 });
 
-const workerUnits = ref(null);
+const workerUnits = ref([]);
 const newWorkerUnit = ref({
     worker_id: null,
     technic: null,
@@ -41,6 +43,50 @@ const isLoaded = ref(false);
 const workersList = ref();
 const technicList = ref();
 const equipmentList = ref();
+const technicsIds = ref([]);
+
+const fields = ref([]);
+const technics = ref([]);
+
+const fetchFields = async () => {
+    if (!props.fieldId) {
+        fields.value = [];
+        return;
+    }
+    axios
+        .post("/api/fields/search", {
+            limit: "all",
+            includes: [{ relation: "sort" }, { relation: "sort.plant" }],
+            filters: [
+                {
+                    field: "id",
+                    operator: "=",
+                    value: props.fieldId,
+                },
+            ],
+            sort: [
+                {
+                    field: "id",
+                    direction: "asc",
+                },
+            ],
+        })
+        .then((response) => {
+            fields.value = response.data.data;
+        })
+        .catch((error) => {});
+};
+
+const fetchTechnics = (ids = []) => {
+    axios
+        .post("/api/technics/positions", {
+            technics: ids,
+        })
+        .then(async (response) => {
+            technics.value = response.data.data;
+        })
+        .catch((error) => {});
+};
 
 const fetchWorkersList = () => {
     axios
@@ -297,6 +343,10 @@ const fetchWorkerUnits = () => {
         )
         .then((response) => {
             workerUnits.value = response.data.data;
+            technicsIds.value = workerUnits.value.map(
+                (item) => item.technic_id
+            );
+
             isLoaded.value = true;
         })
         .catch((error) => {});
@@ -306,11 +356,15 @@ const toWorkerDetailHandler = (data) => {
     router.visit(`/personal/${data.data.worker_id}`);
 };
 
-onMounted(() => {
+onMounted(async () => {
+    await fetchFields();
     fetchWorkerUnits();
     fetchWorkersList();
     fetchTechnicTypeList();
     fetchEquipmnetTypeList();
+
+    fetchTechnics(technicsIds.value);
+    setInterval(fetchTechnics, 1000 * 60, technicsIds.value);
 });
 </script>
 
@@ -322,8 +376,22 @@ onMounted(() => {
             Ожидаемое время выполнения
         </InlineMessage>
 
-        <Accordion class="border-2 rounded-lg mt-4">
-            <AccordionTab v-if="props.isAvailableAdd">
+        <Accordion class="border-2 rounded-lg mt-4" :activeIndex="0">
+            <AccordionTab v-if="props.isShowMap" value="0">
+                <template #header>
+                    <span class="font-bold white-space-nowrap">
+                        Просмотреть на карте
+                    </span>
+                </template>
+
+                <Map
+                    :fields="fields"
+                    :technics="technics"
+                    :isShowPopups="true"
+                    :is-zoom-to-field="false"
+                />
+            </AccordionTab>
+            <AccordionTab v-if="props.isAvailableAdd" value="1">
                 <template #header>
                     <span class="font-bold white-space-nowrap">
                         Добавить исполнителя

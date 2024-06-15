@@ -25,16 +25,16 @@ class TechnicController extends Controller
     }
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
-    {   
+    {
         if ($request->query("limit") == "all") {
-           return $query->get();
-        }
-        else {
+            return $query->get();
+        } else {
             return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
         }
     }
 
-    protected function addToTraccar($name, $uniqueId) {
+    protected function addToTraccar($name, $uniqueId)
+    {
 
         $traccarService = new TraccarService(
             baseUrl: config('traccar.base_url'),
@@ -50,7 +50,8 @@ class TechnicController extends Controller
         $device = $deviceRepo->createDevice(name: $name, uniqueId: $uniqueId);
     }
 
-    protected function deleteFromTraccar($uniqueId) {
+    protected function deleteFromTraccar($uniqueId)
+    {
 
         $traccarService = new TraccarService(
             baseUrl: config('traccar.base_url'),
@@ -98,48 +99,51 @@ class TechnicController extends Controller
                     'type' => 'select',
                     'required' => 'true',
                     'source' => 'technic-models',
-                    'sortable'=> true
+                    'sortable' => true
                 ],
                 [
                     'title' => 'Госномер',
                     'key' => 'license_plate',
                     'type' => 'text',
                     'required' => 'true',
-                    'sortable'=> true
-                ], 
+                    'sortable' => true
+                ],
                 [
                     'title' => 'Идентификатор трекера',
                     'key' => 'tr_device_id',
                     'type' => 'number',
-                    'inputProperties'=> [
-                    ],
+                    'inputProperties' => [],
                     'required' => 'false',
-                    'sortable'=> false,
+                    'sortable' => false,
                 ],
             ],
             'filters' => [
-                'license_plate' => [ 'value' => null, 'matchMode' => 'CONTAINS' ],
-                'model_id' => [ 'value' => null, 'matchMode' => 'EQUALS' ],
+                'license_plate' => ['value' => null, 'matchMode' => 'CONTAINS'],
+                'model_id' => ['value' => null, 'matchMode' => 'EQUALS'],
             ]
         ], Response::HTTP_OK);
     }
 
     public function positions(Request $request)
     {
-
-        if (!count($request->technics)) 
-        {
+        if (!count($request->technics)) {
             $technics = Technic::whereNotNull('tr_device_id')->get()->load('model.type');
 
             foreach ($technics as $id => $value) {
                 $value->workerUnit = $value->workerUnits()->where('is_used', true)->first();
-                if ($value->workerUnit){
+                if ($value->workerUnit) {
                     $value->workerUnit->load('worker')->load('equipments.model.type');
                 }
             }
-
         } else {
-            
+            $technics = Technic::whereNotNull('tr_device_id')->whereIn('id', $request->technics)->get()->load('model.type');
+
+            foreach ($technics as $id => $value) {
+                $value->workerUnit = $value->workerUnits()->where('is_used', true)->first();
+                if ($value->workerUnit) {
+                    $value->workerUnit->load('worker')->load('equipments.model.type');
+                }
+            }
         }
 
         // dd($technics);
@@ -160,11 +164,10 @@ class TechnicController extends Controller
 
             $device = $deviceRepo->getDeviceByUniqueId($value->tr_device_id);
 
-            if ($device->lastUpdate)
-            {
+            if ($device->lastUpdate) {
                 $position = $positionRepo->fetchListPositions(
-                    from: '', 
-                    to: '', 
+                    from: '',
+                    to: '',
                     id: $device->positionId
                 );
 
@@ -179,7 +182,7 @@ class TechnicController extends Controller
             }
 
             // dd($mappedPosition);
-            
+
             $value->position = $mappedPosition;
         }
 

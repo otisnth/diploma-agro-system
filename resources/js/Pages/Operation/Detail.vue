@@ -67,6 +67,10 @@ const noteStatusCanceled = computed(
     () => operationNote.value.status == "canceled"
 );
 
+const noteStatusInProgress = computed(
+    () => operationNote.value.status == "inProgress"
+);
+
 const isAvailableAddWorkerUnits = computed(() =>
     ["inProgress", "assigned", "planned"].includes(operationNote.value.status)
 );
@@ -288,7 +292,8 @@ const fetchOperationNote = () => {
             if (
                 ["seeding", "harvest", "spraying", "fertilization"].includes(
                     operationNote.value.operation
-                )
+                ) &&
+                ["assigned", "planned"].includes(operationNote.value.status)
             ) {
                 getRecommendations();
             }
@@ -678,6 +683,8 @@ onMounted(() => {
                 >
                     <WorkerUnits
                         :note-id="props.id"
+                        :field-id="operationNote.field_id"
+                        :is-show-map="noteStatusInProgress"
                         :is-available-add="isAvailableAddWorkerUnits"
                         :is-available-delete="isAvailableDeleteWorkerUnits"
                     />
