@@ -11,6 +11,10 @@ import toastService from "@/Services/toastService";
 import Tag from "primevue/tag";
 import Calendar from "primevue/calendar";
 import WorkerUnits from "@/Pages/Operation/Partials/WorkerUnits.vue";
+import Chart from "primevue/chart";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
+import InlineMessage from "primevue/inlinemessage";
 
 const confirm = useConfirm();
 
@@ -24,11 +28,15 @@ const props = defineProps({
 const operationNote = ref(null);
 const isLoaded = ref(false);
 
+const chartOptions = ref();
+const chartData = ref();
+
 const adminList = ref();
 const isAuthorEdit = ref(false);
 const isStartDateEdit = ref(false);
 const isNoteEdited = ref(false);
 const nextFieldStatus = ref(null);
+const recommendations = ref(null);
 
 const isShowNextFieldStatus = ref(false);
 
@@ -277,6 +285,13 @@ const fetchOperationNote = () => {
             operationNote.value = response.data.data;
             isLoaded.value = true;
             isNoteEdited.value = false;
+            if (
+                ["seeding", "harvest", "spraying", "fertilization"].includes(
+                    operationNote.value.operation
+                )
+            ) {
+                getRecommendations();
+            }
         })
         .catch((error) => {});
 };
@@ -291,6 +306,79 @@ const fetchAdminList = () => {
             adminList.value = response.data.data;
         })
         .catch((error) => {});
+};
+
+const getRecommendations = () => {
+    recommendations.value = null;
+    let data = {};
+
+    if (operationNote.value.field_id) {
+        data.field = operationNote.value.field_id;
+    } else {
+        return;
+    }
+
+    data.operation = operationNote.value.operation;
+
+    if (data.operation === "seeding") {
+        data.plant = operationNote.value.sort.plant_id;
+    }
+
+    axios
+        .post(route("api.operation-notes.recommendations"), data)
+        .then((response) => {
+            recommendations.value = response.data.data.recommendation;
+            chartData.value = {
+                labels: response.data.data.period,
+                datasets: [
+                    {
+                        label: "Отклонение от идеальных условий",
+                        data: response.data.data.values,
+                        tension: 0.4,
+                    },
+                ],
+            };
+        })
+        .catch((e) => {});
+};
+
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue("--text-color");
+    const textColorSecondary = documentStyle.getPropertyValue(
+        "--text-color-secondary"
+    );
+    const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor,
+                },
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary,
+                },
+                grid: {
+                    color: surfaceBorder,
+                },
+            },
+            y: {
+                ticks: {
+                    color: textColorSecondary,
+                },
+                grid: {
+                    color: surfaceBorder,
+                },
+            },
+        },
+    };
 };
 
 watch(
@@ -323,6 +411,7 @@ watch(
 onMounted(() => {
     fetchOperationNote();
     fetchAdminList();
+    chartOptions.value = setChartOptions();
 });
 </script>
 
@@ -533,6 +622,33 @@ onMounted(() => {
                                 </span>
                             </div>
                         </div>
+                    </div>
+
+                    <div v-if="recommendations" class="mt-2">
+                        <InlineMessage class="mt-2" severity="info">
+                            {{ recommendations }}
+                        </InlineMessage>
+                        <Accordion v-if="chartData">
+                            <AccordionTab>
+                                <template #header>
+                                    <span>
+                                        <span
+                                            class="font-bold white-space-nowrap"
+                                        >
+                                            Подробнее
+                                        </span>
+                                    </span>
+                                </template>
+                                <p class="m-0">
+                                    <Chart
+                                        type="line"
+                                        :data="chartData"
+                                        :options="chartOptions"
+                                        class="h-96"
+                                    />
+                                </p>
+                            </AccordionTab>
+                        </Accordion>
                     </div>
 
                     <div class="flex gap-2 items-end h-full mt-4">
