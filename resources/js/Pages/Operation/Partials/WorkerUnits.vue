@@ -250,6 +250,10 @@ const fetchWorkerUnits = () => {
         .catch((error) => {});
 };
 
+const toWorkerDetailHandler = (data) => {
+    router.visit(`/personal/${data.data.worker_id}`);
+};
+
 onMounted(() => {
     fetchWorkerUnits();
     fetchWorkersList();
@@ -384,7 +388,13 @@ onMounted(() => {
         </Accordion>
 
         <div v-if="isLoaded">
-            <DataTable :value="workerUnits" filterDisplay="menu" removableSort>
+            <DataTable
+                :value="workerUnits"
+                filterDisplay="menu"
+                removableSort
+                :rowHover="true"
+                @row-click="toWorkerDetailHandler"
+            >
                 <template #empty>Записи не найдены</template>
                 <Column field="worker.name" header="Механизатор" sortable>
                 </Column>
@@ -415,6 +425,16 @@ onMounted(() => {
                     </template>
                 </Column>
 
+                <Column header="Статус">
+                    <template #body="{ data }">
+                        <span v-if="data.complete_confirm">
+                            Подтвердил выполнение
+                        </span>
+                        <span v-else-if="data.is_used">Выполняет</span>
+                        <span v-else>Не приступил</span>
+                    </template>
+                </Column>
+
                 <Column header="Действия">
                     <template #body="{ data }">
                         <Button
@@ -433,6 +453,9 @@ onMounted(() => {
 </template>
 
 <style>
+tr {
+    cursor: pointer;
+}
 .p-accordion .p-accordion-header .p-accordion-header-link {
     gap: 1rem;
     justify-content: start;
