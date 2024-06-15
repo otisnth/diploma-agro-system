@@ -194,6 +194,28 @@ const removeFromEquipments = (index) => {
     );
 };
 
+const deleteWorkerUnitHandler = (data) => {
+    axios
+        .delete(`/api/operation-notes/${props.noteId}/worker-units/${data.id}`)
+        .then(() => {
+            toastService.showSuccessToast(
+                "Успешное удаления",
+                "Исполнитель успешно удален"
+            );
+            fetchWorkerUnits();
+        })
+        .catch((e) => {
+            if (e?.response?.data?.error) {
+                toastService.showErrorToast("Ошибка", e.response.data.error);
+            } else {
+                toastService.showErrorToast(
+                    "Ошибка",
+                    "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                );
+            }
+        });
+};
+
 // const saveChangeHandler = () => {
 //     field.value.coords = JSON.parse(JSON.stringify(fieldPreview.value.coords));
 
@@ -394,9 +416,10 @@ onMounted(() => {
                 </Column>
 
                 <Column header="Действия">
-                    <template #body="{}">
+                    <template #body="{ data }">
                         <Button
                             class="ml-5"
+                            @click="deleteWorkerUnitHandler(data)"
                             type="button"
                             severity="danger"
                             icon="pi pi-trash"
@@ -406,7 +429,6 @@ onMounted(() => {
                 </Column>
             </DataTable>
         </div>
-        <ConfirmDialog></ConfirmDialog>
     </div>
 </template>
 
