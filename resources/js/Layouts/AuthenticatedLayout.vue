@@ -52,7 +52,7 @@ onMounted(() => {
     if (isWorker) {
         menuItems.value = menuItems.value = [
             {
-                label: "Мероприятия",
+                label: "Главная",
                 route: "dashboard",
             },
             {

@@ -22,14 +22,14 @@ class OperationNoteController extends Controller
 
     protected $policy = TruePolicy::class;
 
-    public function includes() : array
+    public function includes(): array
     {
         return ['field', 'author', 'sort', 'sort.plant'];
     }
 
     public function filterableBy(): array
     {
-        return ['field_id', 'status', 'operation', 'field.name', 'author.name', 'created_by'];
+        return ['field_id', 'status', 'operation', 'field.name', 'author.name', 'created_by', 'workerUnits.worker_id'];
     }
 
     public function sortableBy(): array
@@ -44,8 +44,7 @@ class OperationNoteController extends Controller
 
         if ($operation == 'harvest') {
             $plant = $field->sort->plant;
-        }
-        else {
+        } else {
             $plant = Plant::find($request->plant);
         }
 
@@ -82,14 +81,13 @@ class OperationNoteController extends Controller
                         'date' => DateTime::createFromFormat('d/m/Y H:i', $value->dt)->format('d.m'),
                         'value' => INF
                     );
-                }
-                else {
+                } else {
                     $ci = array(
                         'date' => DateTime::createFromFormat('d/m/Y H:i', $value->dt)->format('d.m'),
                         'value' => $value->wind->speed
                     );
                 }
-    
+
                 array_push($datesArray, $ci);
             }
 
@@ -104,11 +102,10 @@ class OperationNoteController extends Controller
             if (!$findedDate) {
                 $recommendation = $recommendation . ' отсутствуют благоприятные даты для проведения данного мероприятия. В данном промежутке наблюдается скорость ветра выше рекомендуемой.';
             }
-
         } else if ($operation == "harvest") {
             $humWeight = $weatherRules[$operation]['propeties']['humidity']['weight'];
             $humIdeal = $weatherRules[$operation]['propeties']['humidity']['ideal_value'];
-            
+
             foreach ($weather as $day) {
                 $ci = array(
                     'date' => DateTime::createFromFormat('d/m/Y H:i', $day->dt)->format('d.m'),
@@ -142,18 +139,16 @@ class OperationNoteController extends Controller
 
             if ($minValueElement['value'] == INF) {
                 $recommendation = $recommendation . ' отсутствуют благоприятные даты для проведения данного мероприятия. В данном промежутке каждый день наблюдаются осадки.';
-            }
-            else {
+            } else {
                 $recommendation = $recommendation . ' оптимальной датой для проведения данного мероприятия является ' . $minValueElement['date'] . '. В этот день наблюдается наименьшее отклонение от идеальных показателей.';
             }
-
         } else {
             $humWeight = $weatherRules[$operation]['propeties']['humidity']['weight'];
             $humIdeal = $weatherRules[$operation]['propeties']['humidity']['ideal_value'];
 
             $tempWeight = $weatherRules[$operation]['propeties']['temperature']['weight'];
             $tempIdeal = $weatherRules[$operation]['propeties']['temperature']['ideal_value'];
-            
+
             foreach ($weather as $day) {
                 $ci = array(
                     'date' => DateTime::createFromFormat('d/m/Y H:i', $day->dt)->format('d.m'),
@@ -176,7 +171,6 @@ class OperationNoteController extends Controller
             });
 
             $recommendation = $recommendation . ' оптимальной датой для проведения данного мероприятия является ' . $minValueElement['date'] . '. В этот день наблюдается наименьшее отклонение от идеальных показателей.';
-
         }
 
         $periodDates = array();
@@ -188,23 +182,23 @@ class OperationNoteController extends Controller
             array_push($periodDates, $dateVal['date']);
         }
 
-        function maxWithoutInf($array) {
-            $filteredArray = array_filter($array, function($value) {
+        function maxWithoutInf($array)
+        {
+            $filteredArray = array_filter($array, function ($value) {
                 return $value !== INF;
             });
-        
+
             if (empty($filteredArray)) {
                 return 100;
             }
-        
+
             return round(max($filteredArray));
         }
 
         $maxVal = maxWithoutInf($values);
 
         foreach ($values as $i => $ival) {
-            if ($ival == INF) 
-            {
+            if ($ival == INF) {
                 $values[$i] = $maxVal;
             }
         }
@@ -215,7 +209,7 @@ class OperationNoteController extends Controller
                 'period' => $periodDates,
                 'values' => $values
             ],
-            
+
         ], Response::HTTP_OK);
     }
 
@@ -229,16 +223,13 @@ class OperationNoteController extends Controller
     protected function afterStore(Request $request, Model $entity)
     {
 
-        if ($request['operation'] == "seeding")
-        {
-            if ($request['start_date'])
-            {
+        if ($request['operation'] == "seeding") {
+            if ($request['start_date']) {
                 $sort = Sort::find($request['sort_id']);
                 $date = new DateTime($request['start_date']);
-                $date->modify('+'.$sort->vegetation_period.' days');
-            }
-            else {
-               $date = null;
+                $date->modify('+' . $sort->vegetation_period . ' days');
+            } else {
+                $date = null;
             }
             $operationNote = new OperationNote;
 
@@ -250,7 +241,6 @@ class OperationNoteController extends Controller
 
             $operationNote->save();
         }
-
     }
 
     // protected function beforeSave(Request $request, Model $entity)
@@ -265,7 +255,7 @@ class OperationNoteController extends Controller
     //               ->where('field_id', '=', $field_id)
     //               ->where(function($query) {
     //                     $query->whereNull('start_date')
-                        
+
     //                         ->orWhere();
     //               });
     //     })->exists();

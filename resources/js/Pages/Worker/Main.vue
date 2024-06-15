@@ -10,15 +10,9 @@ import Skeleton from "primevue/skeleton";
 import SelectButton from "primevue/selectbutton";
 import MultiSelect from "primevue/multiselect";
 import Checkbox from "primevue/checkbox";
-import ToggleButton from "primevue/togglebutton";
-import toastService from "@/Services/toastService";
 import axios from "axios";
 import { Head, Link, usePage, router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "primevue/api";
-import ConfirmDialog from "primevue/confirmdialog";
-import { useConfirm } from "primevue/useconfirm";
-
-const confirm = useConfirm();
 
 const props = defineProps({
     operations: Array,
@@ -34,8 +28,6 @@ const activeSort = ref(null);
 const myNotes = ref(false);
 
 const selectedStatuses = ref(["planned", "assigned", "inProgress"]);
-
-const deleteOperationId = ref();
 
 const filters = ref({});
 
@@ -75,7 +67,14 @@ initSort();
 const fetchOperationNotes = () => {
     axios
         .post("/api/operation-notes/search", {
-            filters: [...orionFilters.value.mainFilters],
+            filters: [
+                ...orionFilters.value.mainFilters,
+                {
+                    field: "workerUnits.worker_id",
+                    operator: "=",
+                    value: usePage().props.auth.user.id,
+                },
+            ],
             sort: [activeSort.value],
             includes: [
                 { relation: "field", filters: orionFilters.value.fieldFilters },
@@ -139,22 +138,6 @@ const orionFilters = computed(() => {
                     });
                 }
             }
-
-            if (key == "created_by") {
-                if (filters.value[key].value == "MyNotes") {
-                    mainFilters.push({
-                        field: "created_by",
-                        operator: "=",
-                        value: usePage().props.auth.user.id,
-                    });
-                } else {
-                    mainFilters.push({
-                        field: "author.name",
-                        operator: "ilike",
-                        value: `%${filters.value[key].value}%`,
-                    });
-                }
-            }
         }
     }
     return { mainFilters, fieldFilters, userFilters };
@@ -174,41 +157,6 @@ const sortHandler = ({ sortField, sortOrder }) => {
 const pageHandler = ({ page }) => {
     activePage.value = page;
     fetchOperationNotes();
-};
-
-const confirmOperationDelete = (data) => {
-    deleteOperationId.value = data.id;
-    confirm.require({
-        message: "Вы действительно хотите удалить запись о данном мероприятии?",
-        header: "Внимание",
-        icon: "pi pi-info-circle",
-        rejectClass: "p-button-secondary p-button-outlined",
-        acceptClass: "p-button-danger",
-        rejectLabel: "Отмена",
-        acceptLabel: "Удалить",
-        accept: () => {
-            axios
-                .delete(
-                    route(
-                        `api.operation-notes.destroy`,
-                        deleteOperationId.value
-                    )
-                )
-                .then(() => {
-                    toastService.showSuccessToast(
-                        "Успешное удаления",
-                        "Запись о мероприятии удалена"
-                    );
-                    fetchOperationNotes();
-                })
-                .catch(() => {
-                    toastService.showErrorToast(
-                        "Ошибка",
-                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-                    );
-                });
-        },
-    });
 };
 
 const detailHandler = (data) => {
@@ -270,17 +218,14 @@ watch(
 </script>
 
 <template>
-    <Head title="Мероприятия" />
+    <Head title="Запланированные мероприятия" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="font-semibold text-2xl text-800 leading-tight">
-                    Воркер Маин
+                    Запланированные мероприятия
                 </h2>
-                <Link :href="route('operation.create')">
-                    <Button label="Запланировать мероприятие" />
-                </Link>
             </div>
         </template>
 
@@ -299,13 +244,6 @@ watch(
                         optionLabel="name"
                         optionValue="id"
                         multiple
-                    />
-
-                    <ToggleButton
-                        class="self-start"
-                        v-model="myNotes"
-                        onLabel="Мои мероприятия"
-                        offLabel="Все мероприятия"
                     />
                 </div>
 
@@ -393,21 +331,11 @@ watch(
                         field="created_by"
                         header="Ответственный"
                         v-if="!myNotes"
-                        :showFilterMatchModes="false"
                     >
                         <template #body="slotProps">
                             <span>
                                 {{ slotProps.data.author.name }}
                             </span>
-                        </template>
-
-                        <template #filter="{ filterModel }">
-                            <InputText
-                                v-model="filterModel.value"
-                                type="text"
-                                class="p-column-filter mt-1"
-                                placeholder="Поиск по имени"
-                            />
                         </template>
                     </Column>
 
@@ -419,15 +347,6 @@ watch(
                                     type="button"
                                     severity="success"
                                     icon="pi pi-info-circle"
-                                    rounded
-                                />
-
-                                <Button
-                                    v-if="data.status == 'canceled'"
-                                    @click="confirmOperationDelete(data)"
-                                    type="button"
-                                    severity="danger"
-                                    icon="pi pi-trash"
                                     rounded
                                 />
                             </div>
@@ -445,7 +364,6 @@ watch(
                 </DataTable>
             </div>
         </div>
-        <ConfirmDialog></ConfirmDialog>
     </AuthenticatedLayout>
 </template>
 
