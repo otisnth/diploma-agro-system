@@ -2,24 +2,15 @@
 import { onMounted, ref, computed, watch } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import axios from "axios";
-import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import { Head, Link, router, usePage } from "@inertiajs/vue3";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import toastService from "@/Services/toastService";
-import Map from "@/Components/Map.vue";
-import CropRotation from "@/Pages/Field/Partials/CropRotation.vue";
-import Accordion from "primevue/accordion";
-import AccordionTab from "primevue/accordiontab";
-import InputNumber from "primevue/inputnumber";
-import InlineMessage from "primevue/inlinemessage";
-import Textarea from "primevue/textarea";
-import TabView from "primevue/tabview";
-import TabPanel from "primevue/tabpanel";
 import Tag from "primevue/tag";
 import Calendar from "primevue/calendar";
+import WorkerUnits from "@/Pages/Operation/Partials/WorkerUnits.vue";
 
 const confirm = useConfirm();
 
@@ -368,7 +359,10 @@ onMounted(() => {
 
                     <div class="flex gap-2">
                         <div class="flex flex-col gap-2 w-1/2">
-                            <div class="grid grid-cols-2 gap-2">
+                            <div
+                                class="grid grid-cols-2 gap-2"
+                                v-if="operationNote.field"
+                            >
                                 <span class="text-lg font-semibold">
                                     Поле:
                                 </span>
@@ -556,7 +550,7 @@ onMounted(() => {
                 <div
                     class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
                 >
-                    {{ operationNote }}
+                    <WorkerUnits :note-id="props.id" />
                 </div>
             </div>
         </div>
