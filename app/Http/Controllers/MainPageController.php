@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Field;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,14 +13,13 @@ use RakibDevs\Weather\Weather;
 
 class MainPageController extends Controller
 {
-    
+
 
     public function index(Request $request): Response
     {
         $firstField = Field::first();
 
-        if ($firstField)
-        {
+        if ($firstField) {
             $coords = $firstField->coords['geometry']['coordinates'][0][0];
         } else {
             $coords = array(52.609025, 39.598970);
@@ -35,7 +35,8 @@ class MainPageController extends Controller
             return isset($parts[1]) && $parts[1] === '12:00';
         };
 
-        function degreesToDirection($degrees) {
+        function degreesToDirection($degrees)
+        {
             $directions = [
                 'С' => [0, 11.25],
                 'ССВ' => [11.25, 33.75],
@@ -55,13 +56,13 @@ class MainPageController extends Controller
                 'ССЗ' => [326.25, 348.75],
                 'С' => [348.75, 360]
             ];
-        
+
             foreach ($directions as $direction => $range) {
                 if ($degrees >= $range[0] && $degrees < $range[1]) {
                     return $direction;
                 }
             }
-        
+
             return 'С';
         }
 
@@ -95,4 +96,14 @@ class MainPageController extends Controller
         ]);
     }
 
+
+    public function welcome(Request $request): Response
+    {
+        $user = User::where('post', 'owner')->first();
+
+        return Inertia::render('Welcome', [
+            'canLogin' => true,
+            'canRegister' => !$user,
+        ]);
+    }
 }
