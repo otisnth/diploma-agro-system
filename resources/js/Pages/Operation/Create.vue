@@ -51,7 +51,15 @@ const createOperationNote = () => {
     const unitsList = JSON.parse(JSON.stringify(selectedUnitsList.value));
     let operationNote = {};
 
-    operationNote.start_date = selectedStartDate.value;
+    const utcDate = new Date(
+        Date.UTC(
+            selectedStartDate.value.getFullYear(),
+            selectedStartDate.value.getMonth(),
+            selectedStartDate.value.getDate()
+        )
+    );
+
+    operationNote.start_date = utcDate;
 
     if (selectedOperation.value) {
         operationNote.operation = selectedOperation.value.id;
