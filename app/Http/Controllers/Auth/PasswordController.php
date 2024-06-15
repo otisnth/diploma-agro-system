@@ -7,6 +7,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Symfony\Component\HttpFoundation\Response as JsonResponse;
+use App\Models\User;
 
 class PasswordController extends Controller
 {
@@ -25,5 +27,16 @@ class PasswordController extends Controller
         ]);
 
         return back();
+    }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $user = User::find($request->id);
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([], JsonResponse::HTTP_OK);
     }
 }

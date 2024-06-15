@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as JsonResponse;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -38,6 +40,32 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    public function updatePersonal(ProfileUpdateRequest $request): JsonResponse
+    {
+        $user = User::find($request->id);
+
+        if ($request->email) {
+            $us = User::where('emai', $request->email)->first();
+
+            if ($us) {
+                return response()->json(['error' => 'Email уже занят'], 422);
+            }
+
+            dd($us);
+
+            $user->email = $request->email;
+        }
+        $user->post = $request->post;
+        $user->name = $request->name;
+
+
+
+        $user->save();
+
+
+        return response()->json([], JsonResponse::HTTP_OK);
     }
 
     /**

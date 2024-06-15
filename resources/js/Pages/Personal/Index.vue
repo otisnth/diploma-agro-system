@@ -199,7 +199,10 @@ const confirmPersonalDelete = (data) => {
 };
 
 const isShowDeleteBtn = computed(() => {
-    return usePage().props.auth.user.post === "owner";
+    return (
+        usePage().props.auth.user.post === "owner" ||
+        activeTab.value.id === "worker"
+    );
 });
 </script>
 
@@ -306,7 +309,7 @@ const isShowDeleteBtn = computed(() => {
                             </span>
                         </template>
                     </Column>
-                    <Column header="Действия" v-if="isShowDeleteBtn">
+                    <Column header="Действия">
                         <template #body="{ data }">
                             <div class="flex gap-2">
                                 <Button
@@ -318,6 +321,7 @@ const isShowDeleteBtn = computed(() => {
                                 />
 
                                 <Button
+                                    v-if="isShowDeleteBtn"
                                     type="button"
                                     @click="confirmPersonalDelete(data)"
                                     severity="danger"

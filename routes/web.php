@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PasswordController;
 
 use App\Http\Controllers\MainPageController;
 use App\Http\Controllers\AdminBoardController;
@@ -62,6 +63,8 @@ Route::middleware('auth')->group(function () {
             ->name('personal.detail');
 
         Route::post('add-personal', [RegisteredUserController::class, 'addPersonal'])->name('addPersonal');
+        Route::patch('/updatePersonal', [ProfileController::class, 'updatePersonal'])->name('updatePersonal');
+        Route::put('updatePassword', [PasswordController::class, 'updatePassword'])->name('updatePassword');
     });
 });
 
