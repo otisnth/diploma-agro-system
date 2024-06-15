@@ -241,11 +241,19 @@ watch(
                     </label>
 
                     <SelectButton
+                        class="hidden sm:block"
                         v-model="selectedStatuses"
                         :options="props.operationStatuses"
                         optionLabel="name"
                         optionValue="id"
                         multiple
+                    />
+                    <MultiSelect
+                        class="sm:hidden mr-2"
+                        v-model="selectedStatuses"
+                        :options="props.operationStatuses"
+                        optionLabel="name"
+                        optionValue="id"
                     />
                 </div>
 
