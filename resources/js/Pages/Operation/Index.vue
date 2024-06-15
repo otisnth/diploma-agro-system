@@ -15,6 +15,10 @@ import toastService from "@/Services/toastService";
 import axios from "axios";
 import { Head, Link, usePage, router } from "@inertiajs/vue3";
 import { FilterMatchMode } from "primevue/api";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
+
+const confirm = useConfirm();
 
 const props = defineProps({
     operations: Array,
@@ -30,6 +34,8 @@ const activeSort = ref(null);
 const myNotes = ref(false);
 
 const selectedStatuses = ref(["planned", "assigned", "inProgress"]);
+
+const deleteOperationId = ref();
 
 const filters = ref({});
 
@@ -170,10 +176,40 @@ const pageHandler = ({ page }) => {
     fetchOperationNotes();
 };
 
-// const deleteFieldHandler = () => {
-//     selectedFields.value = {};
-//     fetchFields();
-// };
+const confirmOperationDelete = (data) => {
+    deleteOperationId.value = data.id;
+    confirm.require({
+        message: "Вы действительно хотите удалить запись о данном мероприятии?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-danger",
+        rejectLabel: "Отмена",
+        acceptLabel: "Удалить",
+        accept: () => {
+            axios
+                .delete(
+                    route(
+                        `api.operation-notes.destroy`,
+                        deleteOperationId.value
+                    )
+                )
+                .then(() => {
+                    toastService.showSuccessToast(
+                        "Успешное удаления",
+                        "Запись о мероприятии удалена"
+                    );
+                    fetchOperationNotes();
+                })
+                .catch(() => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+                    );
+                });
+        },
+    });
+};
 
 const detailHandler = (data) => {
     router.visit(`/operation/${data.id}`);
@@ -388,6 +424,7 @@ watch(
 
                                 <Button
                                     v-if="data.status == 'canceled'"
+                                    @click="confirmOperationDelete(data)"
                                     type="button"
                                     severity="danger"
                                     icon="pi pi-trash"
@@ -408,6 +445,7 @@ watch(
                 </DataTable>
             </div>
         </div>
+        <ConfirmDialog></ConfirmDialog>
     </AuthenticatedLayout>
 </template>
 

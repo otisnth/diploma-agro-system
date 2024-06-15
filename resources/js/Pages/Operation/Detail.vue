@@ -241,21 +241,23 @@ const confirmDeleteNote = () => {
         rejectLabel: "Отмена",
         acceptLabel: "Удалить",
         accept: () => {
-            // axios
-            //     .delete(route(`api.fields.destroy`, field.value.id))
-            //     .then(() => {
-            //         toastService.showSuccessToast(
-            //             "Успешное удаления",
-            //             "Запись об участке удалена"
-            //         );
-            //         router.visit("/field");
-            //     })
-            //     .catch(() => {
-            //         toastService.showErrorToast(
-            //             "Ошибка",
-            //             "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
-            //         );
-            //     });
+            axios
+                .delete(
+                    route(`api.operation-notes.destroy`, operationNote.value.id)
+                )
+                .then(() => {
+                    toastService.showSuccessToast(
+                        "Успешное удаления",
+                        "Запись о мероприятии удалена"
+                    );
+                    router.visit("/operation");
+                })
+                .catch(() => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+                    );
+                });
         },
     });
 };
