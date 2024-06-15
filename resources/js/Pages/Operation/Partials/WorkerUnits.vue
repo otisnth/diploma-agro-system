@@ -31,6 +31,10 @@ const props = defineProps({
     isAvailableDelete: Boolean,
     isShowMap: Boolean,
     fieldId: Number,
+    showExpectedTime: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const workerUnits = ref([]);
@@ -375,7 +379,11 @@ onMounted(async () => {
     <div class="flex flex-col">
         <h2 class="font-semibold text-xl">Задействованные ресурсы</h2>
 
-        <InlineMessage class="mt-2 w-1/2" severity="info">
+        <InlineMessage
+            v-if="props.showExpectedTime"
+            class="mt-2 w-1/2"
+            severity="info"
+        >
             Ожидаемое время выполнения
         </InlineMessage>
 

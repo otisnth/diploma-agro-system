@@ -28,17 +28,9 @@ const props = defineProps({
 const operationNote = ref(null);
 const isLoaded = ref(false);
 
-const chartOptions = ref();
-const chartData = ref();
-
-const adminList = ref();
 const isAuthorEdit = ref(false);
 const isStartDateEdit = ref(false);
 const isNoteEdited = ref(false);
-const nextFieldStatus = ref(null);
-const recommendations = ref(null);
-
-const isShowNextFieldStatus = ref(false);
 
 function pad(num) {
     return (num < 10 ? "0" : "") + num;
@@ -62,53 +54,6 @@ function prepareDate(dateString) {
     const date = new Date(dateString);
     return date;
 }
-
-const noteStatusCanceled = computed(
-    () => operationNote.value.status == "canceled"
-);
-
-const noteStatusInProgress = computed(
-    () => operationNote.value.status == "inProgress"
-);
-
-const isAvailableAddWorkerUnits = computed(() =>
-    ["inProgress", "assigned", "planned"].includes(operationNote.value.status)
-);
-
-const isAvailableDeleteWorkerUnits = computed(
-    () => !["canceled", "completed"].includes(operationNote.value.status)
-);
-
-const nextFieldStatuses = computed(() => {
-    return props.fieldStatuses.filter((status) =>
-        operationNote.value.note_operation.nextFieldStatus.includes(status.id)
-    );
-});
-
-const completeIsAvailable = computed(() => {
-    return (
-        ["awaitConfirm", "inProgress"].includes(operationNote.value.status) &&
-        (usePage().props.auth.user.post == "owner" ||
-            usePage().props.auth.user.id == operationNote.value.created_by)
-    );
-});
-
-const editingIsAvailable = computed(() => {
-    return (
-        ["inProgress", "assigned", "planned"].includes(
-            operationNote.value.status
-        ) &&
-        (usePage().props.auth.user.post == "owner" ||
-            usePage().props.auth.user.id == operationNote.value.created_by)
-    );
-});
-
-const cancelChangeHandler = () => {
-    fetchOperationNote();
-    isStartDateEdit.value = false;
-    isAuthorEdit.value = false;
-    isNoteEdited.value = false;
-};
 
 const saveChangeHandler = () => {
     const utcDate = new Date(
@@ -139,108 +84,6 @@ const saveChangeHandler = () => {
                 "Что-то пошло не так. Проверьте данные и повторите попытку позже"
             );
         });
-};
-
-const confirmNoteCancel = () => {
-    confirm.require({
-        message: "Вы действительно хотите отменить данное мероприятие?",
-        header: "Внимание",
-        icon: "pi pi-info-circle",
-        rejectClass: "p-button-secondary p-button-outlined",
-        acceptClass: "p-button-danger",
-        rejectLabel: "Назад",
-        acceptLabel: "Отменить",
-        accept: () => {
-            operationNote.value.status = "canceled";
-            axios
-                .patch(
-                    route("api.operation-notes.update", operationNote.value.id),
-                    operationNote.value
-                )
-                .then(() => {
-                    toastService.showSuccessToast(
-                        "Успешная отмена",
-                        "Мероприятие отменено"
-                    );
-                    isStartDateEdit.value = false;
-                    isAuthorEdit.value = false;
-                    isNoteEdited.value = false;
-                })
-                .catch((e) => {
-                    toastService.showErrorToast(
-                        "Ошибка",
-                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-                    );
-                });
-        },
-    });
-};
-
-const confirmNoteComplete = () => {
-    if (!nextFieldStatus.value) {
-        toastService.showErrorToast(
-            "Ошибка",
-            "Выберите следующее состояние поля"
-        );
-        return;
-    }
-    confirm.require({
-        message: "Вы действительно хотите завершить данное мероприятие?",
-        header: "Внимание",
-        icon: "pi pi-info-circle",
-        rejectClass: "p-button-secondary p-button-outlined",
-        acceptClass: "p-button-success",
-        rejectLabel: "Назад",
-        acceptLabel: "Завершить",
-        accept: () => {
-            operationNote.value.status = "completed";
-            isShowNextFieldStatus.value = false;
-            axios
-                .patch(
-                    route("api.operation-notes.update", operationNote.value.id),
-                    operationNote.value
-                )
-                .then(() => {
-                    toastService.showSuccessToast(
-                        "Успешное завершение",
-                        "Мероприятие завершено"
-                    );
-                    isStartDateEdit.value = false;
-                    isAuthorEdit.value = false;
-                    isNoteEdited.value = false;
-
-                    axios
-                        .patch(
-                            route(
-                                "api.fields.update",
-                                operationNote.value.field_id
-                            ),
-                            {
-                                status: nextFieldStatus.value,
-                                ...(operationNote.value.sort_id && {
-                                    sort_id: operationNote.value.sort_id,
-                                }),
-                            }
-                        )
-                        .then(() => {})
-                        .catch((e) => {
-                            toastService.showErrorToast(
-                                "Ошибка",
-                                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-                            );
-                        });
-                })
-                .catch((e) => {
-                    toastService.showErrorToast(
-                        "Ошибка",
-                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-                    );
-                });
-        },
-        reject: () => {
-            isShowNextFieldStatus.value = false;
-        },
-    });
 };
 
 const confirmDeleteNote = () => {
@@ -301,122 +144,8 @@ const fetchOperationNote = () => {
         .catch((error) => {});
 };
 
-const fetchAdminList = () => {
-    axios
-        .post("/api/users/search", {
-            filters: [{ field: "post", operator: "=", value: "admin" }],
-            limit: "all",
-        })
-        .then((response) => {
-            adminList.value = response.data.data;
-        })
-        .catch((error) => {});
-};
-
-const getRecommendations = () => {
-    recommendations.value = null;
-    let data = {};
-
-    if (operationNote.value.field_id) {
-        data.field = operationNote.value.field_id;
-    } else {
-        return;
-    }
-
-    data.operation = operationNote.value.operation;
-
-    if (data.operation === "seeding") {
-        data.plant = operationNote.value.sort.plant_id;
-    }
-
-    axios
-        .post(route("api.operation-notes.recommendations"), data)
-        .then((response) => {
-            recommendations.value = response.data.data.recommendation;
-            chartData.value = {
-                labels: response.data.data.period,
-                datasets: [
-                    {
-                        label: "Отклонение от идеальных условий",
-                        data: response.data.data.values,
-                        tension: 0.4,
-                    },
-                ],
-            };
-        })
-        .catch((e) => {});
-};
-
-const setChartOptions = () => {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue("--text-color");
-    const textColorSecondary = documentStyle.getPropertyValue(
-        "--text-color-secondary"
-    );
-    const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
-
-    return {
-        maintainAspectRatio: false,
-        aspectRatio: 0.6,
-        plugins: {
-            legend: {
-                labels: {
-                    color: textColor,
-                },
-            },
-        },
-        scales: {
-            x: {
-                ticks: {
-                    color: textColorSecondary,
-                },
-                grid: {
-                    color: surfaceBorder,
-                },
-            },
-            y: {
-                ticks: {
-                    color: textColorSecondary,
-                },
-                grid: {
-                    color: surfaceBorder,
-                },
-            },
-        },
-    };
-};
-
-watch(
-    () => isStartDateEdit.value,
-    () => {
-        isAuthorEdit.value = false;
-        isNoteEdited.value = true;
-    }
-);
-
-watch(
-    () => isAuthorEdit.value,
-    () => {
-        isStartDateEdit.value = false;
-        isNoteEdited.value = true;
-    }
-);
-
-watch(
-    () => operationNote.value,
-    (cur, old) => {
-        if (!old) {
-            return;
-        }
-        operationNote.value.created_by = operationNote.value.author.id;
-    },
-    { deep: true }
-);
-
 onMounted(() => {
     fetchOperationNote();
-    fetchAdminList();
-    chartOptions.value = setChartOptions();
 });
 </script>
 
@@ -430,7 +159,7 @@ onMounted(() => {
         <template #header>
             <div class="flex flex-col">
                 <h2 class="font-semibold text-2xl text-800 leading-tight">
-                    Воркер Детаил
+                    Информация о мероприятии
                 </h2>
                 <Link
                     :href="route('dashboard')"
@@ -470,16 +199,8 @@ onMounted(() => {
                                 <span class="text-lg font-semibold">
                                     Поле:
                                 </span>
-                                <Link
-                                    :href="
-                                        route(
-                                            'field.detail',
-                                            operationNote.field.id
-                                        )
-                                    "
-                                >
-                                    <u>{{ operationNote.field.name }}</u>
-                                </Link>
+
+                                <span>{{ operationNote.field.name }}</span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
@@ -490,192 +211,39 @@ onMounted(() => {
                                     <span>
                                         {{ operationNote.note_status.name }}
                                     </span>
-
-                                    <Tag
-                                        v-if="editingIsAvailable"
-                                        @click="confirmNoteCancel"
-                                        class="self-start cursor-pointer"
-                                        severity="danger"
-                                        value="Отменить"
-                                    ></Tag>
-
-                                    <div v-if="completeIsAvailable">
-                                        <Tag
-                                            v-if="!isShowNextFieldStatus"
-                                            @click="
-                                                isShowNextFieldStatus = true
-                                            "
-                                            class="self-start cursor-pointer"
-                                            severity="success"
-                                            value="Завершить"
-                                        ></Tag>
-
-                                        <div v-else class="flex items-center">
-                                            <Dropdown
-                                                id="fieldStatus"
-                                                class="w-48"
-                                                v-model="nextFieldStatus"
-                                                :options="nextFieldStatuses"
-                                                optionLabel="name"
-                                                optionValue="id"
-                                                placeholder="Состояние поля"
-                                                pt:root:class="border-0 shadow-none"
-                                                pt:input:class="p-0"
-                                                required
-                                            />
-
-                                            <i
-                                                v-if="editingIsAvailable"
-                                                class="cursor-pointer pi pi-check"
-                                                @click="confirmNoteComplete"
-                                            ></i>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-2 w-1/2">
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-2 items-center">
                                 <span class="text-lg font-semibold">
                                     Ответственный:
                                 </span>
 
-                                <div class="grid-line">
-                                    <Dropdown
-                                        v-if="isAuthorEdit"
-                                        class="w-64"
-                                        id="author"
-                                        v-model="operationNote.author"
-                                        :options="adminList"
-                                        optionLabel="name"
-                                        placeholder="Выберите ответственного"
-                                        pt:root:class="border-0 shadow-none"
-                                        pt:input:class="p-0"
-                                        required
-                                        filter
-                                    />
-                                    <Link
-                                        v-else
-                                        class="w-64"
-                                        :href="
-                                            route(
-                                                'personal.detail',
-                                                operationNote.author.id
-                                            )
-                                        "
-                                    >
-                                        <u>{{ operationNote.author.name }}</u>
-                                    </Link>
-
-                                    <i
-                                        v-if="editingIsAvailable"
-                                        class="cursor-pointer pi"
-                                        :class="
-                                            isAuthorEdit
-                                                ? 'pi-check'
-                                                : 'pi-pen-to-square'
-                                        "
-                                        @click="isAuthorEdit = !isAuthorEdit"
-                                    ></i>
-                                </div>
+                                <span>{{ operationNote.author.name }}</span>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-2 items-center">
                                 <span class="text-lg font-semibold">
                                     Дата начала:
                                 </span>
-                                <div class="grid-line">
-                                    <Calendar
-                                        v-if="isStartDateEdit"
-                                        class="w-64"
-                                        id="startDate"
-                                        v-model="operationNote.start_date"
-                                        showIcon
-                                        iconDisplay="input"
-                                        required
-                                        pt:input:class="p-0 border-0 shadow-none"
-                                    />
-                                    <span class="w-64" v-else>
-                                        {{
-                                            formatDate(operationNote.start_date)
-                                        }}
-                                    </span>
 
-                                    <i
-                                        v-if="editingIsAvailable"
-                                        class="cursor-pointer pi"
-                                        :class="
-                                            isStartDateEdit
-                                                ? 'pi-check'
-                                                : 'pi-pen-to-square'
-                                        "
-                                        @click="
-                                            isStartDateEdit = !isStartDateEdit
-                                        "
-                                    ></i>
-                                </div>
+                                <span>
+                                    {{ formatDate(operationNote.start_date) }}
+                                </span>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-2 items-center">
                                 <span class="text-lg font-semibold">
                                     Дата окончания:
                                 </span>
 
-                                <span class="w-64">
+                                <span>
                                     {{ formatDate(operationNote.end_date) }}
                                 </span>
                             </div>
                         </div>
-                    </div>
-
-                    <div v-if="recommendations" class="mt-2">
-                        <InlineMessage class="mt-2" severity="info">
-                            {{ recommendations }}
-                        </InlineMessage>
-                        <Accordion v-if="chartData">
-                            <AccordionTab>
-                                <template #header>
-                                    <span>
-                                        <span
-                                            class="font-bold white-space-nowrap"
-                                        >
-                                            Подробнее
-                                        </span>
-                                    </span>
-                                </template>
-                                <p class="m-0">
-                                    <Chart
-                                        type="line"
-                                        :data="chartData"
-                                        :options="chartOptions"
-                                        class="h-96"
-                                    />
-                                </p>
-                            </AccordionTab>
-                        </Accordion>
-                    </div>
-
-                    <div class="flex gap-2 items-end h-full mt-4">
-                        <Button
-                            v-if="noteStatusCanceled"
-                            @click="confirmDeleteNote"
-                            severity="danger"
-                            label="Удалить"
-                        />
-
-                        <Button
-                            v-if="isNoteEdited"
-                            @click="saveChangeHandler"
-                            label="Сохранить изменения"
-                        />
-
-                        <Button
-                            v-if="isNoteEdited"
-                            @click="cancelChangeHandler"
-                            severity="secondary"
-                            label="Отменить изменения"
-                        />
                     </div>
                 </div>
                 <div
@@ -684,9 +252,10 @@ onMounted(() => {
                     <WorkerUnits
                         :note-id="props.id"
                         :field-id="operationNote.field_id"
-                        :is-show-map="noteStatusInProgress"
-                        :is-available-add="isAvailableAddWorkerUnits"
-                        :is-available-delete="isAvailableDeleteWorkerUnits"
+                        :is-show-map="false"
+                        :is-available-add="false"
+                        :is-available-delete="false"
+                        :show-expected-time="false"
                     />
                 </div>
             </div>
