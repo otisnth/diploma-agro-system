@@ -92,7 +92,7 @@ const showedOperationNote = (oNote) => {
     if (!oNote || !oNote.length) {
         note.title = "Запланированных мероприятий нет";
         note.content = false;
-    } else if (["planned", "assigned"].includes(oNote[0].status)) {
+    } else if (oNote[0].start_date > new Date()) {
         note.title = "Ближайшее мероприятие";
         note.id = oNote[0].id;
         note.content = true;

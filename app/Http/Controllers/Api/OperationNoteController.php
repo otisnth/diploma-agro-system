@@ -253,4 +253,27 @@ class OperationNoteController extends Controller
 
     }
 
+    // protected function beforeSave(Request $request, Model $entity)
+    // {
+    //     $start_date = $request->start_date;
+    //     $operation = $request->operation;
+    //     $field_id = $request->field_id;
+
+    //     $overlappingOperationNotes = OperationNote::where(function($query) use ($start_date, $operation, $field_id) {
+    //         $query->where('operation', '=', $operation)
+    //               ->whereNotNull('field_id')
+    //               ->where('field_id', '=', $field_id)
+    //               ->where(function($query) {
+    //                     $query->whereNull('start_date')
+                        
+    //                         ->orWhere();
+    //               });
+    //     })->exists();
+
+    //     if ($overlappingOperationNotes) {
+    //         return response()->json(['error' => 'Введенный период пересекается с существующим'], 422);
+    //     }
+
+    // }
+
 }
