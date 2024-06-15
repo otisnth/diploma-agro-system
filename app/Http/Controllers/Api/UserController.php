@@ -14,7 +14,7 @@ class UserController extends Controller
 
     protected $policy = TruePolicy::class;
 
-    public function includes() : array
+    public function includes(): array
     {
         return ['workerUnits', 'workerUnits.operationNote', 'workerUnits.operationNote.field'];
     }
@@ -26,15 +26,14 @@ class UserController extends Controller
 
     public function sortableBy(): array
     {
-        return ['name', 'email'];
+        return ['name', 'email', 'workerUnits.is_used'];
     }
 
     protected function runIndexFetchQuery(Request $request, Builder $query, int $paginationLimit)
     {
         if ($request->limit == "all") {
             return $query->get();
-        }
-        else {
+        } else {
             return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
         }
     }
@@ -42,10 +41,9 @@ class UserController extends Controller
     protected function buildIndexFetchQuery(Request $request, array $requestedRelations): Builder
     {
         $query = parent::buildIndexFetchQuery($request, $requestedRelations);
-        
+
         $query->where('id', '<>', Auth()->user()->id);
 
         return $query;
     }
-
 }

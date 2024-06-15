@@ -93,6 +93,12 @@ const fetchPersonal = () => {
             .then((response) => {
                 personals.value = response.data.data;
 
+                for (const pers of personals.value) {
+                    pers.worker_units = pers.worker_units.filter(
+                        (unit) => unit.is_used == true
+                    );
+                }
+
                 countPersonals.value = response.data.meta.total;
             })
             .catch((error) => {});
