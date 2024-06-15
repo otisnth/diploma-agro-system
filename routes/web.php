@@ -30,6 +30,12 @@ Route::get('/', [MainPageController::class, 'welcome'])->name('welcome');
 
 Route::get('/main', [MainPageController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/report', [MainPageController::class, 'report'])->middleware(['auth', 'verified'])->name('report.index');
+
+Route::get('/operation/{id}', [OperationPageController::class, 'detail'])
+    ->where('id', '[0-9]+')
+    ->name('operation.detail');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -47,9 +53,6 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/operation', [OperationPageController::class, 'index'])->name('operation.index');
         Route::get('/operation/create', [OperationPageController::class, 'create'])->name('operation.create');
-        Route::get('/operation/{id}', [OperationPageController::class, 'detail'])
-            ->where('id', '[0-9]+')
-            ->name('operation.detail');
 
 
         Route::get('/personal', [PersonalPageController::class, 'index'])->name('personal.index');

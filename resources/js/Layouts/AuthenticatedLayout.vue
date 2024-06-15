@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import Toast from "primevue/toast";
@@ -9,53 +9,78 @@ import Menu from "primevue/menu";
 import Button from "primevue/button";
 
 const profileMenu = ref();
+// const isWorker = computed(() => );
 
-const menuItems = ref([
-    {
-        label: "Главная",
-        route: "dashboard",
-    },
-    {
-        label: "Мероприятия",
-        route: "operation.index",
-    },
-    {
-        label: "Сотрудники",
-        route: "personal.index",
-    },
-    {
-        label: "Участки",
-        route: "field.index",
-    },
-]);
+const menuItems = ref();
 
-const profileMenuItems = ref([
-    {
-        label: usePage().props.auth.user.email,
-        items: [
-            {
-                label: "Личный кабинет",
-                route: "profile.edit",
-                icon: "pi pi-user",
-            },
-            {
-                label: "Админ-панель",
-                route: "adminboard",
-                icon: "pi pi-list",
-            },
-            {
-                label: "Выход",
-                route: "logout",
-                icon: "pi pi-sign-out",
-                method: "post",
-            },
-        ],
-    },
-]);
+const profileMenuItems = ref([]);
 
 const toggleProfileMenu = (event) => {
     profileMenu.value.toggle(event);
 };
+
+onMounted(() => {
+    const isWorker = usePage().props.auth.user.post == "worker";
+    profileMenuItems.value = [
+        {
+            label: usePage().props.auth.user.email,
+            items: [
+                {
+                    label: "Личный кабинет",
+                    route: "profile.edit",
+                    icon: "pi pi-user",
+                },
+            ],
+        },
+    ];
+
+    if (!isWorker) {
+        profileMenuItems.value[0].items.push({
+            label: "Админ-панель",
+            route: "adminboard",
+            icon: "pi pi-list",
+        });
+    }
+
+    profileMenuItems.value[0].items.push({
+        label: "Выход",
+        route: "logout",
+        icon: "pi pi-sign-out",
+        method: "post",
+    });
+
+    if (isWorker) {
+        menuItems.value = menuItems.value = [
+            {
+                label: "Мероприятия",
+                route: "dashboard",
+            },
+            {
+                label: "Отчеты",
+                route: "report.index",
+            },
+        ];
+    } else {
+        menuItems.value = [
+            {
+                label: "Главная",
+                route: "dashboard",
+            },
+            {
+                label: "Мероприятия",
+                route: "operation.index",
+            },
+            {
+                label: "Сотрудники",
+                route: "personal.index",
+            },
+            {
+                label: "Участки",
+                route: "field.index",
+            },
+        ];
+    }
+});
 </script>
 
 <template>

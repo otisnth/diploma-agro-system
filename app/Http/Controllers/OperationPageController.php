@@ -10,7 +10,7 @@ use App\Models\Field;
 
 class OperationPageController extends Controller
 {
-    
+
 
     public function index(Request $request): Response
     {
@@ -38,6 +38,16 @@ class OperationPageController extends Controller
         $operationStatuses = OperationNote::$operationStatuses;
         $statuses = Field::$fieldStatuses;
 
+        if (Auth()->user()->post == 'worker') {
+            return Inertia::render('Worker/Operation', [
+                'id' => $id,
+                'fieldStatuses' => $statuses,
+                'operations' => $operations,
+                'operationStatuses' => $operationStatuses
+            ]);
+        }
+
+
         return Inertia::render('Operation/Detail', [
             'id' => $id,
             'fieldStatuses' => $statuses,
@@ -45,5 +55,4 @@ class OperationPageController extends Controller
             'operationStatuses' => $operationStatuses
         ]);
     }
-
 }

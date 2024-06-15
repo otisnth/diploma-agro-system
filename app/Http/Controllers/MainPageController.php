@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Field;
 use App\Models\User;
+use App\Models\OperationNote;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Providers\RouteServiceProvider;
 use DateTime;
 
 use RakibDevs\Weather\Weather;
@@ -17,6 +19,16 @@ class MainPageController extends Controller
 
     public function index(Request $request): Response
     {
+        if (Auth()->user()->post == 'worker') {
+            $operations = OperationNote::$operations;
+            $operationStatuses = OperationNote::$operationStatuses;
+
+            return Inertia::render('Worker/Main', [
+                'operations' => $operations,
+                'operationStatuses' => $operationStatuses
+            ]);
+        }
+
         $firstField = Field::first();
 
         if ($firstField) {
@@ -105,5 +117,18 @@ class MainPageController extends Controller
             'canLogin' => true,
             'canRegister' => !$user,
         ]);
+    }
+
+    public function report(Request $request): Response
+    {
+        if (Auth()->user()->post != 'worker') {
+            $user = User::where('post', 'owner')->first();
+
+            return Inertia::render('Welcome', [
+                'canLogin' => true,
+                'canRegister' => !$user,
+            ]);
+        }
+        return Inertia::render('Worker/Report', []);
     }
 }
