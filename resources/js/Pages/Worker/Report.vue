@@ -96,13 +96,6 @@ onMounted(() => {
                 <h2 class="font-semibold text-2xl text-800 leading-tight">
                     Отчеты
                 </h2>
-                <Link
-                    :href="route('personal.index')"
-                    class="flex items-center gap-1 mt-2"
-                >
-                    <i class="pi pi-chevron-left"></i>
-                    <span class="font-semibold text-md">К списку</span>
-                </Link>
             </div>
         </template>
 

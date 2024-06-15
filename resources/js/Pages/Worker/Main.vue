@@ -223,7 +223,9 @@ watch(
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-2xl text-800 leading-tight">
+                <h2
+                    class="font-semibold text-xl text-800 leading-tight sm:text-2xl"
+                >
                     Запланированные мероприятия
                 </h2>
             </div>
@@ -233,7 +235,7 @@ watch(
             <div
                 class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 bg-white shadow-md min-h-screen"
             >
-                <div class="flex flex-col gap-2 pt-2">
+                <div class="flex flex-col gap-2 pt-2 pl-2 sm:pl-0">
                     <label class="text-lg font-semibold">
                         Статус мероприятия
                     </label>

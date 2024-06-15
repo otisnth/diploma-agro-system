@@ -190,12 +190,9 @@ onMounted(() => {
                         </span>
                     </div>
 
-                    <div class="flex gap-2">
-                        <div class="flex flex-col gap-2 w-1/2">
-                            <div
-                                class="grid grid-cols-2 gap-2"
-                                v-if="operationNote.field"
-                            >
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <div class="flex flex-col gap-2 sm:w-1/2">
+                            <div class="flex gap-2" v-if="operationNote.field">
                                 <span class="text-lg font-semibold">
                                     Поле:
                                 </span>
@@ -203,7 +200,7 @@ onMounted(() => {
                                 <span>{{ operationNote.field.name }}</span>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="flex gap-2">
                                 <span class="text-lg font-semibold">
                                     Статус:
                                 </span>
@@ -215,8 +212,8 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-2 w-1/2">
-                            <div class="grid grid-cols-2 gap-2 items-center">
+                        <div class="flex flex-col gap-2 sm:w-1/2">
+                            <div class="flex gap-2 items-center">
                                 <span class="text-lg font-semibold">
                                     Ответственный:
                                 </span>
@@ -224,7 +221,7 @@ onMounted(() => {
                                 <span>{{ operationNote.author.name }}</span>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2 items-center">
+                            <div class="flex gap-2 items-center">
                                 <span class="text-lg font-semibold">
                                     Дата начала:
                                 </span>
@@ -234,7 +231,7 @@ onMounted(() => {
                                 </span>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2 items-center">
+                            <div class="flex gap-2 items-center">
                                 <span class="text-lg font-semibold">
                                     Дата окончания:
                                 </span>

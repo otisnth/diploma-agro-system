@@ -16,7 +16,7 @@ defineProps({
     <div class="fullscreen-bg">
         <div class="overlay flex flex-col items-center justify-center">
             <ApplicationLogo class="block h-32 w-auto fill-green-50 text-800" />
-            <h1 class="text-6xl text-green-50 font-semibold">
+            <h1 class="text-6xl text-green-50 font-semibold text-center">
                 Добро пожаловать!
             </h1>
 
