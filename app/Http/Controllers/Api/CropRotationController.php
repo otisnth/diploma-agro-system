@@ -35,10 +35,12 @@ class CropRotationController extends Controller
     {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        $field_id = $request->field_id;
 
-        $overlappingCropRotations = CropRotation::where(function($query) use ($start_date, $end_date) {
+        $overlappingCropRotations = CropRotation::where(function($query) use ($start_date, $end_date, $field_id) {
             $query->where('start_date', '<', $end_date)
-                  ->where('end_date', '>', $start_date);
+                  ->where('end_date', '>', $start_date)
+                  ->where('field_id', '=', $field_id);
         })->exists();
 
         if ($overlappingCropRotations) {

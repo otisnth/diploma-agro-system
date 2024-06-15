@@ -263,7 +263,9 @@ const confirmDeleteNote = () => {
 
 const fetchOperationNote = () => {
     axios
-        .get(`/api/operation-notes/${props.id}?include=field,author`)
+        .get(
+            `/api/operation-notes/${props.id}?include=field,author,sort,sort.plant`
+        )
         .then((response) => {
             response.data.data.start_date = prepareDate(
                 response.data.data.start_date
@@ -353,10 +355,15 @@ onMounted(() => {
                 <div
                     class="rounded-lg bg-white shadow-md p-6 flex flex-col gap-2"
                 >
-                    <div>
+                    <div class="flex flex-col">
                         <h2 class="font-semibold text-2xl">
                             {{ operationNote.note_operation.name }}
                         </h2>
+
+                        <span class="font-semibold" v-if="operationNote.sort">
+                            {{ operationNote.sort.plant.name }}
+                            ({{ operationNote.sort.name }})
+                        </span>
                     </div>
 
                     <div class="flex gap-2">

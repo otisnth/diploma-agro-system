@@ -24,7 +24,7 @@ class OperationNoteController extends Controller
 
     public function includes() : array
     {
-        return ['field', 'author'];
+        return ['field', 'author', 'sort', 'sort.plant'];
     }
 
     public function filterableBy(): array

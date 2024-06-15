@@ -141,6 +141,10 @@ class OperationNote extends Model
         }
     }
 
+    public function sort()
+    {
+        return $this->belongsTo(Sort::class, 'sort_id', 'id');
+    }
     public function field()
     {
         return $this->belongsTo(Field::class, 'field_id', 'id');
