@@ -26,7 +26,8 @@ class User extends Authenticatable
 
     protected $appends = ['post_title'];
 
-    public function getPostTitleAttribute() {
+    public function getPostTitleAttribute()
+    {
         foreach (self::$posts as $post) {
             if ($post['id'] === $this->post) {
                 return $post['name'];
@@ -37,15 +38,15 @@ class User extends Authenticatable
     public static $posts = array(
         [
             'id' => 'owner',
-            'name'=> 'Владелец',
+            'name' => 'Владелец',
         ],
         [
             'id' => 'admin',
-            'name'=> 'Администратор',
+            'name' => 'Администратор',
         ],
         [
             'id' => 'worker',
-            'name'=> 'Механизатор',
+            'name' => 'Механизатор',
         ]
     );
 
@@ -71,5 +72,10 @@ class User extends Authenticatable
     public function workerUnits()
     {
         return $this->hasMany(WorkerUnit::class, 'worker_id', 'id');
+    }
+
+    public function moderatedOperationNotes()
+    {
+        return $this->hasMany(OperationNote::class, 'id', 'created_by');
     }
 }

@@ -26,11 +26,14 @@ const props = defineProps({
 });
 
 const operationNote = ref(null);
+const workerUnit = ref({});
 const isLoaded = ref(false);
 
-const isAuthorEdit = ref(false);
-const isStartDateEdit = ref(false);
-const isNoteEdited = ref(false);
+const isStatusInProgress = computed(
+    () =>
+        operationNote.value.status == "inProgress" &&
+        !workerUnit.value.complete_confirm
+);
 
 function pad(num) {
     return (num < 10 ? "0" : "") + num;
@@ -55,62 +58,32 @@ function prepareDate(dateString) {
     return date;
 }
 
-const saveChangeHandler = () => {
-    const utcDate = new Date(
-        Date.UTC(
-            operationNote.value.start_date.getFullYear(),
-            operationNote.value.start_date.getMonth(),
-            operationNote.value.start_date.getDate()
-        )
-    );
-    operationNote.value.start_date = utcDate;
-    axios
-        .patch(
-            route("api.operation-notes.update", operationNote.value.id),
-            operationNote.value
-        )
-        .then(() => {
-            toastService.showSuccessToast(
-                "Успешное обновление",
-                "Сведения о мероприятии успешно обновлены в системе"
-            );
-            isStartDateEdit.value = false;
-            isAuthorEdit.value = false;
-            isNoteEdited.value = false;
-        })
-        .catch((e) => {
-            toastService.showErrorToast(
-                "Ошибка",
-                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-            );
-        });
-};
-
-const confirmDeleteNote = () => {
+const confirmFinish = () => {
     confirm.require({
-        message: "Вы действительно хотите удалить данное мероприятие?",
+        message:
+            "Вы действительно хотите подтвердить выполнение данного мероприятия?",
         header: "Внимание",
         icon: "pi pi-info-circle",
         rejectClass: "p-button-secondary p-button-outlined",
-        acceptClass: "p-button-danger",
+        acceptClass: "p-button-primary",
         rejectLabel: "Отмена",
-        acceptLabel: "Удалить",
+        acceptLabel: "Подтвердить",
         accept: () => {
             axios
-                .delete(
-                    route(`api.operation-notes.destroy`, operationNote.value.id)
-                )
+                .patch(route("api.worker-units.update", workerUnit.value.id), {
+                    complete_confirm: true,
+                })
                 .then(() => {
                     toastService.showSuccessToast(
-                        "Успешное удаления",
-                        "Запись о мероприятии удалена"
+                        "Успешное обновление",
+                        "Выполнение мероприятия успешно подтверждено"
                     );
-                    router.visit("/operation");
+                    fetchOperationNote();
                 })
-                .catch(() => {
+                .catch((e) => {
                     toastService.showErrorToast(
                         "Ошибка",
-                        "Что-то пошло не так. Возможно имеются связанные данные, проверьте и повторите попытку позднее"
+                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
                     );
                 });
         },
@@ -131,7 +104,6 @@ const fetchOperationNote = () => {
             );
             operationNote.value = response.data.data;
             isLoaded.value = true;
-            isNoteEdited.value = false;
             if (
                 ["seeding", "harvest", "spraying", "fertilization"].includes(
                     operationNote.value.operation
@@ -140,6 +112,29 @@ const fetchOperationNote = () => {
             ) {
                 getRecommendations();
             }
+            fetchWorkerUnit();
+        })
+        .catch((error) => {});
+};
+
+const fetchWorkerUnit = () => {
+    axios
+        .post("/api/worker-units/search", {
+            filters: [
+                {
+                    field: "worker_id",
+                    operator: "=",
+                    value: usePage().props.auth.user.id,
+                },
+                {
+                    field: "operation_note_id",
+                    operator: "=",
+                    value: operationNote.value.id,
+                },
+            ],
+        })
+        .then((response) => {
+            workerUnit.value = response.data.data[0];
         })
         .catch((error) => {});
 };
@@ -204,10 +199,18 @@ onMounted(() => {
                                 <span class="text-lg font-semibold">
                                     Статус:
                                 </span>
-                                <div class="flex flex-col gap-2">
+                                <div class="flex flex-col gap-2 mt-1">
                                     <span>
                                         {{ operationNote.note_status.name }}
                                     </span>
+
+                                    <Tag
+                                        v-if="isStatusInProgress"
+                                        @click="confirmFinish"
+                                        class="self-start cursor-pointer"
+                                        severity=""
+                                        value="Подтвердить выполнение"
+                                    ></Tag>
                                 </div>
                             </div>
                         </div>

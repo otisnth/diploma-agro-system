@@ -7,6 +7,7 @@ import DynamicDialog from "primevue/dynamicdialog";
 import Menubar from "primevue/menubar";
 import Menu from "primevue/menu";
 import Button from "primevue/button";
+import Badge from "primevue/badge";
 
 const profileMenu = ref();
 // const isWorker = computed(() => );
@@ -105,6 +106,7 @@ onMounted(() => {
                 <Link
                     v-bind="props.action"
                     class="flex align-items-center"
+                    badge="2"
                     :href="route(item.route)"
                     :class="{
                         'border-b-2 border-lime-500': route().current(
@@ -112,7 +114,15 @@ onMounted(() => {
                         ),
                     }"
                 >
-                    {{ item.label }}
+                    <div class="flex gap-1">
+                        {{ item.label }}
+                        <Badge
+                            v-if="item.route == 'operation.index'"
+                            :value="$page.notesWaitConfirm"
+                            class="justify-self-start self-start"
+                            severity="success"
+                        ></Badge>
+                    </div>
                 </Link>
             </template>
             <template #end>
