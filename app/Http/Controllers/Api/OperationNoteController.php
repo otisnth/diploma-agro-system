@@ -243,6 +243,19 @@ class OperationNoteController extends Controller
         }
     }
 
+    protected function beforeUpdate(Request $request, Model $entity)
+    {
+        $workersUnits = $entity->workerUnits;
+
+        if ($request->status == 'canceled') {
+            $entity->end_date = date('Y-m-d H:i:s');
+            $workerUnitsUsed = $workersUnits->where('is_used', true);
+            if ($workerUnitsUsed->count() > 0) {
+                return response()->json(['error' => 'Невозможно отменить мероприятие, так как началось его выполнение'], 422);
+            }
+        }
+    }
+
     // protected function beforeSave(Request $request, Model $entity)
     // {
     //     $start_date = $request->start_date;

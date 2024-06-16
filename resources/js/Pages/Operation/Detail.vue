@@ -151,26 +151,34 @@ const confirmNoteCancel = () => {
         rejectLabel: "Назад",
         acceptLabel: "Отменить",
         accept: () => {
-            operationNote.value.status = "canceled";
             axios
                 .patch(
                     route("api.operation-notes.update", operationNote.value.id),
-                    operationNote.value
+                    { status: "canceled" }
                 )
                 .then(() => {
                     toastService.showSuccessToast(
                         "Успешная отмена",
                         "Мероприятие отменено"
                     );
+                    operationNote.value.status = "canceled";
+                    fetchOperationNote();
                     isStartDateEdit.value = false;
                     isAuthorEdit.value = false;
                     isNoteEdited.value = false;
                 })
                 .catch((e) => {
-                    toastService.showErrorToast(
-                        "Ошибка",
-                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-                    );
+                    if (e?.response?.data?.error) {
+                        toastService.showErrorToast(
+                            "Ошибка",
+                            e.response.data.error
+                        );
+                    } else {
+                        toastService.showErrorToast(
+                            "Ошибка",
+                            "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                        );
+                    }
                 });
         },
     });
