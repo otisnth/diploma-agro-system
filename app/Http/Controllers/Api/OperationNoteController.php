@@ -243,6 +243,17 @@ class OperationNoteController extends Controller
         }
     }
 
+    protected function afterSave(Request $request, Model $entity)
+    {
+        $workerUnits = $entity->workerUnits;
+
+        if ($entity->status == 'planned' && $entity->start_date && $workerUnits->count() > 0) {
+            $entity->update(['status' => 'assigned']);
+        } else if ($entity->status == 'assigned' && (!$entity->start_date || $workerUnits->count() == 0)) {
+            $entity->update(['status' => 'planned']);
+        }
+    }
+
     protected function beforeUpdate(Request $request, Model $entity)
     {
         $workersUnits = $entity->workerUnits;

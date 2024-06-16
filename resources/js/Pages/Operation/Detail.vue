@@ -25,6 +25,8 @@ const props = defineProps({
     id: String,
 });
 
+const today = new Date();
+
 const operationNote = ref(null);
 const isLoaded = ref(false);
 
@@ -111,14 +113,16 @@ const cancelChangeHandler = () => {
 };
 
 const saveChangeHandler = () => {
-    const utcDate = new Date(
-        Date.UTC(
-            operationNote.value.start_date.getFullYear(),
-            operationNote.value.start_date.getMonth(),
-            operationNote.value.start_date.getDate()
-        )
-    );
-    operationNote.value.start_date = utcDate;
+    if (operationNote.value.start_date) {
+        const utcDate = new Date(
+            Date.UTC(
+                operationNote.value.start_date.getFullYear(),
+                operationNote.value.start_date.getMonth(),
+                operationNote.value.start_date.getDate()
+            )
+        );
+        operationNote.value.start_date = utcDate;
+    }
     axios
         .patch(
             route("api.operation-notes.update", operationNote.value.id),
@@ -132,6 +136,7 @@ const saveChangeHandler = () => {
             isStartDateEdit.value = false;
             isAuthorEdit.value = false;
             isNoteEdited.value = false;
+            fetchOperationNote();
         })
         .catch((e) => {
             toastService.showErrorToast(
@@ -602,6 +607,7 @@ onMounted(() => {
                                         showIcon
                                         iconDisplay="input"
                                         required
+                                        :min-date="today"
                                         pt:input:class="p-0 border-0 shadow-none"
                                     />
                                     <span class="w-64" v-else>

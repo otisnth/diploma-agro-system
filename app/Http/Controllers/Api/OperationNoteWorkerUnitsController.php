@@ -61,6 +61,27 @@ class OperationNoteWorkerUnitsController extends RelationController
         }
     }
 
+    protected function afterStore(Request $request, Model $parentEntity, Model $entity)
+    {
+
+        if ($parentEntity->status == 'planned' && $parentEntity->start_date) {
+            $parentEntity->update(['status' => 'assigned']);
+        } else if ($parentEntity->status == 'assigned' && !$parentEntity->start_date) {
+            $parentEntity->update(['status' => 'planned']);
+        }
+    }
+
+    protected function afterDestroy(Request $request, Model $parentEntity, Model $entity)
+    {
+        $workerUnits = $parentEntity->workerUnits;
+
+        if ($parentEntity->status == 'planned' && $parentEntity->start_date && $workerUnits->count() > 0) {
+            $parentEntity->update(['status' => 'assigned']);
+        } else if ($parentEntity->status == 'assigned' && (!$parentEntity->start_date || $workerUnits->count() == 0)) {
+            $parentEntity->update(['status' => 'planned']);
+        }
+    }
+
     protected $model = OperationNote::class;
 
     protected $policy = TruePolicy::class;
