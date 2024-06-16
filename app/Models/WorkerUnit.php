@@ -18,6 +18,7 @@ class WorkerUnit extends Model
         'operation_note_id',
         'worker_id',
         'technic_id',
+        'report',
     ];
 
     protected $casts = [

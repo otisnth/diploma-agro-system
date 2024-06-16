@@ -5,11 +5,12 @@ import axios from "axios";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
-import { Head, Link, router } from "@inertiajs/vue3";
+import { Head, Link, router, usePage } from "@inertiajs/vue3";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import toastService from "@/Services/toastService";
 import Map from "@/Components/Map.vue";
+import ReportShow from "@/Components/ReportShow.vue";
 import CropRotation from "@/Pages/Field/Partials/CropRotation.vue";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
@@ -27,7 +28,7 @@ const props = defineProps({
     id: String,
 });
 
-const personal = ref(null);
+const workerUnits = ref(null);
 const isLoaded = ref(false);
 
 function pad(num) {
@@ -47,40 +48,31 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-// const saveChangeHandler = () => {
-//     field.value.coords = JSON.parse(JSON.stringify(fieldPreview.value.coords));
-
-//     axios
-//         .patch(route("api.fields.update", field.value.id), field.value)
-//         .then(() => {
-//             toastService.showSuccessToast(
-//                 "Успешное обновление",
-//                 "Сведения об участке успешно обновлены в системе"
-//             );
-//             isFieldEdit.value = false;
-//             isFieldNameEdit.value = false;
-//             nextStatusSelect.value = false;
-//         })
-//         .catch((e) => {
-//             toastService.showErrorToast(
-//                 "Ошибка",
-//                 "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-//             );
-//         });
-// };
-
-const fetchPersonal = () => {
+const fetchWorkerUnits = () => {
     axios
-        .get(`/api/users/${props.id}`)
+        .post("/api/worker-units/search", {
+            limit: "all",
+            includes: [
+                { relation: "operationNote" },
+                { relation: "operationNote.field" },
+            ],
+            filters: [
+                {
+                    field: "worker_id",
+                    operator: "=",
+                    value: usePage().props.auth.user.id,
+                },
+            ],
+        })
         .then((response) => {
-            personal.value = response.data.data;
+            workerUnits.value = response.data.data;
             isLoaded.value = true;
         })
         .catch((error) => {});
 };
 
 onMounted(() => {
-    fetchPersonal();
+    fetchWorkerUnits();
 });
 </script>
 
@@ -106,13 +98,11 @@ onMounted(() => {
             >
                 <div
                     class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
+                    v-for="(item, index) in workerUnits"
+                    :key="index"
                 >
-                    {{ personal }}
+                    <ReportShow :unit="item" />
                 </div>
-
-                <div
-                    class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
-                ></div>
             </div>
         </div>
         <ConfirmDialog></ConfirmDialog>
