@@ -82,9 +82,14 @@ const isAvailableDeleteWorkerUnits = computed(
 );
 
 const nextFieldStatuses = computed(() => {
-    return props.fieldStatuses.filter((status) =>
-        operationNote.value.note_operation.nextFieldStatus.includes(status.id)
-    );
+    if (operationNote.value.note_operation.isNeedField) {
+        return props.fieldStatuses.filter((status) =>
+            operationNote.value.note_operation.nextFieldStatus.includes(
+                status.id
+            )
+        );
+    }
+    return [];
 });
 
 const completeIsAvailable = computed(() => {
@@ -94,6 +99,14 @@ const completeIsAvailable = computed(() => {
             usePage().props.auth.user.id == operationNote.value.created_by)
     );
 });
+
+const showNextFieldStatusHandler = () => {
+    if (!operationNote.value.note_operation.isNeedField) {
+        confirmNoteComplete();
+    } else {
+        isShowNextFieldStatus.value = true;
+    }
+};
 
 const editingIsAvailable = computed(() => {
     return (
@@ -190,7 +203,10 @@ const confirmNoteCancel = () => {
 };
 
 const confirmNoteComplete = () => {
-    if (!nextFieldStatus.value) {
+    if (
+        !nextFieldStatus.value &&
+        operationNote.value.note_operation.isNeedField
+    ) {
         toastService.showErrorToast(
             "Ошибка",
             "Выберите следующее состояние поля"
@@ -206,42 +222,45 @@ const confirmNoteComplete = () => {
         rejectLabel: "Назад",
         acceptLabel: "Завершить",
         accept: () => {
-            operationNote.value.status = "completed";
-            isShowNextFieldStatus.value = false;
             axios
                 .patch(
                     route("api.operation-notes.update", operationNote.value.id),
-                    operationNote.value
+                    { status: "completed" }
                 )
                 .then(() => {
+                    operationNote.value.status = "completed";
+                    isShowNextFieldStatus.value = false;
                     toastService.showSuccessToast(
                         "Успешное завершение",
                         "Мероприятие завершено"
                     );
+                    fetchOperationNote();
                     isStartDateEdit.value = false;
                     isAuthorEdit.value = false;
                     isNoteEdited.value = false;
 
-                    axios
-                        .patch(
-                            route(
-                                "api.fields.update",
-                                operationNote.value.field_id
-                            ),
-                            {
-                                status: nextFieldStatus.value,
-                                ...(operationNote.value.sort_id && {
-                                    sort_id: operationNote.value.sort_id,
-                                }),
-                            }
-                        )
-                        .then(() => {})
-                        .catch((e) => {
-                            toastService.showErrorToast(
-                                "Ошибка",
-                                "Что-то пошло не так. Проверьте данные и повторите попытку позже"
-                            );
-                        });
+                    if (operationNote.value.note_operation.isNeedField) {
+                        axios
+                            .patch(
+                                route(
+                                    "api.fields.update",
+                                    operationNote.value.field_id
+                                ),
+                                {
+                                    status: nextFieldStatus.value,
+                                    ...(operationNote.value.sort_id && {
+                                        sort_id: operationNote.value.sort_id,
+                                    }),
+                                }
+                            )
+                            .then(() => {})
+                            .catch((e) => {
+                                toastService.showErrorToast(
+                                    "Ошибка",
+                                    "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                                );
+                            });
+                    }
                 })
                 .catch((e) => {
                     toastService.showErrorToast(
@@ -515,9 +534,7 @@ onMounted(() => {
                                     <div v-if="completeIsAvailable">
                                         <Tag
                                             v-if="!isShowNextFieldStatus"
-                                            @click="
-                                                isShowNextFieldStatus = true
-                                            "
+                                            @click="showNextFieldStatusHandler"
                                             class="self-start cursor-pointer"
                                             severity="success"
                                             value="Завершить"

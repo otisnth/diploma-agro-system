@@ -264,6 +264,18 @@ class OperationNoteController extends Controller
             if ($workerUnitsUsed->count() > 0) {
                 return response()->json(['error' => 'Невозможно отменить мероприятие, так как началось его выполнение'], 422);
             }
+            $workersUnits->each(function ($workerUnit) {
+                $workerUnit->complete_confirm = true;
+                $workerUnit->save();
+            });
+        }
+
+        if ($request->status == 'completed') {
+            $entity->end_date = date('Y-m-d H:i:s');
+            $workersUnits->each(function ($workerUnit) {
+                $workerUnit->complete_confirm = true;
+                $workerUnit->save();
+            });
         }
     }
 

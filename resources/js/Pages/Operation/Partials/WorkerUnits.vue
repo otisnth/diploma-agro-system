@@ -566,9 +566,7 @@ onMounted(async () => {
 
                 <Column header="Статус">
                     <template #body="{ data }">
-                        <span v-if="data.complete_confirm">
-                            Подтвердил выполнение
-                        </span>
+                        <span v-if="data.complete_confirm">Завершил</span>
                         <span v-else-if="data.is_used">Выполняет</span>
                         <span v-else>Не приступил</span>
                     </template>
