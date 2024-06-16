@@ -35,6 +35,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    enableGoDetail: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const workerUnits = ref([]);
@@ -363,7 +367,9 @@ const fetchWorkerUnits = async () => {
 };
 
 const toWorkerDetailHandler = (data) => {
-    router.visit(`/personal/${data.data.worker_id}`);
+    if (props.enableGoDetail) {
+        router.visit(`/personal/${data.data.worker_id}`);
+    }
 };
 
 onMounted(async () => {

@@ -34,16 +34,23 @@ class WorkerUnitController extends Controller
             $entity->end_date = date('Y-m-d H:i:s');
         }
 
-        // if ($request->is_used && !$entity->is_used && !$entity->start_date) {
-        //     $entity->start_date = date('Y-m-d H:i:s');
-        // }
+        if ($request->is_used && !$entity->is_used && !$entity->start_date) {
+            $entity->start_date = date('Y-m-d H:i:s');
+
+            $workerUnits = $entity->worker->workerUnits;
+
+            $workerUnits->each(function ($workerUnit) {
+                $workerUnit->is_used = false;
+                $workerUnit->save();
+            });
+        }
     }
 
     protected function afterUpdate(Request $request, Model $entity)
     {
+        $operationNote = $entity->operationNote;
 
         if ($request->complete_confirm) {
-            $operationNote = $entity->operationNote;
 
             $workersUnits = $operationNote->workerUnits;
 
@@ -52,6 +59,10 @@ class WorkerUnitController extends Controller
             if ($workersUnits->count() == $completeWorkerUnits->count()) {
                 $operationNote->update(['status' => 'awaitConfirm']);
             }
+        }
+
+        if ($request->is_used && $operationNote->status == 'assigned') {
+            $operationNote->update(['status' => 'inProgress']);
         }
     }
 }

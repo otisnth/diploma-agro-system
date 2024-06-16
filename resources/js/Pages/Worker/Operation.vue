@@ -29,11 +29,25 @@ const operationNote = ref(null);
 const workerUnit = ref({});
 const isLoaded = ref(false);
 
+const showUnits = ref(true);
+
+const today = new Date();
+
 const isStatusInProgress = computed(
     () =>
         operationNote.value.status == "inProgress" &&
-        !workerUnit.value.complete_confirm
+        !workerUnit.value.complete_confirm &&
+        workerUnit.value.is_used
 );
+
+const isShowStartOperation = computed(() => {
+    return (
+        ["inProgress", "assigned"].includes(operationNote.value.status) &&
+        operationNote.value.start_date >= today &&
+        !workerUnit.value.complete_confirm &&
+        !workerUnit.value.is_used
+    );
+});
 
 function pad(num) {
     return (num < 10 ? "0" : "") + num;
@@ -57,6 +71,38 @@ function prepareDate(dateString) {
     const date = new Date(dateString);
     return date;
 }
+
+const startOperation = () => {
+    confirm.require({
+        message:
+            "Вы действительно хотите начать выполнение данного мероприятия?",
+        header: "Внимание",
+        icon: "pi pi-info-circle",
+        rejectClass: "p-button-secondary p-button-outlined",
+        acceptClass: "p-button-primary",
+        rejectLabel: "Отмена",
+        acceptLabel: "Подтвердить",
+        accept: () => {
+            axios
+                .patch(route("api.worker-units.update", workerUnit.value.id), {
+                    is_used: true,
+                })
+                .then(() => {
+                    toastService.showSuccessToast(
+                        "Успешное обновление",
+                        "Выполнение мероприятия успешно начато"
+                    );
+                    fetchOperationNote();
+                })
+                .catch((e) => {
+                    toastService.showErrorToast(
+                        "Ошибка",
+                        "Что-то пошло не так. Проверьте данные и повторите попытку позже"
+                    );
+                });
+        },
+    });
+};
 
 const confirmFinish = () => {
     confirm.require({
@@ -91,6 +137,7 @@ const confirmFinish = () => {
 };
 
 const fetchOperationNote = () => {
+    showUnits.value = false;
     axios
         .get(
             `/api/operation-notes/${props.id}?include=field,author,sort,sort.plant`
@@ -113,6 +160,7 @@ const fetchOperationNote = () => {
                 getRecommendations();
             }
             fetchWorkerUnit();
+            showUnits.value = true;
         })
         .catch((error) => {});
 };
@@ -205,6 +253,14 @@ onMounted(() => {
                                     </span>
 
                                     <Tag
+                                        v-if="isShowStartOperation"
+                                        @click="startOperation"
+                                        class="self-start cursor-pointer"
+                                        severity=""
+                                        value="Начать выполнение"
+                                    ></Tag>
+
+                                    <Tag
                                         v-if="isStatusInProgress"
                                         @click="confirmFinish"
                                         class="self-start cursor-pointer"
@@ -250,12 +306,14 @@ onMounted(() => {
                     class="rounded-lg bg-white shadow-md flex flex-col gap-2 p-6"
                 >
                     <WorkerUnits
+                        v-if="showUnits"
                         :note-id="props.id"
                         :field-id="operationNote.field_id"
                         :is-show-map="false"
                         :is-available-add="false"
                         :is-available-delete="false"
                         :show-expected-time="false"
+                        :enable-go-detail="false"
                     />
                 </div>
             </div>
