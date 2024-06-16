@@ -6,6 +6,8 @@ use App\Models\OperationNote;
 use App\Models\Field;
 use App\Models\Plant;
 use App\Models\Sort;
+use App\Models\Equipment;
+use App\Models\EquipmentModel;
 use App\Models\CropRotation;
 use Orion\Http\Controllers\Controller;
 use App\Policies\TruePolicy;
@@ -209,6 +211,59 @@ class OperationNoteController extends Controller
                 'recommendation' => $recommendation,
                 'period' => $periodDates,
                 'values' => $values
+            ],
+
+        ], Response::HTTP_OK);
+    }
+
+    public function expectedTime(Request $request): Response
+    {
+        $fieldId = $request->field;
+        $equipmentsIds = $request->equipments;
+
+        $field = Field::find($fieldId);
+
+        $properties = array();
+
+        foreach ($equipmentsIds as $ids) {
+            $equipments = Equipment::whereIn('id', $ids)->get();
+            $minWorkSpeed = null;
+            $minWorkWidth = null;
+
+            foreach ($equipments as $equipment) {
+                if (isset($equipment->model)) {
+                    $workSpeed = floatval($equipment->model->work_speed);
+                    $workWidth = floatval($equipment->model->work_width);
+
+                    if ($minWorkSpeed === null || $workSpeed < $minWorkSpeed) {
+                        $minWorkSpeed = $workSpeed;
+                    }
+                    if ($minWorkWidth === null || $workWidth < $minWorkWidth) {
+                        $minWorkWidth = $workWidth;
+                    }
+                }
+            }
+
+            if ($minWorkSpeed && $minWorkWidth) {
+                array_push($properties, ['width' => $minWorkWidth, 'speed' => $minWorkSpeed]);
+            }
+        }
+        $efficiency = 0;
+
+        foreach ($properties as $prop) {
+            $efficiency += $efficiency + $prop['width'] * $prop['speed'] * 1000;
+        }
+
+        $efficiency = round($efficiency, 2);
+
+        $time = round($field->square / $efficiency, 2);
+
+        return response()->json([
+            'data' => [
+                'expectedTime' => [
+                    'efficiency' => $efficiency,
+                    'time' => $time
+                ]
             ],
 
         ], Response::HTTP_OK);

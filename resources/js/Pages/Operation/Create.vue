@@ -34,6 +34,8 @@ const isShowPlantBlock = ref(false);
 
 const recommendations = ref(null);
 
+const expectedTime = ref(null);
+
 const selectedField = ref();
 const selectedOperation = ref();
 const selectedStartDate = ref();
@@ -570,7 +572,38 @@ watch(
         chartData.value = null;
         recommendations.value = null;
         getRecommendations();
+        fetchexpectedTime();
     }
+);
+
+const fetchexpectedTime = () => {
+    const equipments = selectedUnitsList.value
+        .map((unit) =>
+            unit.equipments.map((equip) => equip.id).filter((id) => id != null)
+        )
+        .filter((id) => id.length);
+
+    if (equipments.length && selectedField.value) {
+        axios
+            .post(route("api.operation-notes.expectedTime"), {
+                equipments: equipments,
+                field: selectedField.value.id,
+            })
+            .then((response) => {
+                expectedTime.value = response.data.data.expectedTime;
+            })
+            .catch((e) => {});
+    } else {
+        expectedTime.value = null;
+    }
+};
+
+watch(
+    () => selectedUnitsList.value,
+    () => {
+        fetchexpectedTime();
+    },
+    { deep: true }
 );
 </script>
 
@@ -716,8 +749,19 @@ watch(
                         Задейстованные ресурсы
                     </label>
 
-                    <InlineMessage class="mt-2 w-1/2" severity="info">
-                        Ожидаемое время выполнения
+                    <InlineMessage
+                        v-if="expectedTime"
+                        class="mt-2 w-fit justify-start"
+                        severity="info"
+                    >
+                        <div>
+                            Ожидаемая производительность:
+                            {{ expectedTime.efficiency }} м&sup2;/ч
+                        </div>
+                        <div>
+                            Ожидаемое время выполнения:
+                            {{ expectedTime.time }} ч.
+                        </div>
                     </InlineMessage>
 
                     <div

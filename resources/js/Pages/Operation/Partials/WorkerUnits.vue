@@ -41,6 +41,8 @@ const props = defineProps({
     },
 });
 
+const expectedTime = ref(null);
+
 const workerUnits = ref([]);
 const newWorkerUnit = ref({
     worker_id: null,
@@ -375,6 +377,36 @@ const toWorkerDetailHandler = (data) => {
     }
 };
 
+const fetchexpectedTime = () => {
+    const equipments = workerUnits.value
+        .map((unit) =>
+            unit.equipments.map((equip) => equip.id).filter((id) => id != null)
+        )
+        .filter((id) => id.length);
+
+    if (equipments.length && props.fieldId) {
+        axios
+            .post(route("api.operation-notes.expectedTime"), {
+                equipments: equipments,
+                field: props.fieldId,
+            })
+            .then((response) => {
+                expectedTime.value = response.data.data.expectedTime;
+            })
+            .catch((e) => {});
+    } else {
+        expectedTime.value = null;
+    }
+};
+
+watch(
+    () => workerUnits.value,
+    () => {
+        fetchexpectedTime();
+    },
+    { deep: true }
+);
+
 onMounted(async () => {
     await fetchFields();
     await fetchWorkerUnits();
@@ -389,11 +421,18 @@ onMounted(async () => {
         <h2 class="font-semibold text-xl">Задействованные ресурсы</h2>
 
         <InlineMessage
-            v-if="props.showExpectedTime"
-            class="mt-2 w-1/2"
+            v-if="expectedTime"
+            class="mt-2 w-fit justify-start"
             severity="info"
         >
-            Ожидаемое время выполнения
+            <div>
+                Ожидаемая производительность:
+                {{ expectedTime.efficiency }} м&sup2;/ч
+            </div>
+            <div>
+                Ожидаемое время выполнения:
+                {{ expectedTime.time }} ч.
+            </div>
         </InlineMessage>
 
         <Accordion class="border-2 rounded-lg mt-4" :activeIndex="0">

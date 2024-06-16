@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['as' => 'api.'], function() {
+Route::group(['as' => 'api.'], function () {
     Orion::resource('users', UserController::class);
 
     Route::get('plants/properties', [PlantController::class, 'properties'])->name('plants.properties');
@@ -59,7 +59,7 @@ Route::group(['as' => 'api.'], function() {
 
     Route::get('technic-models/properties', [TechnicModelController::class, 'properties'])->name('technic-models.properties');
     Orion::resource('technic-models', TechnicModelController::class);
-    
+
     Route::get('crop-rotations/properties', [CropRotationController::class, 'properties'])->name('crop-rotations.properties');
     Orion::resource('crop-rotations', CropRotationController::class);
 
@@ -70,6 +70,7 @@ Route::group(['as' => 'api.'], function() {
     Route::get('fields/statuses', [FieldController::class, 'getFieldStatuses'])->name('fields.statuses');
     Orion::resource('fields', FieldController::class);
 
+    Route::post('operation-notes/expectedTime', [OperationNoteController::class, 'expectedTime'])->name('operation-notes.expectedTime');
     Route::post('operation-notes/recommendations', [OperationNoteController::class, 'recommendations'])->name('operation-notes.recommendations');
     Orion::resource('operation-notes', OperationNoteController::class);
 
@@ -97,5 +98,5 @@ Route::group(['as' => 'api.'], function() {
 
     Orion::hasManyResource('operation-notes', 'worker-units', OperationNoteWorkerUnitsController::class);
 
-    Orion::belongsToManyResource('worker-units', 'equipments' , WorkerUnitEquipmentsController::class);
+    Orion::belongsToManyResource('worker-units', 'equipments', WorkerUnitEquipmentsController::class);
 });

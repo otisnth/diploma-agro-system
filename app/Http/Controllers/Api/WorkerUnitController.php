@@ -9,6 +9,8 @@ use App\Policies\TruePolicy;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 
+use MrWolfGb\Traccar\Services\TraccarService;
+
 class WorkerUnitController extends Controller
 {
     use DisablePagination;
@@ -59,6 +61,41 @@ class WorkerUnitController extends Controller
             if ($workersUnits->count() == $completeWorkerUnits->count()) {
                 $operationNote->update(['status' => 'awaitConfirm']);
             }
+
+            $traccarService = new TraccarService(
+                baseUrl: config('traccar.base_url'),
+                email: config('traccar.auth.username'),
+                password: config('traccar.auth.password'),
+                token: config('traccar.auth.token'),
+                headers: [
+                    'Accept' => 'application/json'
+                ]
+            );
+
+            $reportRepo = $traccarService->reportRepository();
+            $deviceRepo = $traccarService->deviceRepository();
+
+            $device = $deviceRepo->getDeviceByUniqueId(uniqueId: $entity->technic->tr_device_id);
+
+            $summaryRep = $reportRepo->reportSummary(
+                from: $entity->start_date,
+                to: $entity->end_date,
+                deviceId: [$device->id]
+            );
+
+            $list = $reportRepo->reportCombined(
+                from: $entity->start_date,
+                to: $entity->end_date,
+                deviceId: [$device->id],
+            );
+
+            $distance = $summaryRep[0]->distance;
+            $speed = $summaryRep[0]->speed * 1.852;
+            $route = $list[0]->route;
+
+
+
+            dd($list[0]->route);
         }
 
         if ($request->is_used && $operationNote->status == 'assigned') {
