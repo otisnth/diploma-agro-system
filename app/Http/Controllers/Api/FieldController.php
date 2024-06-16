@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Exception;
 
 use App\Models\Field;
+use App\Models\Technic;
 use App\Models\CropRotation;
 use Orion\Http\Controllers\Controller;
 use Orion\Http\Requests\Request;
@@ -77,12 +78,22 @@ class FieldController extends Controller
             ]
         );
         $geofenceRepo = $traccarService->geofenceRepository();
+        $deviceRepo = $traccarService->deviceRepository();
 
         $geofence = $geofenceRepo->createGeofence(
             name: $name,
             area: $area,
             description: $name
         );
+
+        $technics = Technic::all();
+
+        foreach ($technics as $technic) {
+            if ($technic->tr_device_id) {
+                $device = $deviceRepo->getDeviceByUniqueId(uniqueId: $technic->tr_device_id);
+                $deviceRepo->assignDeviceGeofence(device: $device->id, geofence: $geofence->id);
+            }
+        }
 
         return $geofence;
     }

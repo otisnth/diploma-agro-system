@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Technic;
+use App\Models\Field;
 use App\Models\TechnicModel;
 use Orion\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +49,13 @@ class TechnicController extends Controller
         $deviceRepo = $traccarService->deviceRepository();
 
         $device = $deviceRepo->createDevice(name: $name, uniqueId: $uniqueId);
+
+        $fields = Field::all();
+
+        foreach ($fields as $field) {
+            $fence_id = $field->tr_geofence_id;
+            $deviceRepo->assignDeviceGeofence(device: $device->id, geofence: $fence_id);
+        }
     }
 
     protected function deleteFromTraccar($uniqueId)
