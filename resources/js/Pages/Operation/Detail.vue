@@ -108,6 +108,16 @@ const showNextFieldStatusHandler = () => {
     }
 };
 
+const changeStatusAvailable = computed(() => {
+    return (
+        ["inProgress", "assigned", "planned", "awaitConfirm"].includes(
+            operationNote.value.status
+        ) &&
+        (usePage().props.auth.user.post == "owner" ||
+            usePage().props.auth.user.id == operationNote.value.created_by)
+    );
+});
+
 const editingIsAvailable = computed(() => {
     return (
         ["inProgress", "assigned", "planned"].includes(
@@ -555,7 +565,7 @@ onMounted(() => {
                                             />
 
                                             <i
-                                                v-if="editingIsAvailable"
+                                                v-if="changeStatusAvailable"
                                                 class="cursor-pointer pi pi-check"
                                                 @click="confirmNoteComplete"
                                             ></i>
@@ -599,7 +609,7 @@ onMounted(() => {
                                     </Link>
 
                                     <i
-                                        v-if="editingIsAvailable"
+                                        v-if="changeStatusAvailable"
                                         class="cursor-pointer pi"
                                         :class="
                                             isAuthorEdit

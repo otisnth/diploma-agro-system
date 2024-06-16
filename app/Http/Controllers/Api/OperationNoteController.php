@@ -6,6 +6,7 @@ use App\Models\OperationNote;
 use App\Models\Field;
 use App\Models\Plant;
 use App\Models\Sort;
+use App\Models\CropRotation;
 use Orion\Http\Controllers\Controller;
 use App\Policies\TruePolicy;
 use Illuminate\Http\Request;
@@ -276,6 +277,12 @@ class OperationNoteController extends Controller
                 $workerUnit->complete_confirm = true;
                 $workerUnit->save();
             });
+
+            if ($entity->operation == 'harvest') {
+                $entity->field->update(['sort_id' => null]);
+                $cropRotation = $entity->field->cropHistory->whereNull('end_date')->first();
+                $cropRotation->update(['end_date' => date('Y-m-d H:i:s')]);
+            }
         }
     }
 

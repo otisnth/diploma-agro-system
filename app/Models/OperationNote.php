@@ -42,7 +42,7 @@ class OperationNote extends Model
     public static $operations = array(
         [
             'id' => 'seeding',
-            'currentFieldStatus' => ['cultivated', 'stubbleTillage'],
+            'currentFieldStatus' => ['cultivated', 'stubbleTillage', 'withered'],
             'nextFieldStatus' => ['seedbed'],
             'isNeedField' => true,
             'name' => 'Посев',
@@ -125,7 +125,8 @@ class OperationNote extends Model
 
     protected $appends = ['note_status', 'note_operation'];
 
-    public function getNoteStatusAttribute() {
+    public function getNoteStatusAttribute()
+    {
         foreach (self::$operationStatuses as $status) {
             if ($status['id'] === $this->status) {
                 return $status;
@@ -133,7 +134,8 @@ class OperationNote extends Model
         }
     }
 
-    public function getNoteOperationAttribute() {
+    public function getNoteOperationAttribute()
+    {
         foreach (self::$operations as $operation) {
             if ($operation['id'] === $this->operation) {
                 return $operation;

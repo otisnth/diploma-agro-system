@@ -21,7 +21,7 @@ class FieldController extends Controller
 
     protected $policy = TruePolicy::class;
 
-    public function includes() : array
+    public function includes(): array
     {
         return ['sort', 'sort.plant'];
     }
@@ -40,8 +40,7 @@ class FieldController extends Controller
     {
         if ($request->limit == "all") {
             return $query->get();
-        }
-        else {
+        } else {
             return $this->shouldPaginate($request, $paginationLimit) ? $query->paginate($paginationLimit) : $query->get();
         }
     }
@@ -52,11 +51,11 @@ class FieldController extends Controller
 
         if (isset($data['type']) && $data['type'] === 'Polygon' && isset($data['coordinates'])) {
             $coordinates = $data['coordinates'][0];
-            
-            $wktCoordinates = array_map(function($coord) {
+
+            $wktCoordinates = array_map(function ($coord) {
                 return "{$coord[1]} {$coord[0]}";
             }, $coordinates);
-            
+
             $wktString = 'POLYGON ((' . implode(', ', $wktCoordinates) . '))';
 
             return $wktString;
@@ -80,7 +79,7 @@ class FieldController extends Controller
         $geofenceRepo = $traccarService->geofenceRepository();
 
         $geofence = $geofenceRepo->createGeofence(
-            name: $name, 
+            name: $name,
             area: $area,
             description: $name
         );
@@ -132,7 +131,6 @@ class FieldController extends Controller
         $traccarGeoFence = $this->addToTraccar($request->name, $area);
 
         $request['tr_geofence_id'] = $traccarGeoFence->id;
-
     }
 
     protected function beforeUpdate(Request $request, Model $entity)
@@ -143,10 +141,18 @@ class FieldController extends Controller
         }
     }
 
+    protected function afterUpdate(Request $request, Model $entity)
+    {
+        if ($entity->status == 'withered') {
+            $entity->field->update(['sort_id' => null]);
+            $cropRotation = $entity->field->cropHistory->whereNull('end_date')->first();
+            $cropRotation->update(['end_date' => date('Y-m-d H:i:s')]);
+        }
+    }
+
     protected function afterStore(Request $request, Model $entity)
     {
-        if ($request['sort_id'])
-        {
+        if ($request['sort_id']) {
             $cropRotation = new CropRotation;
 
             $cropRotation['field_id'] = $entity['id'];
@@ -155,13 +161,11 @@ class FieldController extends Controller
 
             $cropRotation->save();
         }
-
     }
 
     protected function afterDestroy(Request $request, Model $entity)
-    {   
-        if($entity->getAttribute("tr_geofence_id"))
-        {
+    {
+        if ($entity->getAttribute("tr_geofence_id")) {
             $this->removeFromTraccar($entity->getAttribute("tr_geofence_id"));
         }
     }
@@ -172,5 +176,4 @@ class FieldController extends Controller
             'data' => Field::$fieldStatuses
         ], Response::HTTP_OK);
     }
-
 }

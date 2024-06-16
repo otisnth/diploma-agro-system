@@ -43,7 +43,7 @@ const isStatusInProgress = computed(
 const isShowStartOperation = computed(() => {
     return (
         ["inProgress", "assigned"].includes(operationNote.value.status) &&
-        operationNote.value.start_date >= today &&
+        operationNote.value.start_date <= today &&
         !workerUnit.value.complete_confirm &&
         !workerUnit.value.is_used
     );
@@ -150,7 +150,9 @@ const fetchOperationNote = () => {
                 response.data.data.end_date
             );
             operationNote.value = response.data.data;
+            fetchWorkerUnit();
             isLoaded.value = true;
+            showUnits.value = true;
             if (
                 ["seeding", "harvest", "spraying", "fertilization"].includes(
                     operationNote.value.operation
@@ -159,8 +161,6 @@ const fetchOperationNote = () => {
             ) {
                 getRecommendations();
             }
-            fetchWorkerUnit();
-            showUnits.value = true;
         })
         .catch((error) => {});
 };

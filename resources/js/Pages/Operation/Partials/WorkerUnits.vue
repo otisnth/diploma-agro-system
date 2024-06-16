@@ -86,6 +86,9 @@ const fetchFields = async () => {
 };
 
 const fetchTechnics = () => {
+    if (!props.isShowMap) {
+        return;
+    }
     axios
         .post("/api/technics/positions", {
             technics: technicsIds.value,
