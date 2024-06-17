@@ -135,7 +135,7 @@ onMounted(() => {
             {{ props.unit.operation_note.note_operation.name }}
         </span>
 
-        <div class="flex gap-24">
+        <div class="flex flex-col gap-2 sm:flex-row sm:gap-24">
             <div class="flex flex-col gap-2">
                 <div class="flex gap-2">
                     <span class="font-semibold">Дата начала: </span>
