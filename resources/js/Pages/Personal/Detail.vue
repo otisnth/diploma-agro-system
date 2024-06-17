@@ -154,7 +154,6 @@ const saveChangeHandler = () => {
             if (e?.response?.data?.error) {
                 toastService.showErrorToast("Ошибка", e.response.data.error);
             } else if (e?.response?.data?.message) {
-                console.log(e);
                 toastService.showErrorToast("Ошибка", e.response.data.message);
             } else {
                 toastService.showErrorToast(
@@ -197,7 +196,6 @@ const newPasswordHandler = () => {
             if (e?.response?.data?.error) {
                 toastService.showErrorToast("Ошибка", e.response.data.error);
             } else if (e?.response?.data?.message) {
-                console.log(e);
                 toastService.showErrorToast("Ошибка", e.response.data.message);
             } else {
                 toastService.showErrorToast(

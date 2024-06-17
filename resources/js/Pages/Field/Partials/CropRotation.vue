@@ -125,7 +125,6 @@ const fetchSortList = () => {
 };
 
 const confirmCropRotationDelete = (data) => {
-    console.log("delete");
     deleteCropRotationId.value = data.id;
     confirm.require({
         message: "Вы действительно хотите удалить данную запись севооборота?",
@@ -348,6 +347,5 @@ watch(
                 </Paginator>
             </template>
         </DataTable>
-        <ConfirmDialog></ConfirmDialog>
     </div>
 </template>

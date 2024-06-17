@@ -183,8 +183,6 @@ const createOperationNote = () => {
                     .filter((item) => item.worker_id != null),
             };
 
-            console.log(mappedUnits);
-
             if (mappedUnits.resources.length) {
                 axios
                     .post(
@@ -235,7 +233,6 @@ const createOperationNote = () => {
             router.visit("/operation");
         })
         .catch((e) => {
-            console.log(e);
             toastService.showErrorToast(
                 "Ошибка",
                 "Что-то пошло не так. Не удалось создать мероприятие. Проверьте данные и повторите попытку позже"
