@@ -332,11 +332,14 @@ class OperationNoteController extends Controller
                 $workerUnit->complete_confirm = true;
                 $workerUnit->save();
             });
-
-            if ($entity->operation == 'harvest') {
-                $entity->field->update(['sort_id' => null]);
-                $cropRotation = $entity->field->cropHistory->whereNull('end_date')->first();
-                $cropRotation->update(['end_date' => date('Y-m-d H:i:s')]);
+            try {
+                if ($entity->operation == 'harvest') {
+                    $entity->field->update(['sort_id' => null]);
+                    $cropRotation = $entity->field->cropHistory->whereNull('end_date')->first();
+                    $cropRotation->update(['end_date' => date('Y-m-d H:i:s')]);
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
             }
         }
     }
