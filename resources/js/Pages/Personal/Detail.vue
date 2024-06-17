@@ -363,7 +363,7 @@ watch(
                         <span class="text-lg font-semibold"> Email: </span>
 
                         <InputText
-                            v-if="isEmailEdit"
+                            v-if="false"
                             type="text"
                             v-model="personal.email"
                             pt:root:class="border-0 shadow-none p-0"
@@ -371,14 +371,6 @@ watch(
                         <span v-else>
                             {{ personal.email }}
                         </span>
-
-                        <i
-                            class="cursor-pointer pi"
-                            :class="
-                                isEmailEdit ? 'pi-check' : 'pi-pen-to-square'
-                            "
-                            @click="isEmailEdit = !isEmailEdit"
-                        ></i>
                     </div>
 
                     <div class="flex gap-2 items-center">
