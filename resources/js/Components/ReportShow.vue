@@ -55,38 +55,27 @@ function formatDate(dateString) {
 const setChartData = () => {
     return {
         labels: [
-            "Обработанная площадь, га",
-            "Затраченное время, ч",
-            "Фактическое время, ч",
-            "Плановое время, ч",
-            "Общее время, ч",
-            "Время простоя, ч",
+            "Плановое время выполнения",
+            "Фактически затраченное время",
+            "Время простоев",
         ],
         datasets: [
             {
-                label: "Эффективность",
+                label: "Часы",
                 data: [
-                    report.value.p.square / 10000,
-                    report.value.p.time,
-                    report.value.t.fact,
                     report.value.t.plan,
-                    report.value.d.total,
+                    report.value.p.time,
                     report.value.d.stop,
                 ],
                 backgroundColor: [
                     "rgba(249, 115, 22, 0.2)",
-                    "rgba(249, 115, 22, 0.2)",
-                    "rgba(6, 182, 212, 0.2)",
                     "rgba(6, 182, 212, 0.2)",
                     "rgb(107, 114, 128, 0.2)",
                     "rgb(107, 114, 128, 0.2)",
                 ],
                 borderColor: [
                     "rgb(249, 115, 22)",
-                    "rgb(249, 115, 22)",
                     "rgb(6, 182, 212)",
-                    "rgb(6, 182, 212)",
-                    "rgb(107, 114, 128)",
                     "rgb(107, 114, 128)",
                 ],
                 borderWidth: 1,
@@ -160,6 +149,15 @@ onMounted(() => {
                         {{ formatDate(props.unit.operation_note.end_date) }}
                     </span>
                 </div>
+
+                <div class="flex gap-2 flex-col">
+                    <span class="font-semibold">Техника: </span>
+                    <span class="flex pl-4">
+                        {{ props.unit.technic.license_plate }} <br />
+                        {{ props.unit.technic.model.type.name }} <br />
+                        {{ props.unit.technic.model.name }}
+                    </span>
+                </div>
             </div>
 
             <div
@@ -179,6 +177,18 @@ onMounted(() => {
                         {{ props.unit.operation_note.field.square }} м&sup2;
                     </span>
                 </div>
+
+                <div v-if="props.unit.equipments" class="flex gap-2 flex-col">
+                    <span class="font-semibold">Оборудование: </span>
+                    <div class="flex pl-4 flex-col">
+                        <span
+                            v-for="(item, index) in props.unit.equipments"
+                            :key="index"
+                        >
+                            {{ item.marking }} - {{ item.model.name }}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -194,6 +204,10 @@ onMounted(() => {
                         Подробнее
                     </span>
                 </template>
+                <div class="flex gap-2">
+                    <span class="font-semibold">Обработанная площадь: </span>
+                    <span> {{ report.p.square }} м&sup2; </span>
+                </div>
                 <Chart type="bar" :data="chartData" :options="chartOptions" />
             </AccordionTab>
         </Accordion>

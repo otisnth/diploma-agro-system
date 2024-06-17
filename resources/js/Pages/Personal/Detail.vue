@@ -19,6 +19,7 @@ import Textarea from "primevue/textarea";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import Tag from "primevue/tag";
+import ReportShow from "@/Components/ReportShow.vue";
 
 const confirm = useConfirm();
 
@@ -46,6 +47,8 @@ const currentOperation = ref({});
 
 const fields = ref([]);
 const technics = ref([]);
+
+const workerUnits = ref(null);
 
 const fetchFields = async () => {
     if (personal.value.post != "worker") {
@@ -89,6 +92,33 @@ const fetchTechnics = () => {
         })
         .then(async (response) => {
             technics.value = response.data.data;
+        })
+        .catch((error) => {});
+};
+
+const fetchWorkerUnits = () => {
+    axios
+        .post("/api/worker-units/search", {
+            limit: "all",
+            includes: [
+                { relation: "operationNote" },
+                { relation: "operationNote.field" },
+                { relation: "technic" },
+                { relation: "technic.model" },
+                { relation: "technic.model.type" },
+                { relation: "equipments" },
+                { relation: "equipments.model" },
+            ],
+            filters: [
+                {
+                    field: "worker_id",
+                    operator: "=",
+                    value: personal.value.id,
+                },
+            ],
+        })
+        .then((response) => {
+            workerUnits.value = response.data.data;
         })
         .catch((error) => {});
 };
@@ -187,6 +217,7 @@ const fetchPersonal = async () => {
         })
         .then(() => {
             fetchCurrentOperation();
+            fetchWorkerUnits();
         })
         .catch((error) => {});
 };
@@ -543,6 +574,19 @@ watch(
                     <h3 v-else class="text-xl font-semibold">
                         Текущих мероприятий нет
                     </h3>
+                </div>
+
+                <div
+                    class="rounded-lg bg-white shadow-md p-6 flex flex-col gap-2"
+                >
+                    <h3 class="font-semibold text-2xl">Отчеты сотрудника:</h3>
+                    <div
+                        class="border-2 p-2 rounded-lg"
+                        v-for="(item, index) in workerUnits"
+                        :key="index"
+                    >
+                        <ReportShow :unit="item" />
+                    </div>
                 </div>
             </div>
         </div>

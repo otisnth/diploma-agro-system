@@ -55,6 +55,11 @@ const fetchWorkerUnits = () => {
             includes: [
                 { relation: "operationNote" },
                 { relation: "operationNote.field" },
+                { relation: "technic" },
+                { relation: "technic.model" },
+                { relation: "technic.model.type" },
+                { relation: "equipments" },
+                { relation: "equipments.model" },
             ],
             filters: [
                 {
