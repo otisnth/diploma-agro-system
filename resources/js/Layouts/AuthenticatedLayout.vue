@@ -117,8 +117,10 @@ onMounted(() => {
                     <div class="flex gap-1">
                         {{ item.label }}
                         <Badge
-                            v-if="item.route == 'operation.index'"
-                            :value="$page.notesWaitConfirm"
+                            v-if="
+                                item.route == 'operation.index' &&
+                                $page.notesWaitConfirm > 0
+                            "
                             class="justify-self-start self-start"
                             severity="success"
                         ></Badge>
