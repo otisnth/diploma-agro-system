@@ -42,7 +42,7 @@ class OperationNote extends Model
     public static $operations = array(
         [
             'id' => 'seeding',
-            'currentFieldStatus' => ['cultivated', 'stubbleTillage', 'withered', 'plowed'],
+            'currentFieldStatus' => ['cultivated', 'stubbleTillage', 'withered', 'plowed', 'harvested'],
             'nextFieldStatus' => ['seedbed'],
             'isNeedField' => true,
             'name' => 'Посев',
@@ -66,7 +66,7 @@ class OperationNote extends Model
         ],
         [
             'id' => 'cultivation',
-            'currentFieldStatus' => ['stubbleTillage', 'withered', 'plowed'],
+            'currentFieldStatus' => ['stubbleTillage', 'withered', 'plowed', 'harvested'],
             'nextFieldStatus' => ['cultivated'],
             'isNeedField' => true,
             'name' => 'Культивация',
