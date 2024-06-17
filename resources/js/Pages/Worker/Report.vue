@@ -70,7 +70,9 @@ const fetchWorkerUnits = () => {
             ],
         })
         .then((response) => {
-            workerUnits.value = response.data.data;
+            workerUnits.value = response.data.data.filter(
+                (unit) => unit.report != "{}"
+            );
             isLoaded.value = true;
         })
         .catch((error) => {});
