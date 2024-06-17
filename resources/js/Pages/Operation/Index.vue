@@ -330,7 +330,7 @@ watch(
 
                     <Column field="end_date" header="Дата окончания" sortable>
                         <template #body="slotProps">
-                            {{ formatDate(slotProps.data.end_Date) }}
+                            {{ formatDate(slotProps.data.end_date) }}
                         </template>
                     </Column>
 
