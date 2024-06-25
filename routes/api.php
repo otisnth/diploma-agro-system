@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['as' => 'api.'], function () {
+Route::group(['as' => 'api.', 'middleware' => ['auth:sanctum', 'auth']], function () {
     Orion::resource('users', UserController::class);
 
     Route::get('plants/properties', [PlantController::class, 'properties'])->name('plants.properties');

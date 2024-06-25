@@ -5,6 +5,8 @@ import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 
+const MAP_DOMAIN = import.meta.env.VITE_OSM_TILES;
+
 const emit = defineEmits(["changeSquare", "drawEdited"]);
 
 const props = defineProps({
@@ -78,7 +80,7 @@ const initMap = () => {
         '<a href="https://leafletjs.com/index.html">Leaflet</a>'
     );
 
-    L.tileLayer("http://map.otisnth.ru/tile/{z}/{x}/{y}.png", {
+    L.tileLayer(`${MAP_DOMAIN}/{z}/{x}/{y}.png`, {
         maxZoom: 19,
         attribution:
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
