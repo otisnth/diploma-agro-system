@@ -520,9 +520,9 @@ watch(
 watch(
     () => props.technics,
     (newValue, oldValue) => {
-        if (Object.keys(oldValue).length === 0) {
-            return;
-        }
+        //if (oldValue.length === 0) {
+        //    return;
+        //}
         renderTechnics();
     },
     { deep: true }

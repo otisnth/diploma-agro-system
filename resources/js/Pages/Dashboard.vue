@@ -37,7 +37,7 @@ const responsiveOptions = ref([
 ]);
 
 const fields = ref([]);
-const technics = ref({});
+const technics = ref([]);
 
 const fetchFields = () => {
     axios
